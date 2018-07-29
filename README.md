@@ -1,26 +1,50 @@
 # Awesome-Android-Interview
 A awesome  android expert interview questions and answers
 
+> 耗时6个多月，从十几份顶级面试仓库和200多篇高质量面经中总结出一份全面而详尽的Android面试题集。
+
 ## ![](https://www1-lw.xda-cdn.com/files/2018/06/android-p-dp2-1.png)
 
-## 计算机基础面试题
+## 前言
+
+面试，一直都是很大家很关心的热门话题，Awesome-Android-Interview搜集了国内一线及二线互联网公司最常出现的面试题，非常全面，笔者花费了很大的精力和时间，希望得到大家的支持。Android面试中常涉及的问题有如下几方面：
+
+1、网络通信方面：比如TCP/IP, HTTP/HTTPS, Socket相关等等。
+
+2、Java基础方面：反射、泛型、集合类库相关等等。
+
+3、Java并发方面：线程/线程池，volatile，悲观锁/乐观锁等等。
+
+4、Jvm虚拟机方面：比如执行过程、JMM模型、java的Gc回收原理、类加载器等等。
+
+5、数据结构和算法方面：LeetCode + 剑指Offer。
+
+6、Android基础方面：启动模式、动画、自定义View等等。
+
+7、Android进阶方面：进程间通信、Binder、AIDL、AMS/WMS、事件分发、滑动冲突、View的绘制流程、性能优化、重要的Android源码和开源库分析等等。
+
+8、Android高新技术：模块化、插件化、组件化、热更新实现原理等等。
+
+9、最后，如果你会其他的开发方式或语言也会加分不少。比如Kotlin、Python、ReactNative、前后端开发等等。
+
+### 计算机基础面试题
 
 * [网络](/android/basis.md)
 * [操作系统](/android/advance.md)
 * [数据库]()
 
-## 数据结构和算法面试题
+### 数据结构和算法面试题
 
 * [数据结构](/android/basis.md)
 * [算法](/android/advance.md)
 
-## Java面试题
+### Java面试题
 
 * [Java基础](/java/basis.md)
 * [Java并发](/java/concurrence.md)
 * [Java虚拟机](/java/virtual-machine.md)
 
-## Android面试题
+### Android面试题
 
 * [Android基础](/android/basis.md)
 * [Android进阶](/android/advance.md)
