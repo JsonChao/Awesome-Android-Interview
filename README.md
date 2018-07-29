@@ -29,9 +29,11 @@ A awesome  android expert interview questions and answers
 
 ### 计算机基础面试题
 
-* [网络](/android/basis.md)
-* [操作系统](/android/advance.md)
-* [数据库]()
+* [网络](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98.md)
+
+* [操作系统](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%9D%A2%E8%AF%95%E9%A2%98.md)
+
+* [数据库](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
 ### 数据结构和算法面试题
 
@@ -40,9 +42,11 @@ A awesome  android expert interview questions and answers
 
 ### Java面试题
 
-* [Java基础](/java/basis.md)
-* [Java并发](/java/concurrence.md)
-* [Java虚拟机](/java/virtual-machine.md)
+* [Java基础](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/Java%E7%9B%B8%E5%85%B3/Java%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%A2%98.md)
+
+* [Java并发](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/Java%E7%9B%B8%E5%85%B3/Java%E5%B9%B6%E5%8F%91%E9%9D%A2%E8%AF%95%E9%A2%98.md)
+
+* [Java虚拟机](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/Java%E7%9B%B8%E5%85%B3/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
 ### Android面试题
 
