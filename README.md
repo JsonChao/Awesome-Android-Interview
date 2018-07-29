@@ -9,7 +9,7 @@ A awesome  android expert interview questions and answers
 
 面试，一直都是很大家很关心的热门话题，Awesome-Android-Interview搜集了国内一线及二线互联网公司最常出现的面试题，非常全面，笔者花费了很大的精力和时间，希望得到大家的支持。Android面试中常涉及的问题有如下几方面：
 
-1、计算机基础：比如数据库、操作系统、TCP/IP, HTTP/HTTPS, Socket相关等等。
+1、计算机基础：TCP/IP, HTTP/HTTPS, Socket、数据库、操作系统相关等等。
 
 2、Java基础：反射、泛型、集合类库相关等等。
 
