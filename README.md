@@ -37,8 +37,7 @@ A awesome  android expert interview questions and answers
 
 ### 数据结构和算法面试题
 
-* [数据结构](/android/basis.md)
-* [算法](/android/advance.md)
+* [数据结构和算法](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95.md)
 
 ### Java面试题
 
@@ -51,6 +50,7 @@ A awesome  android expert interview questions and answers
 ### Android面试题
 
 * [Android基础](/android/basis.md)
+
 * [Android进阶](/android/advance.md)
 
 ### 其它
