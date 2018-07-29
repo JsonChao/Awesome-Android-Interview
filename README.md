@@ -27,6 +27,7 @@ A awesome  android expert interview questions and answers
 
 9、最后，如果你会其他的开发方式或语言也会加分不少。比如Kotlin、Python、ReactNative、前后端开发等等。
 
+
 ### 计算机基础面试题
 
 * [网络](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E7%BD%91%E7%BB%9C%E9%9D%A2%E8%AF%95%E9%A2%98.md)
@@ -35,9 +36,11 @@ A awesome  android expert interview questions and answers
 
 * [数据库](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
+
 ### 数据结构和算法面试题
 
 * [数据结构和算法](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95.md)
+
 
 ### Java面试题
 
@@ -47,17 +50,20 @@ A awesome  android expert interview questions and answers
 
 * [Java虚拟机](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/Java%E7%9B%B8%E5%85%B3/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
+
 ### Android面试题
 
 * [Android基础](/android/basis.md)
 
 * [Android进阶](/android/advance.md)
 
+
 ### 其它
 
 * [其他扩展面试题](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E5%85%B6%E5%AE%83/%E5%85%B6%E5%AE%83%E6%89%A9%E5%B1%95%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
 * [非技术面试题]()
+
 
 ### About me
 
