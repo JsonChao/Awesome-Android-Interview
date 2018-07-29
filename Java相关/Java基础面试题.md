@@ -663,42 +663,36 @@ main方法
 **79.Object类的equal和hashCode方法重写，为什么？**
 
 
+**80.HashMap底层实现，hashCode如何对应bucket?**
+
+
+**81.hashMap的2倍扩容机制为什么是2倍**
+
+**82.在java8和java7中，hashMap的hash函数有什么不同**
+
+
+**83.ArrayList和LinkedList你知道吗？你知道它怎么动态扩容的吗？**
+
+**84.Java 中的 Error、 Exception 的区别；**    
+
+**85.Java 中内部类为什么可以访问外部类**
+
+**86.Java为何引入泛型，泛型边界****
+
+**87.ArrayMap跟SparseArray在HashMap上面的改进**
+
+**88.Java的四种引用及使用场景**
+
+
+**89.Class文件结构（常量池）。**
 
 
 
 
 
+**90.运行时栈帧结构（主要是局部变量表，理解栈堆）。**
 
-**194.HashMap底层实现，hashCode如何对应bucket?**
-
-
-**196.hashMap的2倍扩容机制为什么是2倍**
-
-**197.在java8和java7中，hashMap的hash函数有什么不同**
-
-
-**199.ArrayList和LinkedList你知道吗？你知道它怎么动态扩容的吗？**
-
-**200.Java 中的 Error、 Exception 的区别；**    
-
-**201.Java 中内部类为什么可以访问外部类**
-
-**202.Java为何引入泛型，泛型边界****
-
-**203.ArrayMap跟SparseArray在HashMap上面的改进**
-
-**204.Java的四种引用及使用场景**
-
-
-**207.Class文件结构（常量池）。**
-
-
-
-
-
-**209.运行时栈帧结构（主要是局部变量表，理解栈堆）。**
-
-**210.Java泛型了解吗，知道它的运行机制吗？**
+**91.Java泛型了解吗，知道它的运行机制吗？**
 
     泛型是为了参数化类型。
 
@@ -715,10 +709,10 @@ main方法
 
 
 
-**213.Java重排序和顺序一致性。（as-if-serial和happens-before）**
+**92.Java重排序和顺序一致性。（as-if-serial和happens-before）**
 
 
-**222.Java生产者和消费者模型。**
+**93.Java生产者和消费者模型。**
 
 生成者消费者模型
 
@@ -793,9 +787,9 @@ wait()和notify()方法的实现生成者消费者模型，缓冲区满和为空
     }
     
 
-**227.java 7 8 9 10的区别**
+**94.java 7 8 9 10的区别**
 
-**228.lambda原理**
+**95.lambda原理**
 
     Lambda 表达式俗称匿名函数。Kotlin 的 Lambda表达式更“纯粹”一点， 因为它是真正把Lambda抽象为了一种类型，而 Java 8 的 Lambda 只是单方法匿名接口实现的语法糖罢了。
     
@@ -823,13 +817,13 @@ val log = { str: String, printLog: (String) -> Unit ->
     printLog(str)
 }
 
-**229.为什么java 7中不能用lambda**
+**96.为什么java 7中不能用lambda**
 
-**230.数组扩容**
+**97.数组扩容**
 
-**231.sparearray原理（拆分包）**
+**98.sparearray原理（拆分包）**
 
-**232.Java反射**
+**99.Java反射**
 
 Java对象的生命周期
 
@@ -838,3 +832,21 @@ Java对象的生命周期
 初始化：初始化类的静态赋值语句和静态代码块，主动引用会被触发类的初始化，被动引用不会触发类的初始化。
 使用：执行类的初始化，主动引用会被触发类的初始化，被动引用不会触发类的初始化。
 卸载：卸载过程就是清楚堆里类的信息，以下情况会被卸载：① 类的所有实例都已经被回收。② 类的ClassLoader被回收。③ 类的CLass对象没有被任何地方引用，无法在任何地方通过 反射访问该类。
+
+**100.集合类以及集合框架**
+
+http://alexyyek.github.io/2015/04/06/Collection/
+http://www.cnblogs.com/CarpenterLee/p/5545987.html
+
+**101.HashMap的实现原理**
+
+HashMap概述： HashMap是基于哈希表的Map接口的非同步实现。此实现提供所有可选的映射操作，并允许使用null值和null键。此类不保证映射的顺序，特别是它不保证该顺序恒久不变。
+HashMap的数据结构： 在java编程语言中，最基本的结构就是两种，一个是数组，另外一个是模拟指针（引用），所有的数据结构都可以用这两个基本结构来构造的，HashMap也不例外。HashMap实际上是一个“链表散列”的数据结构，即数组和链表的结合体。
+
+![image](http://www.jackywang.tech/AndroidInterview-Q-A/picture/hashmap.jpg)
+
+从上图中可以看出，HashMap底层就是一个数组结构，数组中的每一项又是一个链表。当新建一个HashMap的时候，就会初始化一个数组。
+
+**102.ConcurrentHashMap的实现原理**
+
+**103.[动态代理和静态代理](http://a.codekk.com/detail/Android/Caij/%E5%85%AC%E5%85%B1%E6%8A%80%E6%9C%AF%E7%82%B9%E4%B9%8B%20Java%20%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86)**
