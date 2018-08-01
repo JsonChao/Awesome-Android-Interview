@@ -53,7 +53,7 @@ A awesome  android expert interview questions and answers
 
 ### Android面试题
 
-* [Android基础](/android/basis.md)
+* [Android基础](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/Android%E7%9B%B8%E5%85%B3/Android%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
 * [Android进阶](/android/advance.md)
 
