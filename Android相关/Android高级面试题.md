@@ -204,7 +204,7 @@ java中的四种引用的区别以及使用场景
 
 强引用置为null，会不会被回收？
 
-**七、NDK、jni、Binder、AIDL、进程通信有关
+**七、NDK、jni、Binder、AIDL、进程通信有关**
 
 请介绍一下NDK
 
