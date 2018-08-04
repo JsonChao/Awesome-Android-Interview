@@ -29,9 +29,121 @@ Glide使用什么缓存？
 
 Glide内存缓存如何控制大小？
 
+谈谈对Fresco理解？
+
+Fresco与Glide的对比：
+
+Glide：相对轻量级，用法简单优雅，支持Gif动态图，适合用在那些对图片依赖不大的App中。
+Fresco：采用匿名共享内存来保存图片，也就是Native堆，有效的的避免了OOM，功能强大，但是库体积过大，适合用在对图片依赖比较大的App中。
+
+Fresco的整体架构如下图所示：
+
+![image](https://github.com/guoxiaoxing/android-open-framwork-analysis/raw/master/art/fresco/fresco_structure.png)
+
+DraweeView：继承于ImageView，只是简单的读取xml文件的一些属性值和做一些初始化的工作，图层管理交由Hierarchy负责，图层数据获取交由负责。
+DraweeHierarchy：由多层Drawable组成，每层Drawable提供某种功能（例如：缩放、圆角）。
+DraweeController：控制数据的获取与图片加载，向pipeline发出请求，并接收相应事件，并根据不同事件控制Hierarchy，从DraweeView接收用户的事件，然后执行取消网络请求、回收资源等操作。
+DraweeHolder：统筹管理Hierarchy与DraweeHolder。
+ImagePipeline：Fresco的核心模块，用来以各种方式（内存、磁盘、网络等）获取图像。
+Producer/Consumer：Producer也有很多种，它用来完成网络数据获取，缓存数据获取、图片解码等多种工作，它产生的结果由Consumer进行消费。
+IO/Data：这一层便是数据层了，负责实现内存缓存、磁盘缓存、网络缓存和其他IO相关的功能。
+纵观整个Fresco的架构，DraweeView是门面，和用户进行交互，DraweeHierarchy是视图层级，管理图层，DraweeController是控制器，管理数据。它们构成了整个Fresco框架的三驾马车。当然还有我们 幕后英雄Producer，所有的脏活累活都是它干的，最佳劳模👍
+
+理解了Fresco整体的架构，我们还有了解在这套矿建里发挥重要作用的几个关键角色，如下所示：
+
+Supplier：提供一种特定类型的对象，Fresco里有很多以Supplier结尾的类都实现了这个接口。
+SimpleDraweeView：这个我们就很熟悉了，它接收一个URL，然后调用Controller去加载图片。该类继承于GenericDraweeView，GenericDraweeView又继承于DraweeView，DraweeView是Fresco的顶层View类。
+PipelineDraweeController：负责图片数据的获取与加载，它继承于AbstractDraweeController，由PipelineDraweeControllerBuilder构建而来。AbstractDraweeController实现了DraweeController接口，DraweeController 是Fresco的数据大管家，所以的图片数据的处理都是由它来完成的。
+GenericDraweeHierarchy：负责SimpleDraweeView上的图层管理，由多层Drawable组成，每层Drawable提供某种功能（例如：缩放、圆角），该类由GenericDraweeHierarchyBuilder进行构建，该构建器 将placeholderImage、retryImage、failureImage、progressBarImage、background、overlays与pressedStateOverlay等 xml文件或者Java代码里设置的属性信息都传入GenericDraweeHierarchy中，由GenericDraweeHierarchy进行处理。
+DraweeHolder：该类是一个Holder类，和SimpleDraweeView关联在一起，DraweeView是通过DraweeHolder来统一管理的。而DraweeHolder又是用来统一管理相关的Hierarchy与Controller
+DataSource：类似于Java里的Futures，代表数据的来源，和Futures不同，它可以有多个result。
+DataSubscriber：接收DataSource返回的结果。
+ImagePipeline：用来调取获取图片的接口。
+Producer：加载与处理图片，它有多种实现，例如：NetworkFetcherProducer，LocalAssetFetcherProducer，LocalFileFetchProducer。从这些类的名字我们就可以知道它们是干什么的。 Producer由ProducerFactory这个工厂类构建的，而且所有的Producer都是像Java的IO流那样，可以一层嵌套一层，最终只得到一个结果，这是一个很精巧的设计👍
+Consumer：用来接收Producer产生的结果，它与Producer组成了生产者与消费者模式。
+注：Fresco源码里的类的名字都比较长，但是都是按照一定的命令规律来的，例如：以Supplier结尾的类都实现了Supplier接口，它可以提供某一个类型的对象（factory, generator, builder, closure等）。 以Builder结尾的当然就是以构造者模式创建对象的类。
+
+**怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。**
+
+    计算一张图片的大小
+    
+    
+    图片占用内存的计算公式：图片高度 * 图片宽度 * 一个像素占用的内存大小.所以，计算图片占用内存大小的时候，要考虑图片所在的目录跟设备密度，这两个因素其实影响的是图片的高宽，android会对图片进行拉升跟压缩。
+    
+    
+    加载bitmap过程（怎样保证不产生内存溢出）
+    
+    
+    由于Android对图片使用内存有限制，若是加载几兆的大图片便内存溢出。Bitmap会将图片的所有像素（即长x宽）加载到内存中，如果图片分辨率过大，会直接导致内存OOM，只有在BitmapFactory加载图片时使用BitmapFactory.Options对相关参数进行配置来减少加载的像素。
+    
+    
+    BitmapFactory.Options相关参数详解
+    
+    
+    (1).Options.inPreferredConfig值来降低内存消耗。
+    
+    比如：默认值ARGB_8888改为RGB_565,节约一半内存。
+    
+    
+    (2).设置Options.inSampleSize 缩放比例，对大图片进行压缩 。
+    
+    
+    (3).设置Options.inPurgeable和inInputShareable：让系统能及时回 收内存。
+    
+    A：inPurgeable：设置为True时，表示系统内存不足时可以被回 收，设置为False时，表示不能被回收。
+    
+    B：inInputShareable：设置是否深拷贝，与inPurgeable结合使用，inPurgeable为false时，该参数无意义。
+    
+    
+    (4).使用decodeStream代替其他方法。
+    
+    decodeResource,setImageResource,setImageBitmap等方法
+
+**LRUCache算法是怎样实现的。**
+
+    内部存在一个LinkedHashMap和maxSize，把最近使用的对象用强引用存储在 LinkedHashMap中，给出来put和get方法，每次put图片时计算缓存中所有图片总大小，跟maxSize进行比较，大于maxSize，就将最久添加的图片移除；反之小于maxSize就添加进来。
+    
+    
+    之前，我们会使用内存缓存技术实现，也就是软引用或弱引用，在Android 2.3（APILevel 9）开始，垃圾回收器会更倾向于回收持有软引用或弱引用的对象，这让软引用和弱引用变得不再可靠。
+    
+写个图片浏览器，说出你的思路
+
+**Bitmap的处理：**
+
+当使用ImageView的时候，可能图片的像素大于ImageView，此时就可以通过BitmapFactory.Option来对图片进行压缩，inSampleSize表示缩小2^(inSampleSize-1)倍。
+
+BitMap的缓存：
+
+1.使用LruCache进行内存缓存。
+
+2.使用DiskLruCache进行硬盘缓存。
+
+3.实现一个ImageLoader的流程：同步异步加载、图片压缩、内存硬盘缓存、网络拉取
+
+    1.同步加载只创建一个线程然后按照顺序进行图片加载
+    2.异步加载使用线程池，让存在的加载任务都处于不同线程
+    3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
+
+**图片加载库相关，bitmap如何处理大图，如一张30M的大图，如何预防OOM**
+
+    
+**[如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)**
+
+
 **二、网络和安全机制**
 
-网络框架对比和源码分析
+**Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）**
+
+https://www.jianshu.com/p/050c6db5af5a
+
+**怎么考虑数据传输的安全性**
+
+    如果应用对传输的数据没有任何安全措施，攻击者设置的钓鱼网络中更改DNS服务器。这台服务器可以获取用户信息，或充当中间人与原服务器交换数据。在SSL/TLS通信中，客户端通过数字证书判断服务器是否可信，并采用证书的公钥与服务器进行加密通信。
+
+访问网络如何加密
+1：对称加密（ＤＥＳ，ＡＥＳ）和非对称（ＲＳＡ公钥与私钥）。（支付宝里的商户的公钥和私钥）
+2：MD5（算法）
+3：Base64
 
 自己去设计网络请求框架，怎么做？
 
@@ -100,6 +212,58 @@ App 是如何沙箱化，为什么要这么做？
 
 **四、插件化、模块化、组件化、热修复、增量更新、Gradle**
 
+**插件化相关技术，热修补技术是怎样实现的，和插件化有什么区别**
+
+http://www.liuguangli.win/archives/366
+http://www.liuguangli.win/archives/387
+http://www.liuguangli.win/archives/452
+
+    相同点:
+    
+    
+    都使用ClassLoader来实现的加载的新的功能类，都可以使用PathClassLoader与DexClassLoader
+    
+    
+    不同点：
+    
+    
+    热修复因为是为了修复Bug的，所以要将新的同名类替代同名的Bug类，要抢先加载新的类而不是Bug类，所以多做两件事：在原先的app打包的时候，阻止相关类去打上CLASS_ISPREVERIFIED标志，还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements，这样才能抢先代替Bug类，完成系统不加载旧的Bug类.
+    
+    
+    而插件化只是增肌新的功能类或者是资源文件，所以不涉及抢先加载旧的类这样的使命，就避过了阻止相关类去打上CLASS_ISPREVERIFIED标志和还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements.
+    
+    所以插件化比热修复简单，热修复是在插件化的基础上在进行替旧的Bug类
+    
+**了解插件化和热修复吗，它们有什么区别，理解它们的原理吗？**
+
+插件化：插件化是体现在功能拆分方面的，它将某个功能独立提取出来，独立开发，独立测试，再插入到主应用中。依次来较少主应用的规模。
+热修复：热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。
+利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在 热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
+
+目前热修复框架主要分为两大类：
+
+Sophix：修改方法指针。
+Tinker：修改dex数组元素。
+
+**热补丁**
+
+    原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个
+    原理：将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。使用Dexclassloader。
+
+**动态加载(也叫插件化技术)**
+
+    动态加载主要解决3个技术问题：
+    1，使用ClassLoader加载类。
+    2，资源访问。
+    3，生命周期管理。
+    
+**模块化的好处**
+
+https://www.jianshu.com/p/376ea8a19a17
+
+Android 组件化的原理，还有一些组件化平时使用的问题；
+
+
 对热修复和插件化的理解
 
 插件化原理分析
@@ -111,6 +275,10 @@ App 是如何沙箱化，为什么要这么做？
 项目组件化的理解
 
 描述清点击 Android Studio 的 build 按钮后发生了什么
+
+gradle熟悉么，自动打包知道么
+
+如何加快 Gradle 的编译速度
 
 **五、架构设计和设计模式**
 
@@ -129,8 +297,6 @@ MVC MVP MVVM原理和区别
 项目中常用的设计模式
 
 手写生产者/消费者模式
-
-
 
 适配器模式，装饰者模式，外观模式的异同？
 
@@ -161,6 +327,117 @@ Binder机制及底层实现
 统计启动时长,标准
 
 **六、性能优化**
+
+**Android优化**
+
+性能优化
+
+    1).节制的使用Service 如果应用程序需要使用Service来执行后台任务的话，只有当任务正在执行的时候才应该让Service运行起来。当启动一个Service时，系统会倾向于将这个Service所依赖的进程进行保留，系统可以在LRUcache当中缓存的进程数量也会减少，导致切换程序的时候耗费更多性能。我们可以使用IntentService，当后台任务执行结束后会自动停止，避免了Service的内存泄漏。
+    
+    2).当界面不可见时释放内存 当用户打开了另外一个程序，我们的程序界面已经不可见的时候，我们应当将所有和界面相关的资源进行释放。重写Activity的onTrimMemory()方法，然后在这个方法中监听TRIM_MEMORY_UI_HIDDEN这个级别，一旦触发说明用户离开了程序，此时就可以进行资源释放操作了。
+    
+    3).当内存紧张时释放内存 onTrimMemory()方法还有很多种其他类型的回调，可以在手机内存降低的时候及时通知我们，我们应该根据回调中传入的级别来去决定如何释放应用程序的资源。
+    
+    4).避免在Bitmap上浪费内存 读取一个Bitmap图片的时候，千万不要去加载不需要的分辨率。可以压缩图片等操作。
+    
+    5).使用优化过的数据集合 Android提供了一系列优化过后的数据集合工具类，如SparseArray、SparseBooleanArray、LongSparseArray，使用这些API可以让我们的程序更加高效。HashMap工具类会相对比较低效，因为它需要为每一个键值对都提供一个对象入口，而SparseArray就避免掉了基本数据类型转换成对象数据类型的时间。
+
+布局优化
+
+
+    1).重用布局文件
+    
+    标签可以允许在一个布局当中引入另一个布局，那么比如说我们程序的所有界面都有一个公共的部分，这个时候最好的做法就是将这个公共的部分提取到一个独立的布局中，然后每个界面的布局文件当中来引用这个公共的布局。
+    
+    
+    Tips:如果我们要在标签中覆写layout属性，必须要将layout_width和layout_height这两个属性也进行覆写，否则覆写效果将不会生效。
+    
+    
+    标签是作为标签的一种辅助扩展来使用的，它的主要作用是为了防止在引用布局文件时引用文件时产生多余的布局嵌套。布局嵌套越多，解析起来就越耗时，性能就越差。因此编写布局文件时应该让嵌套的层数越少越好。
+    
+    
+    举例：比如在LinearLayout里边使用一个布局。里边又有一个LinearLayout，那么其实就存在了多余的布局嵌套，使用merge可以解决这个问题。
+    
+    
+    2).仅在需要时才加载布局
+    
+    
+    某个布局当中的元素不是一起显示出来的，普通情况下只显示部分常用的元素，而那些不常用的元素只有在用户进行特定操作时才会显示出来。
+    
+    
+    举例：填信息时不是需要全部填的，有一个添加更多字段的选项，当用户需要添加其他信息的时候，才将另外的元素显示到界面上。用VISIBLE性能表现一般，可以用ViewStub。
+    
+    
+    ViewStub也是View的一种，但是没有大小，没有绘制功能，也不参与布局，资源消耗非常低，可以认为完全不影响性能。
+
+![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd6f2531a?imageslim)
+
+    tips：ViewStub所加载的布局是不可以使用标签的，因此这有可能导致加载出来出来的布局存在着多余的嵌套结构。
+    
+    高性能编码优化
+    
+    
+    都是一些微优化，在性能方面看不出有什么显著的提升的。使用合适的算法和数据结构是优化程序性能的最主要手段。
+    
+    
+    1).避免创建不必要的对象 不必要的对象我们应该避免创建：
+    
+    如果有需要拼接的字符串，那么可以优先考虑使用StringBuffer或者StringBuilder来进行拼接，而不是加号连接符，因为使用加号连接符会创建多余的对象，拼接的字符串越长，加号连接符的性能越低。
+    
+    
+    当一个方法的返回值是String的时候，通常需要去判断一下这个String的作用是什么，如果明确知道调用方会将返回的String再进行拼接操作的话，可以考虑返回一个StringBuffer对象来代替，因为这样可以将一个对象的引用进行返回，而返回String的话就是创建了一个短生命周期的临时对象。
+    
+    
+    尽可能地少创建临时对象，越少的对象意味着越少的GC操作。
+    
+    
+    2).在没有特殊原因的情况下，尽量使用基本数据类型来代替封装数据类型，int比Integer要更加有效，其它数据类型也是一样。
+    
+    
+    基本数据类型的数组也要优于对象数据类型的数组。另外两个平行的数组要比一个封装好的对象数组更加高效，举个例子，Foo[]和Bar[]这样的数组，使用起来要比Custom(Foo,Bar)[]这样的一个数组高效的多。
+    
+    
+    3).静态优于抽象
+    
+    
+    如果你并不需要访问一个对系那个中的某些字段，只是想调用它的某些方法来去完成一项通用的功能，那么可以将这个方法设置成静态方法，调用速度提升15%-20%，同时也不用为了调用这个方法去专门创建对象了，也不用担心调用这个方法后是否会改变对象的状态(静态方法无法访问非静态字段)。
+    
+    4).对常量使用static final修饰符
+    
+    static int intVal = 42;  static String strVal = "Hello, world!";  
+    编译器会为上面的代码生成一个初始方法，称为方法，该方法会在定义类第一次被使用的时候调用。这个方法会将42的值赋值到intVal当中，从字符串常量表中提取一个引用赋值到strVal上。当赋值完成后，我们就可以通过字段搜寻的方式去访问具体的值了。
+
+
+    final进行优化:
+    
+    static final int intVal = 42;  static final String strVal = "Hello, world!";  
+    这样，定义类就不需要方法了，因为所有的常量都会在dex文件的初始化器当中进行初始化。当我们调用intVal时可以直接指向42的值，而调用strVal会用一种相对轻量级的字符串常量方式，而不是字段搜寻的方式。
+    
+    
+    这种优化方式只对基本数据类型以及String类型的常量有效，对于其他数据类型的常量是无效的。
+    
+    
+    5).使用增强型for循环语法
+    
+    static class Counter {      int mCount;  }  Counter[] mArray = ...  public void zero() {      int sum = 0;      for (int i = 0; i < mArray.length; ++i) {          sum += mArray[i].mCount;      }  }  public void one() {      int sum = 0;      Counter[] localArray = mArray;      int len = localArray.length;      for (int i = 0; i < len; ++i) {          sum += localArray[i].mCount;      }  }  public void two() {      int sum = 0;      for (Counter a : mArray) {          sum += a.mCount;      }  }
+    zero()最慢，每次都要计算mArray的长度，one()相对快得多，two()fangfa在没有JIT(Just In Time Compiler)的设备上是运行最快的，而在有JIT的设备上运行效率和one()方法不相上下，需要注意这种写法需要JDK1.5之后才支持。
+    
+    Tips:ArrayList手写的循环比增强型for循环更快，其他的集合没有这种情况。
+    
+    因此默认情况下使用增强型for循环，而遍历ArrayList使用传统的循环方式。
+    
+    6).多使用系统封装好的API
+    
+    系统提供不了的Api完成不了我们需要的功能才应该自己去写，因为使用系统的Api很多时候比我们自己写的代码要快得多，它们的很多功能都是通过底层的汇编模式执行的。 
+    
+    举个例子，实现数组拷贝的功能，使用循环的方式来对数组中的每一个元素一一进行赋值当然可行，但是直接使用系统中提供的System.arraycopy()方法会让执行效率快9倍以上。
+    
+    7).避免在内部调用Getters/Setters方法
+    
+    面向对象中封装的思想是不要把类内部的字段暴露给外部，而是提供特定的方法来允许外部操作相应类的内部字段。但在Android中，字段搜寻比方法调用效率高得多，我们直接访问某个字段可能要比通过getters方法来去访问这个字段快3到7倍。
+    
+    
+    但是编写代码还是要按照面向对象思维的，我们应该在能优化的地方进行优化，比如避免在内部调用getters/setters方法。
 
 如何对Android 应用进行性能分析以及优化?
 
@@ -205,6 +482,182 @@ java中的四种引用的区别以及使用场景
 强引用置为null，会不会被回收？
 
 **七、NDK、jni、Binder、AIDL、进程通信有关
+
+**AIDL的全称是什么?如何工作?能处理哪些类型的数据?**
+
+http://blog.csdn.net/singwhatiwanna/article/details/17041691
+
+AIDL (Android Interface Definition Language) 是一种IDL 语言，用于生成可以在Android设备上两个进程之间进行进程间通信(interprocess communication, IPC)的代码。如果在一个进程中（例如Activity）要调用另一个进程中（例如Service）对象的操作，就可以使用AIDL生成可序列化的参数。 AIDL IPC机制是面向接口的，像COM或Corba一样，但是更加轻量级。它是使用代理类在客户端和实现端传递数据。
+
+    AIDL全称Android Interface Definition Language（Android接口描述语言）是一种接口描述语言; 编译器可以通过aidl文件生成一段代码，通过预先定义的接口达到两个进程内部通信进程跨界访问对象的目的.AIDL的IPC的机制和COM或CORBA类似, 是基于接口的，但它是轻量级的。它使用代理类在客户端和实现层间传递值. 如果要使用AIDL, 需要完成2件事情: 1. 引入AIDL的相关类.; 2. 调用aidl产生的class.
+    理论上, 参数可以传递基本数据类型和String, 还有就是Bundle的派生类, 不过在Eclipse中,目前的ADT不支持Bundle做为参数,
+    具体实现步骤如下:
+    1、创建AIDL文件, 在这个文件里面定义接口, 该接口定义了可供客户端访问的方法和属性。
+    2、编译AIDL文件, 用Ant的话, 可能需要手动, 使用Eclipse plugin的话,可以根据adil文件自动生产java文件并编译, 不需要人为介入.
+    3、在Java文件中, 实现AIDL中定义的接口. 编译器会根据AIDL接口, 产生一个JAVA接口。这个接口有一个名为Stub的内部抽象类，它继承扩展了接口并实现了远程调用需要的几个方法。接下来就需要自己去实现自定义的几个接口了.
+    4、向客户端提供接口ITaskBinder, 如果写的是service，扩展该Service并重载onBind ()方法来返回一个实现上述接口的类的实例。
+    5、在服务器端回调客户端的函数. 前提是当客户端获取的IBinder接口的时候,要去注册回调函数, 只有这样, 服务器端才知道该调用那些函数
+    AIDL语法很简单,可以用来声明一个带一个或多个方法的接口，也可以传递参数和返回值。 由于远程调用的需要, 这些参数和返回值并不是任何类型.下面是些AIDL支持的数据类型:
+    
+    不需要import声明的简单Java编程语言类型(int,boolean等)
+    String, CharSequence不需要特殊声明
+    List, Map和Parcelables类型, 这些类型内所包含的数据成员也只能是简单数据类型, String等其他比支持的类型.
+    (另外: 我没尝试Parcelables, 在Eclipse+ADT下编译不过, 或许以后会有所支持).
+    实现接口时有几个原则:
+    1.抛出的异常不要返回给调用者. 跨进程抛异常处理是不可取的.
+    2.IPC调用是同步的。如果你知道一个IPC服务需要超过几毫秒的时间才能完成地话，你应该避免在Activity的主线程中调用。也就是IPC调用会挂起应用程序导致界面失去响应. 这种情况应该考虑单起一个线程来处理.
+    3.不能在AIDL接口中声明静态属性。
+    IPC的调用步骤:
+    声明一个接口类型的变量，该接口类型在.aidl文件中定义。
+    实现ServiceConnection。
+    调用ApplicationContext.bindService(),并在ServiceConnection实现中进行传递.
+    在ServiceConnection.onServiceConnected()实现中，你会接收一个IBinder实例(被调用的Service). 调用
+    YourInterfaceName.Stub.asInterface((IBinder)service)将参数转换为YourInterface类型。
+    调用接口中定义的方法。你总要检测到DeadObjectException异常，该异常在连接断开时被抛出。它只会被远程方法抛出。
+    断开连接，调用接口实例中的ApplicationContext.unbindService()
+    aidl主要就是帮助我们完成了包装数据和解包的过程，并调用了transact过程，而用来传递的数据包我们就称为parcel
+    
+    AIDL: xxx.aidl->xxx.java,注册service
+    
+    用aidl定义需要被调用方法接口
+    实现这些方法
+    调用这些方法
+
+说下binder序列化与反序列化的过程，与使用过程
+
+**Android 上的 Inter-Process-Communication 跨进程通信时如何工作的**
+
+跨进程通信主要靠Binder
+
+https://blog.csdn.net/carson_ho/article/details/73560642
+
+**Android IPC:Binder原理。**
+
+IPC:
+
+![image](https://user-gold-cdn.xitu.io/2017/10/10/a1cd0604f7807e215047053498e6daad?imageslim)
+
+    通信，利用进程间可共享的内核内存空间来完成底层通信工作的，Client 端与 Server 端进程往往采用 ioctl 等方法跟内核空间的驱动进行交互。
+    Binder 原理:
+    Binder 通信采用 C/S 架构，包含 Client、Server、ServiceManager 以及 binder 驱动，其中 ServiceManager 用于管理系统中的各种服务。
+架构图如下所示：
+
+![image](http://note.youdao.com/favicon.icohttps://user-gold-cdn.xitu.io/2017/10/10/1c04668dd0b841d99f96a9f82d3eb345?imageslim)
+
+    Binder 四个角色：
+    Client 进程：使用服务的进程
+    server 进程：提供服务的进程
+    ServiceManager 进程：将字符型是的 Binder 名字转为 Client 中对该 Binder 的引用，使得 Client 能够通过 Binder 名字获取到 Server 中 Binder 实体的引用。
+    Binder 驱动：进程间 Binder 通信的建立，Binder 在进程间的传递，Binder 引用计数管理，数据包在进程间传递和交互等一系列底层支持。
+    Binder 运行机制：
+    注册服务：Server 在 ServiceManager 注册服务
+    获取服务：Client 从 ServiceManager 获取相应的 Service
+    使用服务：Client 根据得到的 Service 信息建立与 Service 所在的 Server 进程通信的通路可与 Server 进行交互。
+    
+Android Binder是用来做进程通信的，Android的各个应用以及系统服务都运行在独立的进程中，它们的通信都依赖于Binder。
+
+为什么选用Binder，在讨论这个问题之前，我们知道Android也是基于Linux内核，Linux现有的进程通信手段有以下几种：
+
+管道：在创建时分配一个page大小的内存，缓存区大小比较有限；
+消息队列：信息复制两次，额外的CPU消耗；不合适频繁或信息量大的通信；
+共享内存：无须复制，共享缓冲区直接付附加到进程虚拟地址空间，速度快；但进程间的同步问题操作系统无法实现，必须各进程利用同步工具解决；
+套接字：作为更通用的接口，传输效率低，主要用于不通机器或跨网络的通信；
+信号量：常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。6. 信号: 不适用于信息交换，更适用于进程中断控制，比如非法内存访问，杀死某个进程等；
+既然有现有的IPC方式，为什么重新设计一套Binder机制呢。主要是出于以上三个方面的考量：
+
+高性能：从数据拷贝次数来看Binder只需要进行一次内存拷贝，而管道、消息队列、Socket都需要两次，共享内存不需要拷贝，Binder的性能仅次于共享内存。
+稳定性：上面说到共享内存的性能优于Binder，那为什么不适用共享内存呢，因为共享内存需要处理并发同步问题，控制负责，容易出现死锁和资源竞争，稳定性较差。而Binder基于C/S架构，客户端与服务端彼此独立，稳定性较好。
+安全性：我们知道Android为每个应用分配了UID，用来作为鉴别进程的重要标志，Android内部也依赖这个UID进行权限管理，包括6.0以前的固定权限和6.0以后的动态权限，传荣IPC只能由用户在数据包里填入UID/PID，这个标记完全 是在用户空间控制的，没有放在内核空间，因此有被恶意篡改的可能，因此Binder的安全性更高。
+
+
+**Binder机制**
+
+https://www.zhihu.com/question/39440766
+http://gityuan.com/2016/09/04/binder-start-service/
+http://baronzhang.com/blog/Android/%E5%86%99%E7%BB%99-Android-%E5%BA%94%E7%94%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84-Binder-%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/
+https://blog.csdn.net/prike/article/details/70195608
+http://blog4jimmy.com/2018/01/356.html
+
+老罗：
+https://blog.csdn.net/luoshengyang/article/details/6618363
+
+    在Android系统中，每一个应用程序都运行在独立的进程中，这也保证了当其中一个程序出现异常而不会影响另一个应用程序的正常运转。在许多情况下，我们activity都会与各种系统的service打交道，很显然，我们写的程序中activity与系统service肯定不是同一个进程，但是它们之间是怎样实现通信的呢？
+
+
+    所以Binder是android中一种实现进程间通信（IPC）的方式之一。
+
+
+1).首先，Binder分为Client和Server两个进程。
+
+
+    注意，Client和Server是相对的。谁发消息，谁就是Client，谁接收消息，谁就是Server。
+    
+    
+    举个例子，两个进程A和B之间使用Binder通信，进程A发消息给进程B，那么这时候A是Binder Client，B是Binder Server；进程B发消息给进程A，那么这时候B是Binder Client，A是Binder Server——其实这么说虽然简单了，但还是不太严谨，我们先这么理解着。
+
+
+2).其次，我们看下面这个图（摘自田维术的博客），基本说明白了Binder的组成解构：
+
+![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd565735a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+图中的IPC就是进程间通信的意思。
+
+图中的ServiceManager，负责把Binder Server注册到一个容器中。
+
+
+    有人把ServiceManager比喻成电话局，存储着每个住宅的座机电话，还是很恰当的。张三给李四打电话，拨打电话号码，会先转接到电话局，电话局的接线员查到这个电话号码的地址，因为李四的电话号码之前在电话局注册过，所以就能拨通；没注册，就会提示该号码不存在。
+    
+    
+    对照着Android Binder机制，对着上面这图，张三就是Binder Client，李四就是Binder Server，电话局就是ServiceManager，电话局的接线员在这个过程中做了很多事情，对应着图中的Binder驱动.
+
+
+3).接下来我们看Binder通信的过程，还是摘自田维术博客的一张图：
+
+![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd6cf0739?imageslim)
+
+注：图中的SM也就是ServiceManager。
+
+
+    我们看到，Client想要直接调用Server的add方法，是不可以的，因为它们在不同的进程中，这时候就需要Binder来帮忙了。
+    
+    
+    首先是Server在SM这个容器中注册。
+    
+    其次，Client想要调用Server的add方法，就需要先获取Server对象， 但是SM不会把真正的Server对象返回给Client，而是把Server的一个代理对象返回给Client，也就是Proxy。
+    
+    然后，Client调用Proxy的add方法，SM会帮他去调用Server的add方法，并把结果返回给Client。
+    
+    
+    以上这3步，Binder驱动出了很多力，但我们不需要知道Binder驱动的底层实现，涉及到C++的代码了——把有限的时间去做更有意义的事情。
+
+2.为什么android选用Binder来实现进程间通信？
+
+    1).可靠性。在移动设备上，通常采用基于Client-Server的通信方式来实现互联网与设备间的内部通信。目前linux支持IPC包括传统的管道，System V IPC，即消息队列/共享内存/信号量，以及socket中只有socket支持Client-Server的通信方式。Android系统为开发者提供了丰富进程间通信的功能接口，媒体播放，传感器，无线传输。
+    
+    
+    这些功能都由不同的server来管理。开发都只关心将自己应用程序的client与server的通信建立起来便可以使用这个服务。毫无疑问，如若在底层架设一套协议来实现Client-Server通信，增加了系统的复杂性。在资源有限的手机 上来实现这种复杂的环境，可靠性难以保证。
+    
+    
+    2).传输性能。socket主要用于跨网络的进程间通信和本机上进程间的通信，但传输效率低，开销大。消息队列和管道采用存储-转发方式，即数据先从发送方缓存区拷贝到内核开辟的一块缓存区中，然后从内核缓存区拷贝到接收方缓存区，其过程至少有两次拷贝。虽然共享内存无需拷贝，但控制复杂。比较各种IPC方式的数据拷贝次数。共享内存：0次。Binder：1次。Socket/管道/消息队列：2次。
+    
+    
+    3).安全性。Android是一个开放式的平台，所以确保应用程序安全是很重要的。Android对每一个安装应用都分配了UID/PID,其中进程的UID是可用来鉴别进程身份。传统的只能由用户在数据包里填写UID/PID，这样不可靠，容易被恶意程序利用。而我们要求由内核来添加可靠的UID。
+    
+    
+    所以，出于可靠性、传输性、安全性。android建立了一套新的进程间通信方式。
+
+Binder原理：
+
+    1.在Activity和Service进行通讯的时候，用到了Binder。
+        1.当属于同个进程我们可以继承Binder然后在Activity中对Service进行操作
+        2.当不属于同个进程，那么要用到AIDL让系统给我们创建一个Binder，然后在Activity中对远端的Service进行操作。
+    2.系统给我们生成的Binder：
+        1.Stub类中有:接口方法的id，有该Binder的标识，有asInterface(IBinder)(让我们在Activity中获取实现了Binder的接口，接口的实现在Service里，同进程时候返回Stub否则返回Proxy)，有onTransact()这个方法是在不同进程的时候让Proxy在Activity进行远端调用实现Activity操作Service
+        2.Proxy类是代理，在Activity端，其中有:IBinder mRemote(这就是远端的Binder)，两个接口的实现方法不过是代理最终还是要在远端的onTransact()中进行实际操作。
+    3.哪一端的Binder是副本，该端就可以被另一端进行操作，因为Binder本体在定义的时候可以操作本端的东西。所以可以在Activity端传入本端的Binder，让Service端对其进行操作称为Listener，可以用RemoteCallbackList这个容器来装Listener，防止Listener因为经历过序列化而产生的问题。
+    4.当Activity端向远端进行调用的时候，当前线程会挂起，当方法处理完毕才会唤醒。
+    5.如果一个AIDL就用一个Service太奢侈，所以可以使用Binder池的方式，建立一个AIDL其中的方法是返回IBinder，然后根据方法中传入的参数返回具体的AIDL。
+    6.IPC的方式有：Bundle（在Intent启动的时候传入，不过是一次性的），文件共享(对于SharedPreference是特例，因为其在内存中会有缓存)，使用Messenger(其底层用的也是AIDL，同理要操作哪端，就在哪端定义Messenger)，AIDL，ContentProvider(在本进程中继承实现一个ContentProvider，在增删改查方法中调用本进程的SQLite，在其他进程中查询)，Socket
 
 请介绍一下NDK
 
@@ -276,18 +729,86 @@ C++调用Java
         (*env)->DeleteLocalRef(env,jobj);  
         (*env)->DeleteLocalRef(env,str_arg);  
     }  
+    
+八、其它高频面试题
 
-**了解插件化和热修复吗，它们有什么区别，理解它们的原理吗？**
+**事件传递机制**
 
-插件化：插件化是体现在功能拆分方面的，它将某个功能独立提取出来，独立开发，独立测试，再插入到主应用中。依次来较少主应用的规模。
-热修复：热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。
-利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在 热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
+![image](https://upload-images.jianshu.io/upload_images/2911038-5349d6ebb32372da)
 
-目前热修复框架主要分为两大类：
+    1).Android事件分发机制的本质是要解决：点击事件由哪个对象发出，经过哪些对象，最终达到哪个对象并最终得到处理。这里的对象是指Activity、ViewGroup、View.
+    
+    2).Android中事件分发顺序：Activity（Window） -> ViewGroup -> View.
+    
+    3).事件分发过程由dispatchTouchEvent() 、onInterceptTouchEvent()和onTouchEvent()三个方法协助完成
 
-Sophix：修改方法指针。
-Tinker：修改dex数组元素。
 
+设置Button按钮来响应点击事件事件传递情况：（如下图）
+
+布局如下:
+
+![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfaed36b0e?imageslim)
+    
+    最外层：Activiy A，包含两个子View：ViewGroup B、View C
+    
+    中间层：ViewGroup B，包含一个子View：View C
+    
+    最内层：View C
+    
+    
+    假设用户首先触摸到屏幕上View C上的某个点（如图中黄色区域），那么Action_DOWN事件就在该点产生，然后用户移动手指并最后离开屏幕。
+    
+    按钮点击事件:
+    
+    
+    DOWN事件被传递给C的onTouchEvent方法，该方法返回true，表示处理这个事件;
+    
+    因为C正在处理这个事件，那么DOWN事件将不再往上传递给B和A的onTouchEvent()；
+    
+    该事件列的其他事件（Move、Up）也将传递给C的onTouchEvent();
+
+![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd00ab478?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+![image](https://upload-images.jianshu.io/upload_images/2911038-5349d6ebb32372da)
+
+(记住这个图的传递顺序,面试的时候能够画出来,就很详细了)
+
+
+请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理
+          
+安卓子线程是否能更新UI，如果能请说明具体细节。
+
+**广播发送和接收的原理了解吗？**
+
+继承BroadcastReceiver，重写onReceive()方法。
+通过Binder机制向ActivityManagerService注册广播。
+通过Binder机制向ActivityMangerService发送广播。
+ActivityManagerService查找符合相应条件的广播（IntentFilter/Permission）的BroadcastReceiver，将广播发送到BroadcastReceiver所在的消息队列中。
+BroadcastReceiver所在消息队列拿到此广播后，回调它的onReceive()方法。
+
+**View的绘制流程**
+
+    View的绘制流程：OnMeasure()——>OnLayout()——>OnDraw()
+    
+    各步骤的主要工作：
+    
+    
+    OnMeasure()：
+    
+    
+    测量视图大小。从顶层父View到子View递归调用measure方法，measure方法又回调OnMeasure。
+    
+    
+    OnLayout()：
+    
+    
+    确定View位置，进行页面布局。从顶层父View向子View的递归调用view.layout方法的过程，即父View根据上一步measure子View所得到的布局大小和布局参数，将子View放在合适的位置上。
+    
+    
+    OnDraw()：
+    
+    
+    绘制视图:ViewRoot创建一个Canvas对象，然后调用OnDraw()。六个步骤：①、绘制视图的背景；②、保存画布的图层（Layer）；③、绘制View的内容；④、绘制View子视图，如果没有就不用；⑤、还原图层（Layer）；⑥、绘制滚动条。
 
 事件分发中的onTouch 和onTouchEvent 有什么区别，又该如何使用？
 
@@ -434,6 +955,8 @@ view渲染
 RecycleView的使用，原理，RecycleView优化
 
 App中唤醒其他进程的实现方式
+
+
 
 **//暂未分类的面试题**
 
@@ -794,46 +1317,9 @@ Java 引用类型分类：
 **100.Zygote的启动过程**
 
     在 Android 系统里面，zygote 是一个进程的名字。Android 是基于 Linux System 的，当你的手机开机的时候，Linux 的内核加载完成之后就会启动一个叫 “init“ 的进程。在 Linux System 里面，所有的进程都是由 init 进程 fork 出来的，我们的zygote进程也不例外。
+
     
-**101.Android IPC:Binder原理。**
-
-IPC:
-
-![image](https://user-gold-cdn.xitu.io/2017/10/10/a1cd0604f7807e215047053498e6daad?imageslim)
-
-    通信，利用进程间可共享的内核内存空间来完成底层通信工作的，Client 端与 Server 端进程往往采用 ioctl 等方法跟内核空间的驱动进行交互。
-    Binder 原理:
-    Binder 通信采用 C/S 架构，包含 Client、Server、ServiceManager 以及 binder 驱动，其中 ServiceManager 用于管理系统中的各种服务。
-架构图如下所示：
-
-![image](http://note.youdao.com/favicon.icohttps://user-gold-cdn.xitu.io/2017/10/10/1c04668dd0b841d99f96a9f82d3eb345?imageslim)
-
-    Binder 四个角色：
-    Client 进程：使用服务的进程
-    server 进程：提供服务的进程
-    ServiceManager 进程：将字符型是的 Binder 名字转为 Client 中对该 Binder 的引用，使得 Client 能够通过 Binder 名字获取到 Server 中 Binder 实体的引用。
-    Binder 驱动：进程间 Binder 通信的建立，Binder 在进程间的传递，Binder 引用计数管理，数据包在进程间传递和交互等一系列底层支持。
-    Binder 运行机制：
-    注册服务：Server 在 ServiceManager 注册服务
-    获取服务：Client 从 ServiceManager 获取相应的 Service
-    使用服务：Client 根据得到的 Service 信息建立与 Service 所在的 Server 进程通信的通路可与 Server 进行交互。
-    
-Android Binder是用来做进程通信的，Android的各个应用以及系统服务都运行在独立的进程中，它们的通信都依赖于Binder。
-
-为什么选用Binder，在讨论这个问题之前，我们知道Android也是基于Linux内核，Linux现有的进程通信手段有以下几种：
-
-管道：在创建时分配一个page大小的内存，缓存区大小比较有限；
-消息队列：信息复制两次，额外的CPU消耗；不合适频繁或信息量大的通信；
-共享内存：无须复制，共享缓冲区直接付附加到进程虚拟地址空间，速度快；但进程间的同步问题操作系统无法实现，必须各进程利用同步工具解决；
-套接字：作为更通用的接口，传输效率低，主要用于不通机器或跨网络的通信；
-信号量：常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。6. 信号: 不适用于信息交换，更适用于进程中断控制，比如非法内存访问，杀死某个进程等；
-既然有现有的IPC方式，为什么重新设计一套Binder机制呢。主要是出于以上三个方面的考量：
-
-高性能：从数据拷贝次数来看Binder只需要进行一次内存拷贝，而管道、消息队列、Socket都需要两次，共享内存不需要拷贝，Binder的性能仅次于共享内存。
-稳定性：上面说到共享内存的性能优于Binder，那为什么不适用共享内存呢，因为共享内存需要处理并发同步问题，控制负责，容易出现死锁和资源竞争，稳定性较差。而Binder基于C/S架构，客户端与服务端彼此独立，稳定性较好。
-安全性：我们知道Android为每个应用分配了UID，用来作为鉴别进程的重要标志，Android内部也依赖这个UID进行权限管理，包括6.0以前的固定权限和6.0以后的动态权限，传荣IPC只能由用户在数据包里填入UID/PID，这个标记完全 是在用户空间控制的，没有放在内核空间，因此有被恶意篡改的可能，因此Binder的安全性更高。
-    
-**102.安卓view绘制机制和加载过程，请详细说下整个流程**
+**安卓view绘制机制和加载过程，请详细说下整个流程**
 
     1.ViewRootImpl会调用performTraversals(),其内部会调用performMeasure()、performLayout、performDraw()。
     2.performMeasure()会调用最外层的ViewGroup的measure()-->onMeasure(),ViewGroup的onMeasure()是抽象方法，但其提供了measureChildren()，这之中会遍历子View然后循环调用measureChild()这之中会用getChildMeasureSpec()+父View的MeasureSpec+子View的LayoutParam一起获取本View的MeasureSpec，然后调用子View的measure()到View的onMeasure()-->setMeasureDimension(getDefaultSize(),getDefaultSize()),getDefaultSize()默认返回measureSpec的测量数值，所以继承View进行自定义的wrap_content需要重写。
@@ -845,7 +1331,7 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
     2.view.post(Runnable)将获取的代码投递到消息队列的尾部。
     3.ViewTreeObservable.
     
-**103.activty的加载过程 请详细介绍下:**
+**activty的加载过程 请详细介绍下:**
 
     1.Activity中最终到startActivityForResult()（mMainThread.getApplicationThread()传入了一个ApplicationThread检查APT）
     ->Instrumentation#execStartActivity()和checkStartActivityResult()(这是在启动了Activity之后判断Activity是否启动成功，例如没有在AM中注册那么就会报错)
@@ -864,7 +1350,7 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
     6.Instrumentation#callActivityOnCreate()->Activity#performCreate()->Activity#onCreate().onCreate()中会通过Activity#setContentView()调用PhoneWindow的setContentView()
     更新界面。    
 
-**104.android重要术语解释**
+**android重要术语解释**
 
     1.ActivityManagerServices，简称AMS，服务端对象，负责系统中所有Activity的生命周期
     2.ActivityThread，App的真正入口。当开启App之后，会调用main()开始运行，开启消息循环队列，这就是传说中的UI线程或者叫主线程。与ActivityManagerServices配合，一起完成Activity的管理工作
@@ -875,7 +1361,7 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
     7.ActivityRecord，ActivityStack的管理对象，每个Activity在AMS对应一个ActivityRecord，来记录Activity的状态以及其他的管理信息。其实就是服务器端的Activity对象的映像。
     8.TaskRecord，AMS抽象出来的一个“任务”的概念，是记录ActivityRecord的栈，一个“Task”包含若干个ActivityRecord。AMS用TaskRecord确保Activity启动和退出的顺序。如果你清楚Activity的4种launchMode，那么对这个概念应该不陌生。
     
-**105.理解Window和WindowManager**
+**理解Window和WindowManager**
 
     1.Window用于显示View和接收各种事件，Window有三种类型：应用Window(每个Activity对应一个Window)、子Window(不能单独存在，附属于特定Window)、系统window(Toast和状态栏)
     2.Window分层级，应用Window在1-99、子Window在1000-1999、系统Window在2000-2999.WindowManager提供了增删改View三个功能。
@@ -883,39 +1369,16 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
     4.WindowManager的实现是WindowManagerImpl其再委托给WindowManagerGlobal来对Window进行操作，其中有四个List分别储存对应的View、ViewRootImpl、WindowManger.LayoutParams和正在被删除的View
     5.Window的实体是存在于远端的WindowMangerService中，所以增删改Window在本端是修改上面的几个List然后通过ViewRootImpl重绘View，通过WindowSession(每个应用一个)在远端修改Window。
     6.Activity创建Window：Activity会在attach()中创建Window并设置其回调(onAttachedToWindow()、dispatchTouchEvent()),Activity的Window是由Policy类创建PhoneWindow实现的。然后通过Activity#setContentView()调用PhoneWindow的setContentView。
-    
-**106.Bitmap的处理：**
 
-当使用ImageView的时候，可能图片的像素大于ImageView，此时就可以通过BitmapFactory.Option来对图片进行压缩，inSampleSize表示缩小2^(inSampleSize-1)倍。
 
-BitMap的缓存：
-
-1.使用LruCache进行内存缓存。
-
-2.使用DiskLruCache进行硬盘缓存。
-
-3.实现一个ImageLoader的流程：同步异步加载、图片压缩、内存硬盘缓存、网络拉取
-
-    1.同步加载只创建一个线程然后按照顺序进行图片加载
-    2.异步加载使用线程池，让存在的加载任务都处于不同线程
-    3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
-
-**107.CrashHandler实现原理**
+**CrashHandler实现原理**
 
     获取app crash的信息保存在本地然后在下一次打开app的时候发送到服务器。
-    
-**108.如何实现一个网络框架(参考Volley)**
 
-    1.缓存队列,以url为key缓存内容可以参考Bitmap的处理方式，这里单独开启一个线程。
-    2.网络请求队列，使用线程池进行请求。
-    3.提供各种不同类型的返回值的解析如String，Json，图片等等。
-
-**109.动态权限适配方案，权限组的概念**
-
-**110.图片加载库相关，bitmap如何处理大图，如一张30M的大图，如何预防OOM**
+**动态权限适配方案，权限组的概念**
 
 
-**111.启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？** 
+**启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？** 
 
     是因为启动程序（主界面也是一个app），发现了在这个程序中存在一个设置为
     
@@ -928,48 +1391,9 @@ BitMap的缓存：
     跳过去可以跳到任意允许的页面，如一个程序可以下载，那么真正下载的页面可能不是首页（也有可能是首页），这时还是构造一个Intent，startActivity.
     这个intent中的action可能有多种view,download都有可能。系统会根据第三方程序向系统注册的功能，为你的Intent选择可以打开的程序或者页面。所以唯一的一点
     不同的是从icon的点击启动的intent的action是相对单一的，从程序中跳转或者启动可能样式更多一些。本质是相同的。
-    
-**112.AIDL的全称是什么?如何工作?能处理哪些类型的数据?**
 
-http://blog.csdn.net/singwhatiwanna/article/details/17041691
 
-AIDL (Android Interface Definition Language) 是一种IDL 语言，用于生成可以在Android设备上两个进程之间进行进程间通信(interprocess communication, IPC)的代码。如果在一个进程中（例如Activity）要调用另一个进程中（例如Service）对象的操作，就可以使用AIDL生成可序列化的参数。 AIDL IPC机制是面向接口的，像COM或Corba一样，但是更加轻量级。它是使用代理类在客户端和实现端传递数据。
-
-    AIDL全称Android Interface Definition Language（Android接口描述语言）是一种接口描述语言; 编译器可以通过aidl文件生成一段代码，通过预先定义的接口达到两个进程内部通信进程跨界访问对象的目的.AIDL的IPC的机制和COM或CORBA类似, 是基于接口的，但它是轻量级的。它使用代理类在客户端和实现层间传递值. 如果要使用AIDL, 需要完成2件事情: 1. 引入AIDL的相关类.; 2. 调用aidl产生的class.
-    理论上, 参数可以传递基本数据类型和String, 还有就是Bundle的派生类, 不过在Eclipse中,目前的ADT不支持Bundle做为参数,
-    具体实现步骤如下:
-    1、创建AIDL文件, 在这个文件里面定义接口, 该接口定义了可供客户端访问的方法和属性。
-    2、编译AIDL文件, 用Ant的话, 可能需要手动, 使用Eclipse plugin的话,可以根据adil文件自动生产java文件并编译, 不需要人为介入.
-    3、在Java文件中, 实现AIDL中定义的接口. 编译器会根据AIDL接口, 产生一个JAVA接口。这个接口有一个名为Stub的内部抽象类，它继承扩展了接口并实现了远程调用需要的几个方法。接下来就需要自己去实现自定义的几个接口了.
-    4、向客户端提供接口ITaskBinder, 如果写的是service，扩展该Service并重载onBind ()方法来返回一个实现上述接口的类的实例。
-    5、在服务器端回调客户端的函数. 前提是当客户端获取的IBinder接口的时候,要去注册回调函数, 只有这样, 服务器端才知道该调用那些函数
-    AIDL语法很简单,可以用来声明一个带一个或多个方法的接口，也可以传递参数和返回值。 由于远程调用的需要, 这些参数和返回值并不是任何类型.下面是些AIDL支持的数据类型:
-    
-    不需要import声明的简单Java编程语言类型(int,boolean等)
-    String, CharSequence不需要特殊声明
-    List, Map和Parcelables类型, 这些类型内所包含的数据成员也只能是简单数据类型, String等其他比支持的类型.
-    (另外: 我没尝试Parcelables, 在Eclipse+ADT下编译不过, 或许以后会有所支持).
-    实现接口时有几个原则:
-    1.抛出的异常不要返回给调用者. 跨进程抛异常处理是不可取的.
-    2.IPC调用是同步的。如果你知道一个IPC服务需要超过几毫秒的时间才能完成地话，你应该避免在Activity的主线程中调用。也就是IPC调用会挂起应用程序导致界面失去响应. 这种情况应该考虑单起一个线程来处理.
-    3.不能在AIDL接口中声明静态属性。
-    IPC的调用步骤:
-    声明一个接口类型的变量，该接口类型在.aidl文件中定义。
-    实现ServiceConnection。
-    调用ApplicationContext.bindService(),并在ServiceConnection实现中进行传递.
-    在ServiceConnection.onServiceConnected()实现中，你会接收一个IBinder实例(被调用的Service). 调用
-    YourInterfaceName.Stub.asInterface((IBinder)service)将参数转换为YourInterface类型。
-    调用接口中定义的方法。你总要检测到DeadObjectException异常，该异常在连接断开时被抛出。它只会被远程方法抛出。
-    断开连接，调用接口实例中的ApplicationContext.unbindService()
-    aidl主要就是帮助我们完成了包装数据和解包的过程，并调用了transact过程，而用来传递的数据包我们就称为parcel
-    
-    AIDL: xxx.aidl->xxx.java,注册service
-    
-    用aidl定义需要被调用方法接口
-    实现这些方法
-    调用这些方法
-
-**113.FC(Force Close)**
+**FC(Force Close)**
 
 什么时候会出现
 
@@ -982,7 +1406,7 @@ Runtime,比如说空指针异常
 注意内存的使用和管理
 使用Thread.UncaughtExceptionHandler接口
 
-**114.界面优化** 
+**界面优化** 
 
     太多重叠的背景(overdraw)
     
@@ -1000,7 +1424,7 @@ Runtime,比如说空指针异常
     
     总结：可以考虑多使用merge和include，ViewStub。尽量使布局浅平，根布局尽量少使用RelactivityLayout,因为RelactivityLayout每次需要测量2次。
 
-**115.内存优化** 
+**内存优化** 
 
     核心思想：减少内存使用，能不new的不new，能少分配的少分配。因为分配更多的内存就意味着发生更多的GC，每次触发GC都会占用CPU时间，影响性能。
     
@@ -1012,7 +1436,7 @@ Runtime,比如说空指针异常
     重写onTrimMemory，根据传入的参数，进行内存释放。
     使用static final 优化成员变量。
     
-**66.移动端获取网络数据优化的几个点**
+**移动端获取网络数据优化的几个点**
 
     连接复用：节省连接建立时间，如开启 keep-alive。
     对于Android来说默认情况下HttpURLConnection和HttpClient都开启了keep-alive。只是2.2之前HttpURLConnection存在影响连接池的Bug，具体可见：Android HttpURLConnection及HttpClient选择
@@ -1023,7 +1447,7 @@ Runtime,比如说空指针异常
     返回数据的body也可以做gzip压缩，body数据体积可以缩小到原来的30%左右。（也可以考虑压缩返回的json数据的key数据的体积，尤其是针对返回数据格式变化不大的情况，支付宝聊天返回的数据用到了）
     根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）
 
-**67.Android系统启动过程，App启动过程** 
+**Android系统启动过程，App启动过程** 
     
     从桌面点击到activity启动的过程
     
@@ -1035,23 +1459,7 @@ Runtime,比如说空指针异常
     
     4.开启Activity，调用onCreate方法
 
-**68.热补丁**
-
-    原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个
-    原理：将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。使用Dexclassloader。
-
-**69.动态加载(也叫插件化技术)**
-
-    动态加载主要解决3个技术问题：
-    1，使用ClassLoader加载类。
-    2，资源访问。
-    3，生命周期管理。
-
-**70.Binder机制**
-
-跨进程间通信(IPC):四大组件之间通过Intent互相跳转，Android实现IPC的方式是binder机制。
-
-**71.Android系统的架构**
+**Android系统的架构**
 
 ![image](https://upload-images.jianshu.io/upload_images/2893137-1047c70c15c1589b.png?imageMogr2/auto-orient)
 
@@ -1094,24 +1502,24 @@ Java系统框架层
 C++系统框架层
 Linux内核层
 
-72.安卓view绘制机制和加载过程，请详细说下整个流程
+安卓view绘制机制和加载过程，请详细说下整个流程
 
-73.activty的加载过程 请详细介绍下（不是生命周期切记）
+activty的加载过程 请详细介绍下（不是生命周期切记）
 
-74.安卓采用自动垃圾回收机制，请说下安卓内存管理的原理
+安卓采用自动垃圾回收机制，请说下安卓内存管理的原理
 
-75.说下安卓虚拟机和java虚拟机的原理和不同点 
+说下安卓虚拟机和java虚拟机的原理和不同点 
 
-**36.[RxJava中map和flatmap操作符的区别及底层实现](https://www.jianshu.com/p/af13a8278a05)**
+**[RxJava中map和flatmap操作符的区别及底层实现](https://www.jianshu.com/p/af13a8278a05)**
 
-**43.[RecyclerView与ListView缓存机制的不同](https://segmentfault.com/a/1190000007331249)**
+**[RecyclerView与ListView缓存机制的不同](https://segmentfault.com/a/1190000007331249)**
 
 
-**46.ButterKnife原理 **
+**ButterKnife原理 **
 
 ButterKnife对性能的影响很小，因为没有使用使用反射，而是使用的Annotation Processing Tool(APT),注解处理器，javac中用于编译时扫描和解析Java注解的工具。在编译阶段执行的，它的原理就是读入Java源代码，解析注解，然后生成新的Java代码。新生成的Java代码最后被编译成Java字节码，注解解析器不能改变读入的Java 类，比如不能加入或删除Java方法。
 
-**48.Activity/Window/View三者的差别,fragment的特点**
+**Activity/Window/View三者的差别,fragment的特点**
 
     Activity像一个工匠（控制单元），Window像窗户（承载模型），View像窗花（显示视图） LayoutInflater像剪刀，Xml配置像窗花图纸。
     
@@ -1128,7 +1536,7 @@ ButterKnife对性能的影响很小，因为没有使用使用反射，而是使
     调用ViewGroup的removeAllView()，先将所有的view移除掉
     添加新的view：addView()
 
-**49.JVM 和Dalvik虚拟机的区别**
+**JVM 和Dalvik虚拟机的区别**
 
     JVM:
     .java -> javac -> .class -> jar -> .jar
@@ -1137,11 +1545,7 @@ ButterKnife对性能的影响很小，因为没有使用使用反射，而是使
     .java -> javac -> .class -> dx.bat -> .dex
     架构: 寄存器(cpu上的一块高速缓存)
 
-**50.怎么考虑数据传输的安全性**
-
-    如果应用对传输的数据没有任何安全措施，攻击者设置的钓鱼网络中更改DNS服务器。这台服务器可以获取用户信息，或充当中间人与原服务器交换数据。在SSL/TLS通信中，客户端通过数字证书判断服务器是否可信，并采用证书的公钥与服务器进行加密通信。
-
-**52.事件传递机制**
+**事件传递机制**
 
     当手指触摸到屏幕时，系统就会调用相应View的onTouchEvent，并传入一系列的action。
     
@@ -1194,7 +1598,7 @@ http://gityuan.com/2015/09/19/android-touch/
 https://www.jianshu.com/p/84b2e0038080
 http://hanhailong.com/2015/09/24/Android-%E4%B8%89%E5%BC%A0%E5%9B%BE%E6%90%9E%E5%AE%9ATouch%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92%E6%9C%BA%E5%88%B6/
 
-**53.ART和Dalvik区别**
+**ART和Dalvik区别**
 
 art上应用启动快，运行快，但是耗费更多存储空间，安装时间长，总的来说ART的功效就是”空间换时间”。
 
@@ -1216,7 +1620,7 @@ ART缺点：
 更大的存储空间占用，可能会增加10%-20%
 更长的应用安装时间
 
-**54.Scroller原理**
+**Scroller原理**
 
     Scroller执行流程里面的三个核心方法
     
@@ -1227,7 +1631,7 @@ ART缺点：
     
     2、mScroller.computeScrollOffset()方法主要是根据当前已经消逝的时间来计算当前的坐标点。因为在mScroller.startScroll()中设置了动画时间，那么在computeScrollOffset()方法中依据已经消逝的时间就很容易得到当前时刻应该所处的位置并将其保存在变量mCurrX和mCurrY中。除此之外该方法还可判断动画是否已经结束。
 
-**55.Android中Java和JavaScript交互**
+**Android中Java和JavaScript交互**
 
     webView.addJavaScriptInterface(new Object(){xxx}, "xxx");
     1
@@ -1260,31 +1664,31 @@ ART缺点：
             result.innerHTML = "<font color='red'>" + window.demo.process('data') + "</font>";
         }
 
-**56.SurfaceView和View的最本质的区别**
+**SurfaceView和View的最本质的区别**
 
     SurfaceView是在一个新起的单独线程中可以重新绘制画面，而view必须在UI的主线程中更新画面。
     
     在UI的主线程中更新画面可能会引发问题，比如你更新的时间过长，那么你的主UI线程就会被你正在画的函数阻塞。那么将无法响应按键、触屏等消息。当使用SurfaceView由于是在新的线程中更新画面所以不会阻塞你的UI主线程。但这也带来了另外一个问题，就是事件同步。比如你触屏了一下，你需要SurfaceView中thread处理，一般就需要有一个event queue的设计来保存touchevent，这会稍稍复杂一点，因为涉及到线程安全。
 
-**57.Android程序运行时权限与文件系统权限** 
+**Android程序运行时权限与文件系统权限** 
 
-    1,Linux 文件系统权限。不同的用户对文件有不同的读写执行权限。在android系统中，system和应用程序是分开的，system里的数据是不可更改的。
-    2，Android中有3种权限，进程权限UserID，签名，应用申明权限。每次安装时，系统根据包名为应用分配唯一的userID，不同的userID运行在不同的进程里，进程间的内存是独立的，不可以相互访问，除非通过特定的Binder机制。
-    Android提供了如下的一种机制，可以使两个apk打破前面讲的这种壁垒。
-    在AndroidManifest.xml中利用sharedUserId属性给不同的package分配相同的userID，通过这样做，两个package可以被当做同一个程序，系统会分配给两个程序相同的UserID。当然，基于安全考虑，两个package需要有相同的签名，否则没有验证也就没有意义了。
+1,Linux 文件系统权限。不同的用户对文件有不同的读写执行权限。在android系统中，system和应用程序是分开的，system里的数据是不可更改的。
+
+2，Android中有3种权限，进程权限UserID，签名，应用申明权限。每次安装时，系统根据包名为应用分配唯一的userID，不同的userID运行在不同的进程里，进程间的内存是独立的，不可以相互访问，除非通过特定的Binder机制。
+
+Android提供了如下的一种机制，可以使两个apk打破前面讲的这种壁垒。
+
+在AndroidManifest.xml中利用sharedUserId属性给不同的package分配相同的userID，通过这样做，两个package可以被当做同一个程序，系统会分配给两个程序相同的UserID。当然，基于安全考虑，两个package需要有相同的签名，否则没有验证也就没有意义了。
     
-**58.如何让程序自动启动** 
+**如何让程序自动启动** 
 
-    定义一个Braodcastreceiver，action为BOOT——COMPLETE，接受到广播后启动程序。
+定义一个Braodcastreceiver，action为BOOT——COMPLETE，接受到广播后启动程序。
 
+**[app如何保证后台服务不被杀死](https://segmentfault.com/a/1190000006251859#articleHeader1)**
 
-**15.[app如何保证后台服务不被杀死](https://segmentfault.com/a/1190000006251859#articleHeader1)**
+**[深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)**
 
-**17.[如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)**
-
-**23.[深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)**
-
-**24.[clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)**
+**[clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)**
 
 如何实现圆形ImageView；
 
@@ -1300,11 +1704,9 @@ Activity启动模式，allowReparent的特点和栈亲和性
 
 怎么控制另外一个进程的View显示
 
-
 双指缩放拖动大图
 
 客户端网络安全实现
-
 
 曲面屏的适配
 
@@ -1316,12 +1718,7 @@ aop思想
 
 Android2个虚拟机的区别（一个5.0之前，一个5.0之后）
 
-Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）
-
-https://www.jianshu.com/p/050c6db5af5a
-
 ActivityThread工作原理 
-
 
 RecyclerView的ItemTouchHelper的实现原理
 
@@ -1340,9 +1737,9 @@ MVP如何管理Presenter的生命周期，何时取消网络请求
 
 Webview性能优化
 
-为什么WebView加载会慢呢？
+**为什么WebView加载会慢呢？**
 
-    这是因为在客户端中，加载H5页面之前，需要先初始化WebView，在WebView完全初始化完成之前，后续的界面加载过程都是被阻塞的。
+这是因为在客户端中，加载H5页面之前，需要先初始化WebView，在WebView完全初始化完成之前，后续的界面加载过程都是被阻塞的。
 
 优化手段围绕着以下两个点进行：
 
@@ -1365,12 +1762,7 @@ React框架代码执行慢，可以将这部分代码拆分出来，提前进行
 
 50fps 有什么办法可以提高到 60fps
 
-
-模块化的好处
-
-https://www.jianshu.com/p/376ea8a19a17
-
-App启动流程，从点击桌面开始
+**App启动流程，从点击桌面开始**
 
 点击应用图标后会去启动应用的LauncherActivity，如果LancerActivity所在的进程没有创建，还会创建新进程，整体的流程就是一个Activity的启动流程。
 
@@ -1406,37 +1798,27 @@ ActivityThread利用ClassLoader去加载Activity、创建Activity实例，并回
 
 http://www.sohu.com/a/130814934_675634
 
-一个应用程序安装到手机上时发生了什么
+**一个应用程序安装到手机上时发生了什么**
 
 http://www.androidchina.net/6667.html
 
-对 Dalvik、ART 虚拟机有基本的了解
+**对 Dalvik、ART 虚拟机有基本的了解**
 
 https://blog.csdn.net/jason0539/article/details/50440669
 
 http://www.jackywang.tech/2017/08/21/%E5%85%B3%E4%BA%8EDalvik%EF%BC%8C%E6%88%91%E4%BB%AC%E8%AF%A5%E7%9F%A5%E9%81%93%E4%BA%9B%E4%BB%80%E4%B9%88%EF%BC%9F/
 
-Android 上的 Inter-Process-Communication 跨进程通信时如何工作的
-跨进程通信主要靠Binder
-https://blog.csdn.net/carson_ho/article/details/73560642
 
 Android中App 是如何沙箱化的,为何要这么做
 
-权限管理系统
+**权限管理系统**
+
 https://juejin.im/entry/57a99fba5bbb500064418fc0
 
 
 如何实现右滑finish activity
 
 如何在整个系统层面实现界面的圆角效果（即所有的APP打开界面都会是圆角，我承认，当时我懵逼了）
-
-访问网络如何加密
-1：对称加密（ＤＥＳ，ＡＥＳ）和非对称（ＲＳＡ公钥与私钥）。（支付宝里的商户的公钥和私钥）
-2：MD5（算法）
-3：Base64
-
-如何加快 Gradle 的编译速度
-
 
 宽高为20dp的view，不同手机，用尺子量尺寸一样不一样；不一样的话差别是 %20， %30 还是2，3倍。
 
@@ -1445,7 +1827,7 @@ APK 包含了哪些东西，打包过程是什么；
 
 Android 界面刷新原理
 
-介绍下Android应用程序启动过程
+**介绍下Android应用程序启动过程**
 
     整个应用程序的启动过程要执行很多步骤，但是整体来看，主要分为以下五个阶段：
        一. ：Launcher通过Binder进程间通信机制通知ActivityManagerService，它要启动一个Activity；
@@ -1458,7 +1840,7 @@ Android 界面刷新原理
     
        五 ：ActivityManagerService通过Binder进程间通信机制通知ActivityThread，现在一切准备就绪，它可以真正执行Activity的启动操作了。
 
-非UI线程可以更新UI吗?
+**非UI线程可以更新UI吗?**
 
     可以
     当访问UI时，ViewRootImpl会调用checkThread方法去检查当前访问UI的线程是哪个，如果不是UI线程则会抛出异常
@@ -1471,10 +1853,11 @@ Android 界面刷新原理
     }
     非UI线程是可以刷新UI的，前提是它要拥有自己的ViewRoot,即更新UI的线程和创建ViewRoot是同一个,或者在执行checkThread()前更新UI.
 
-解决ScrollView嵌套ListView和GridView冲突的方法
+**解决ScrollView嵌套ListView和GridView冲突的方法**
+
 https://blog.csdn.net/btt2013/article/details/53447649
 
-自定义View优化策略
+**自定义View优化策略**
 
     为了加速你的view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里做内存分配的事情，因为它会导致GC，从而导致卡顿。在初始化或者动画间隙期间做分配内存的动作。不要在动画正在执行的时候做内存分配的事情。
     你还需要尽可能的减少onDraw被调用的次数，大多数时候导致onDraw都是因为调用了invalidate().因此请尽量减少调用invaildate()的次数。如果可能的话，尽量调用含有4个参数的invalidate()方法而不是没有参数的invalidate()。没有参数的invalidate会强制重绘整个view。
@@ -1482,11 +1865,11 @@ https://blog.csdn.net/btt2013/article/details/53447649
     如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置的view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。这个PieChart 例子展示了如何继承ViewGroup作为自定义view的一部分。PieChart 有子views，但是它从来不测量它们。而是根据他自身的layout法则，直接设置它们的大小。
 
 
-framework有那方面什么理解
+framework方面有什么理解
 
 Android Studio 3.0 中 Gradle 的 api 和 implementation 有什么区别；
 
-说说 apk 打包流程；
+**说说 apk 打包流程；**
 
 Android的包文件APK分为两个部分：代码和资源，所以打包方面也分为资源打包和代码打包两个方面，这篇文章就来分析资源和代码的编译打包原理。
 
@@ -1503,9 +1886,6 @@ APK整体的的打包流程如下图所示：
 通过ApkBuilder工具将资源文件、DEX文件打包生成APK文件。
 利用KeyStore对生成的APK文件进行签名。
 如果是正式版的APK，还会利用ZipAlign工具进行对齐处理，对齐的过程就是将APK文件中所有的资源文件举例文件的起始距离都偏移4字节的整数倍，这样通过内存映射访问APK文件 的速度会更快。
-
-
-Android 组件化的原理，还有一些组件化平时使用的问题；
 
 Android Framework层有没有了解过，说说 Window 窗口添加的过程；
 
@@ -1559,32 +1939,16 @@ Java动态代理的使用，InvocationHandler 有什么用；
 3.考虑下同步问题
 4.考虑扩容问题
 
-写个图片浏览器，说出你的思路
-
-gradle熟悉么，自动打包知道么
 
 介绍下先的app架构和通信
 
-自己负责过哪些模块，跟同事相比自己的优势是什么
-
-遇到过什么印象深刻的问题，怎么解决的
-
-最近都做了哪些工作？
-
-遇到了什么印象深刻的问题。A:会顺着你介绍的项目问下具体实现。
-
 推送消息有富文本么？
-
-热修复了解么，用的什么？
 
 apk包大小有限制么？怎么减少包大小？
 
 工作中有没有用过或者写过什么工具？脚本，插件等等
 
 比如：多人协同开发可能对一些相同资源都各自放了一份，有没有方法自动检测这种重复之类的
-
-写过native的底层代码么
-
 
 自定义View如何考虑机型适配；
 
@@ -1594,390 +1958,24 @@ View和ViewGroup分别有哪些事件分发相关的回调方法；
 
 注解的作用与原理
 
-1.请介绍一下NDK；什么是NDK库，如何在jni中注册native函数，有几种注册方式；
-
 说下四大组件的启动过程，四大组件的启动与销毁的方式。
 
 说下冷启动与热启动是什么，区别，如何优化，使用场景等。
 
-说下binder序列化与反序列化的过程，与使用过程
 
 
-谈谈对Fresco理解？
 
-Fresco与Glide的对比：
 
-Glide：相对轻量级，用法简单优雅，支持Gif动态图，适合用在那些对图片依赖不大的App中。
-Fresco：采用匿名共享内存来保存图片，也就是Native堆，有效的的避免了OOM，功能强大，但是库体积过大，适合用在对图片依赖比较大的App中。
 
-Fresco的整体架构如下图所示：
 
-![image](https://github.com/guoxiaoxing/android-open-framwork-analysis/raw/master/art/fresco/fresco_structure.png)
 
-DraweeView：继承于ImageView，只是简单的读取xml文件的一些属性值和做一些初始化的工作，图层管理交由Hierarchy负责，图层数据获取交由负责。
-DraweeHierarchy：由多层Drawable组成，每层Drawable提供某种功能（例如：缩放、圆角）。
-DraweeController：控制数据的获取与图片加载，向pipeline发出请求，并接收相应事件，并根据不同事件控制Hierarchy，从DraweeView接收用户的事件，然后执行取消网络请求、回收资源等操作。
-DraweeHolder：统筹管理Hierarchy与DraweeHolder。
-ImagePipeline：Fresco的核心模块，用来以各种方式（内存、磁盘、网络等）获取图像。
-Producer/Consumer：Producer也有很多种，它用来完成网络数据获取，缓存数据获取、图片解码等多种工作，它产生的结果由Consumer进行消费。
-IO/Data：这一层便是数据层了，负责实现内存缓存、磁盘缓存、网络缓存和其他IO相关的功能。
-纵观整个Fresco的架构，DraweeView是门面，和用户进行交互，DraweeHierarchy是视图层级，管理图层，DraweeController是控制器，管理数据。它们构成了整个Fresco框架的三驾马车。当然还有我们 幕后英雄Producer，所有的脏活累活都是它干的，最佳劳模👍
 
-理解了Fresco整体的架构，我们还有了解在这套矿建里发挥重要作用的几个关键角色，如下所示：
 
-Supplier：提供一种特定类型的对象，Fresco里有很多以Supplier结尾的类都实现了这个接口。
-SimpleDraweeView：这个我们就很熟悉了，它接收一个URL，然后调用Controller去加载图片。该类继承于GenericDraweeView，GenericDraweeView又继承于DraweeView，DraweeView是Fresco的顶层View类。
-PipelineDraweeController：负责图片数据的获取与加载，它继承于AbstractDraweeController，由PipelineDraweeControllerBuilder构建而来。AbstractDraweeController实现了DraweeController接口，DraweeController 是Fresco的数据大管家，所以的图片数据的处理都是由它来完成的。
-GenericDraweeHierarchy：负责SimpleDraweeView上的图层管理，由多层Drawable组成，每层Drawable提供某种功能（例如：缩放、圆角），该类由GenericDraweeHierarchyBuilder进行构建，该构建器 将placeholderImage、retryImage、failureImage、progressBarImage、background、overlays与pressedStateOverlay等 xml文件或者Java代码里设置的属性信息都传入GenericDraweeHierarchy中，由GenericDraweeHierarchy进行处理。
-DraweeHolder：该类是一个Holder类，和SimpleDraweeView关联在一起，DraweeView是通过DraweeHolder来统一管理的。而DraweeHolder又是用来统一管理相关的Hierarchy与Controller
-DataSource：类似于Java里的Futures，代表数据的来源，和Futures不同，它可以有多个result。
-DataSubscriber：接收DataSource返回的结果。
-ImagePipeline：用来调取获取图片的接口。
-Producer：加载与处理图片，它有多种实现，例如：NetworkFetcherProducer，LocalAssetFetcherProducer，LocalFileFetchProducer。从这些类的名字我们就可以知道它们是干什么的。 Producer由ProducerFactory这个工厂类构建的，而且所有的Producer都是像Java的IO流那样，可以一层嵌套一层，最终只得到一个结果，这是一个很精巧的设计👍
-Consumer：用来接收Producer产生的结果，它与Producer组成了生产者与消费者模式。
-注：Fresco源码里的类的名字都比较长，但是都是按照一定的命令规律来的，例如：以Supplier结尾的类都实现了Supplier接口，它可以提供某一个类型的对象（factory, generator, builder, closure等）。 以Builder结尾的当然就是以构造者模式创建对象的类。
 
 
-请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理
-          
-安卓子线程是否能更新UI，如果能请说明具体细节。
-
-广播发送和接收的原理了解吗？
-
-继承BroadcastReceiver，重写onReceive()方法。
-通过Binder机制向ActivityManagerService注册广播。
-通过Binder机制向ActivityMangerService发送广播。
-ActivityManagerService查找符合相应条件的广播（IntentFilter/Permission）的BroadcastReceiver，将广播发送到BroadcastReceiver所在的消息队列中。
-BroadcastReceiver所在消息队列拿到此广播后，回调它的onReceive()方法。
-
-**24.View的绘制流程**
-
-    View的绘制流程：OnMeasure()——>OnLayout()——>OnDraw()
-    
-    各步骤的主要工作：
-    
-    
-    OnMeasure()：
-    
-    
-    测量视图大小。从顶层父View到子View递归调用measure方法，measure方法又回调OnMeasure。
-    
-    
-    OnLayout()：
-    
-    
-    确定View位置，进行页面布局。从顶层父View向子View的递归调用view.layout方法的过程，即父View根据上一步measure子View所得到的布局大小和布局参数，将子View放在合适的位置上。
-    
-    
-    OnDraw()：
-    
-    
-    绘制视图:ViewRoot创建一个Canvas对象，然后调用OnDraw()。六个步骤：①、绘制视图的背景；②、保存画布的图层（Layer）；③、绘制View的内容；④、绘制View子视图，如果没有就不用；⑤、还原图层（Layer）；⑥、绘制滚动条。
-
-**25. 事件传递机制**
-
-![image](https://upload-images.jianshu.io/upload_images/2911038-5349d6ebb32372da)
-
-    1).Android事件分发机制的本质是要解决：点击事件由哪个对象发出，经过哪些对象，最终达到哪个对象并最终得到处理。这里的对象是指Activity、ViewGroup、View.
-    
-    2).Android中事件分发顺序：Activity（Window） -> ViewGroup -> View.
-    
-    3).事件分发过程由dispatchTouchEvent() 、onInterceptTouchEvent()和onTouchEvent()三个方法协助完成
-
-
-设置Button按钮来响应点击事件事件传递情况：（如下图）
-
-布局如下:
-
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfaed36b0e?imageslim)
-    
-    最外层：Activiy A，包含两个子View：ViewGroup B、View C
-    
-    中间层：ViewGroup B，包含一个子View：View C
-    
-    最内层：View C
-    
-    
-    假设用户首先触摸到屏幕上View C上的某个点（如图中黄色区域），那么Action_DOWN事件就在该点产生，然后用户移动手指并最后离开屏幕。
-    
-    按钮点击事件:
-    
-    
-    DOWN事件被传递给C的onTouchEvent方法，该方法返回true，表示处理这个事件;
-    
-    因为C正在处理这个事件，那么DOWN事件将不再往上传递给B和A的onTouchEvent()；
-    
-    该事件列的其他事件（Move、Up）也将传递给C的onTouchEvent();
-
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd00ab478?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-![image](https://upload-images.jianshu.io/upload_images/2911038-5349d6ebb32372da)
-
-(记住这个图的传递顺序,面试的时候能够画出来,就很详细了)
-
-**26.Binder机制**
-
-https://www.zhihu.com/question/39440766
-http://gityuan.com/2016/09/04/binder-start-service/
-http://baronzhang.com/blog/Android/%E5%86%99%E7%BB%99-Android-%E5%BA%94%E7%94%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84-Binder-%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/
-https://blog.csdn.net/prike/article/details/70195608
-http://blog4jimmy.com/2018/01/356.html
-
-老罗：
-https://blog.csdn.net/luoshengyang/article/details/6618363
-
-    在Android系统中，每一个应用程序都运行在独立的进程中，这也保证了当其中一个程序出现异常而不会影响另一个应用程序的正常运转。在许多情况下，我们activity都会与各种系统的service打交道，很显然，我们写的程序中activity与系统service肯定不是同一个进程，但是它们之间是怎样实现通信的呢？
-
-
-    所以Binder是android中一种实现进程间通信（IPC）的方式之一。
-
-
-1).首先，Binder分为Client和Server两个进程。
-
-
-    注意，Client和Server是相对的。谁发消息，谁就是Client，谁接收消息，谁就是Server。
-    
-    
-    举个例子，两个进程A和B之间使用Binder通信，进程A发消息给进程B，那么这时候A是Binder Client，B是Binder Server；进程B发消息给进程A，那么这时候B是Binder Client，A是Binder Server——其实这么说虽然简单了，但还是不太严谨，我们先这么理解着。
-
-
-2).其次，我们看下面这个图（摘自田维术的博客），基本说明白了Binder的组成解构：
-
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd565735a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-图中的IPC就是进程间通信的意思。
-
-图中的ServiceManager，负责把Binder Server注册到一个容器中。
-
-
-    有人把ServiceManager比喻成电话局，存储着每个住宅的座机电话，还是很恰当的。张三给李四打电话，拨打电话号码，会先转接到电话局，电话局的接线员查到这个电话号码的地址，因为李四的电话号码之前在电话局注册过，所以就能拨通；没注册，就会提示该号码不存在。
-    
-    
-    对照着Android Binder机制，对着上面这图，张三就是Binder Client，李四就是Binder Server，电话局就是ServiceManager，电话局的接线员在这个过程中做了很多事情，对应着图中的Binder驱动.
-
-
-3).接下来我们看Binder通信的过程，还是摘自田维术博客的一张图：
-
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd6cf0739?imageslim)
-
-注：图中的SM也就是ServiceManager。
-
-
-    我们看到，Client想要直接调用Server的add方法，是不可以的，因为它们在不同的进程中，这时候就需要Binder来帮忙了。
-    
-    
-    首先是Server在SM这个容器中注册。
-    
-    其次，Client想要调用Server的add方法，就需要先获取Server对象， 但是SM不会把真正的Server对象返回给Client，而是把Server的一个代理对象返回给Client，也就是Proxy。
-    
-    然后，Client调用Proxy的add方法，SM会帮他去调用Server的add方法，并把结果返回给Client。
-    
-    
-    以上这3步，Binder驱动出了很多力，但我们不需要知道Binder驱动的底层实现，涉及到C++的代码了——把有限的时间去做更有意义的事情。
-
-2.为什么android选用Binder来实现进程间通信？
-
-    1).可靠性。在移动设备上，通常采用基于Client-Server的通信方式来实现互联网与设备间的内部通信。目前linux支持IPC包括传统的管道，System V IPC，即消息队列/共享内存/信号量，以及socket中只有socket支持Client-Server的通信方式。Android系统为开发者提供了丰富进程间通信的功能接口，媒体播放，传感器，无线传输。
-    
-    
-    这些功能都由不同的server来管理。开发都只关心将自己应用程序的client与server的通信建立起来便可以使用这个服务。毫无疑问，如若在底层架设一套协议来实现Client-Server通信，增加了系统的复杂性。在资源有限的手机 上来实现这种复杂的环境，可靠性难以保证。
-    
-    
-    2).传输性能。socket主要用于跨网络的进程间通信和本机上进程间的通信，但传输效率低，开销大。消息队列和管道采用存储-转发方式，即数据先从发送方缓存区拷贝到内核开辟的一块缓存区中，然后从内核缓存区拷贝到接收方缓存区，其过程至少有两次拷贝。虽然共享内存无需拷贝，但控制复杂。比较各种IPC方式的数据拷贝次数。共享内存：0次。Binder：1次。Socket/管道/消息队列：2次。
-    
-    
-    3).安全性。Android是一个开放式的平台，所以确保应用程序安全是很重要的。Android对每一个安装应用都分配了UID/PID,其中进程的UID是可用来鉴别进程身份。传统的只能由用户在数据包里填写UID/PID，这样不可靠，容易被恶意程序利用。而我们要求由内核来添加可靠的UID。
-    
-    
-    所以，出于可靠性、传输性、安全性。android建立了一套新的进程间通信方式。
-
-Binder原理：
-
-    1.在Activity和Service进行通讯的时候，用到了Binder。
-        1.当属于同个进程我们可以继承Binder然后在Activity中对Service进行操作
-        2.当不属于同个进程，那么要用到AIDL让系统给我们创建一个Binder，然后在Activity中对远端的Service进行操作。
-    2.系统给我们生成的Binder：
-        1.Stub类中有:接口方法的id，有该Binder的标识，有asInterface(IBinder)(让我们在Activity中获取实现了Binder的接口，接口的实现在Service里，同进程时候返回Stub否则返回Proxy)，有onTransact()这个方法是在不同进程的时候让Proxy在Activity进行远端调用实现Activity操作Service
-        2.Proxy类是代理，在Activity端，其中有:IBinder mRemote(这就是远端的Binder)，两个接口的实现方法不过是代理最终还是要在远端的onTransact()中进行实际操作。
-    3.哪一端的Binder是副本，该端就可以被另一端进行操作，因为Binder本体在定义的时候可以操作本端的东西。所以可以在Activity端传入本端的Binder，让Service端对其进行操作称为Listener，可以用RemoteCallbackList这个容器来装Listener，防止Listener因为经历过序列化而产生的问题。
-    4.当Activity端向远端进行调用的时候，当前线程会挂起，当方法处理完毕才会唤醒。
-    5.如果一个AIDL就用一个Service太奢侈，所以可以使用Binder池的方式，建立一个AIDL其中的方法是返回IBinder，然后根据方法中传入的参数返回具体的AIDL。
-    6.IPC的方式有：Bundle（在Intent启动的时候传入，不过是一次性的），文件共享(对于SharedPreference是特例，因为其在内存中会有缓存)，使用Messenger(其底层用的也是AIDL，同理要操作哪端，就在哪端定义Messenger)，AIDL，ContentProvider(在本进程中继承实现一个ContentProvider，在增删改查方法中调用本进程的SQLite，在其他进程中查询)，Socket
-    
-**30.Android优化**
-
-性能优化
-
-    1).节制的使用Service 如果应用程序需要使用Service来执行后台任务的话，只有当任务正在执行的时候才应该让Service运行起来。当启动一个Service时，系统会倾向于将这个Service所依赖的进程进行保留，系统可以在LRUcache当中缓存的进程数量也会减少，导致切换程序的时候耗费更多性能。我们可以使用IntentService，当后台任务执行结束后会自动停止，避免了Service的内存泄漏。
-    
-    2).当界面不可见时释放内存 当用户打开了另外一个程序，我们的程序界面已经不可见的时候，我们应当将所有和界面相关的资源进行释放。重写Activity的onTrimMemory()方法，然后在这个方法中监听TRIM_MEMORY_UI_HIDDEN这个级别，一旦触发说明用户离开了程序，此时就可以进行资源释放操作了。
-    
-    3).当内存紧张时释放内存 onTrimMemory()方法还有很多种其他类型的回调，可以在手机内存降低的时候及时通知我们，我们应该根据回调中传入的级别来去决定如何释放应用程序的资源。
-    
-    4).避免在Bitmap上浪费内存 读取一个Bitmap图片的时候，千万不要去加载不需要的分辨率。可以压缩图片等操作。
-    
-    5).使用优化过的数据集合 Android提供了一系列优化过后的数据集合工具类，如SparseArray、SparseBooleanArray、LongSparseArray，使用这些API可以让我们的程序更加高效。HashMap工具类会相对比较低效，因为它需要为每一个键值对都提供一个对象入口，而SparseArray就避免掉了基本数据类型转换成对象数据类型的时间。
-
-布局优化
-
-
-    1).重用布局文件
-    
-    标签可以允许在一个布局当中引入另一个布局，那么比如说我们程序的所有界面都有一个公共的部分，这个时候最好的做法就是将这个公共的部分提取到一个独立的布局中，然后每个界面的布局文件当中来引用这个公共的布局。
-    
-    
-    Tips:如果我们要在标签中覆写layout属性，必须要将layout_width和layout_height这两个属性也进行覆写，否则覆写效果将不会生效。
-    
-    
-    标签是作为标签的一种辅助扩展来使用的，它的主要作用是为了防止在引用布局文件时引用文件时产生多余的布局嵌套。布局嵌套越多，解析起来就越耗时，性能就越差。因此编写布局文件时应该让嵌套的层数越少越好。
-    
-    
-    举例：比如在LinearLayout里边使用一个布局。里边又有一个LinearLayout，那么其实就存在了多余的布局嵌套，使用merge可以解决这个问题。
-    
-    
-    2).仅在需要时才加载布局
-    
-    
-    某个布局当中的元素不是一起显示出来的，普通情况下只显示部分常用的元素，而那些不常用的元素只有在用户进行特定操作时才会显示出来。
-    
-    
-    举例：填信息时不是需要全部填的，有一个添加更多字段的选项，当用户需要添加其他信息的时候，才将另外的元素显示到界面上。用VISIBLE性能表现一般，可以用ViewStub。
-    
-    
-    ViewStub也是View的一种，但是没有大小，没有绘制功能，也不参与布局，资源消耗非常低，可以认为完全不影响性能。
-
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd6f2531a?imageslim)
-
-    tips：ViewStub所加载的布局是不可以使用标签的，因此这有可能导致加载出来出来的布局存在着多余的嵌套结构。
-    
-    高性能编码优化
-    
-    
-    都是一些微优化，在性能方面看不出有什么显著的提升的。使用合适的算法和数据结构是优化程序性能的最主要手段。
-    
-    
-    1).避免创建不必要的对象 不必要的对象我们应该避免创建：
-    
-    如果有需要拼接的字符串，那么可以优先考虑使用StringBuffer或者StringBuilder来进行拼接，而不是加号连接符，因为使用加号连接符会创建多余的对象，拼接的字符串越长，加号连接符的性能越低。
-    
-    
-    当一个方法的返回值是String的时候，通常需要去判断一下这个String的作用是什么，如果明确知道调用方会将返回的String再进行拼接操作的话，可以考虑返回一个StringBuffer对象来代替，因为这样可以将一个对象的引用进行返回，而返回String的话就是创建了一个短生命周期的临时对象。
-    
-    
-    尽可能地少创建临时对象，越少的对象意味着越少的GC操作。
-    
-    
-    2).在没有特殊原因的情况下，尽量使用基本数据类型来代替封装数据类型，int比Integer要更加有效，其它数据类型也是一样。
-    
-    
-    基本数据类型的数组也要优于对象数据类型的数组。另外两个平行的数组要比一个封装好的对象数组更加高效，举个例子，Foo[]和Bar[]这样的数组，使用起来要比Custom(Foo,Bar)[]这样的一个数组高效的多。
-    
-    
-    3).静态优于抽象
-    
-    
-    如果你并不需要访问一个对系那个中的某些字段，只是想调用它的某些方法来去完成一项通用的功能，那么可以将这个方法设置成静态方法，调用速度提升15%-20%，同时也不用为了调用这个方法去专门创建对象了，也不用担心调用这个方法后是否会改变对象的状态(静态方法无法访问非静态字段)。
-    
-    4).对常量使用static final修饰符
-    
-    static int intVal = 42;  static String strVal = "Hello, world!";  
-    编译器会为上面的代码生成一个初始方法，称为方法，该方法会在定义类第一次被使用的时候调用。这个方法会将42的值赋值到intVal当中，从字符串常量表中提取一个引用赋值到strVal上。当赋值完成后，我们就可以通过字段搜寻的方式去访问具体的值了。
-
-
-    final进行优化:
-    
-    static final int intVal = 42;  static final String strVal = "Hello, world!";  
-    这样，定义类就不需要方法了，因为所有的常量都会在dex文件的初始化器当中进行初始化。当我们调用intVal时可以直接指向42的值，而调用strVal会用一种相对轻量级的字符串常量方式，而不是字段搜寻的方式。
-    
-    
-    这种优化方式只对基本数据类型以及String类型的常量有效，对于其他数据类型的常量是无效的。
     
-    
-    5).使用增强型for循环语法
-    
-    static class Counter {      int mCount;  }  Counter[] mArray = ...  public void zero() {      int sum = 0;      for (int i = 0; i < mArray.length; ++i) {          sum += mArray[i].mCount;      }  }  public void one() {      int sum = 0;      Counter[] localArray = mArray;      int len = localArray.length;      for (int i = 0; i < len; ++i) {          sum += localArray[i].mCount;      }  }  public void two() {      int sum = 0;      for (Counter a : mArray) {          sum += a.mCount;      }  }
-    zero()最慢，每次都要计算mArray的长度，one()相对快得多，two()fangfa在没有JIT(Just In Time Compiler)的设备上是运行最快的，而在有JIT的设备上运行效率和one()方法不相上下，需要注意这种写法需要JDK1.5之后才支持。
-    
-    Tips:ArrayList手写的循环比增强型for循环更快，其他的集合没有这种情况。
-    
-    因此默认情况下使用增强型for循环，而遍历ArrayList使用传统的循环方式。
-    
-    6).多使用系统封装好的API
-    
-    系统提供不了的Api完成不了我们需要的功能才应该自己去写，因为使用系统的Api很多时候比我们自己写的代码要快得多，它们的很多功能都是通过底层的汇编模式执行的。 
-    
-    举个例子，实现数组拷贝的功能，使用循环的方式来对数组中的每一个元素一一进行赋值当然可行，但是直接使用系统中提供的System.arraycopy()方法会让执行效率快9倍以上。
-    
-    7).避免在内部调用Getters/Setters方法
-    
-    面向对象中封装的思想是不要把类内部的字段暴露给外部，而是提供特定的方法来允许外部操作相应类的内部字段。但在Android中，字段搜寻比方法调用效率高得多，我们直接访问某个字段可能要比通过getters方法来去访问这个字段快3到7倍。
-    
-    
-    但是编写代码还是要按照面向对象思维的，我们应该在能优化的地方进行优化，比如避免在内部调用getters/setters方法。
-
-**31.插件化相关技术，热修补技术是怎样实现的，和插件化有什么区别**
-
-http://www.liuguangli.win/archives/366
-http://www.liuguangli.win/archives/387
-http://www.liuguangli.win/archives/452
-
-    相同点:
-    
-    
-    都使用ClassLoader来实现的加载的新的功能类，都可以使用PathClassLoader与DexClassLoader
-    
-    
-    不同点：
-    
-    
-    热修复因为是为了修复Bug的，所以要将新的同名类替代同名的Bug类，要抢先加载新的类而不是Bug类，所以多做两件事：在原先的app打包的时候，阻止相关类去打上CLASS_ISPREVERIFIED标志，还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements，这样才能抢先代替Bug类，完成系统不加载旧的Bug类.
-    
-    
-    而插件化只是增肌新的功能类或者是资源文件，所以不涉及抢先加载旧的类这样的使命，就避过了阻止相关类去打上CLASS_ISPREVERIFIED标志和还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements.
-    
-    所以插件化比热修复简单，热修复是在插件化的基础上在进行替旧的Bug类
 
-**32.怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。**
 
-    计算一张图片的大小
-    
-    
-    图片占用内存的计算公式：图片高度 * 图片宽度 * 一个像素占用的内存大小.所以，计算图片占用内存大小的时候，要考虑图片所在的目录跟设备密度，这两个因素其实影响的是图片的高宽，android会对图片进行拉升跟压缩。
-    
-    
-    加载bitmap过程（怎样保证不产生内存溢出）
-    
-    
-    由于Android对图片使用内存有限制，若是加载几兆的大图片便内存溢出。Bitmap会将图片的所有像素（即长x宽）加载到内存中，如果图片分辨率过大，会直接导致内存OOM，只有在BitmapFactory加载图片时使用BitmapFactory.Options对相关参数进行配置来减少加载的像素。
-    
-    
-    BitmapFactory.Options相关参数详解
-    
-    
-    (1).Options.inPreferredConfig值来降低内存消耗。
-    
-    比如：默认值ARGB_8888改为RGB_565,节约一半内存。
-    
-    
-    (2).设置Options.inSampleSize 缩放比例，对大图片进行压缩 。
-    
-    
-    (3).设置Options.inPurgeable和inInputShareable：让系统能及时回 收内存。
-    
-    A：inPurgeable：设置为True时，表示系统内存不足时可以被回 收，设置为False时，表示不能被回收。
-    
-    B：inInputShareable：设置是否深拷贝，与inPurgeable结合使用，inPurgeable为false时，该参数无意义。
-    
-    
-    (4).使用decodeStream代替其他方法。
-    
-    decodeResource,setImageResource,setImageBitmap等方法
 
-**33.LRUCache算法是怎样实现的。**
-
-    内部存在一个LinkedHashMap和maxSize，把最近使用的对象用强引用存储在 LinkedHashMap中，给出来put和get方法，每次put图片时计算缓存中所有图片总大小，跟maxSize进行比较，大于maxSize，就将最久添加的图片移除；反之小于maxSize就添加进来。
-    
-    
-    之前，我们会使用内存缓存技术实现，也就是软引用或弱引用，在Android 2.3（APILevel 9）开始，垃圾回收器会更倾向于回收持有软引用或弱引用的对象，这让软引用和弱引用变得不再可靠。
 
 
