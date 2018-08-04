@@ -3,7 +3,9 @@ A awesome  android expert interview questions and answers
 
 > 耗时6个多月，从十几份顶级面试仓库和200多篇高质量面经中总结出一份全面而详尽的Android面试题集。
 
-## ![](https://www1-lw.xda-cdn.com/files/2018/06/android-p-dp2-1.png)
+<div align="center">
+<img src="https://raw.githubusercontent.com/JsonChao/Awesome-Android-Interview/master/screenshot/android-interview-questions-and-answers.jpg">
+</div>
 
 ## 前言
 
@@ -27,6 +29,7 @@ A awesome  android expert interview questions and answers
 
 9、最后，如果你会其他的开发方式或语言也会加分不少。比如Kotlin、Python、ReactNative、前后端开发等等。
 
+## Contents
 
 ### 计算机基础面试题
 
@@ -55,7 +58,7 @@ A awesome  android expert interview questions and answers
 
 * [Android基础](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/Android%E7%9B%B8%E5%85%B3/Android%E5%9F%BA%E7%A1%80%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
-* [Android进阶](/android/advance.md)
+* [Android进阶](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/Android%E7%9B%B8%E5%85%B3/Android%E9%AB%98%E7%BA%A7%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
 
 ### 其它
