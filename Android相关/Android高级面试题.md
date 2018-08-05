@@ -149,7 +149,7 @@ https://www.jianshu.com/p/050c6db5af5a
 
 okhttp源码
 
-Volley与OkHttp的对比：
+**Volley与OkHttp的对比：**
 
 Volley：支持HTTPS。缓存、异步请求，不支持同步请求。协议类型是Http/1.0, Http/1.1，网络传输使用的是 HttpUrlConnection/HttpClient，数据读写使用的IO。
 OkHttp：支持HTTPS。缓存、异步请求、同步请求。协议类型是Http/1.0, Http/1.1, SPDY, Http/2.0, WebSocket，网络传输使用的是封装的Socket，数据读写使用的NIO（Okio）。
