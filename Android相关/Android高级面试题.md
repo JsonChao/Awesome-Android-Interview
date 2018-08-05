@@ -3,7 +3,7 @@
 
 **一、图片**
 
-图片库对比
+**图片库对比**
 
 http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
 http://www.trinea.cn/android/android-image-cache-compare/
@@ -19,7 +19,7 @@ LRUCache原理
 
 自己去实现图片库，怎么做？
 
-Glide源码解析
+****Glide源码解析****
 
 http://www.lightskystreet.com/2015/10/12/glide_source_analysis/
 http://frodoking.github.io/2015/10/10/android-glide/
@@ -31,7 +31,7 @@ Glide内存缓存如何控制大小？
 
 谈谈对Fresco理解？
 
-Fresco与Glide的对比：
+**Fresco与Glide的对比：**
 
 Glide：相对轻量级，用法简单优雅，支持Gif动态图，适合用在那些对图片依赖不大的App中。
 Fresco：采用匿名共享内存来保存图片，也就是Native堆，有效的的避免了OOM，功能强大，但是库体积过大，适合用在对图片依赖比较大的App中。
@@ -481,7 +481,7 @@ java中的四种引用的区别以及使用场景
 
 强引用置为null，会不会被回收？
 
-**七、NDK、jni、Binder、AIDL、进程通信有关**
+**七、NDK、jni、Binder、AIDL、进程通信有关
 
 **AIDL的全称是什么?如何工作?能处理哪些类型的数据?**
 
