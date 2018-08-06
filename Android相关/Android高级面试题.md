@@ -108,6 +108,23 @@ Consumer：用来接收Producer产生的结果，它与Producer组成了生产�
     
 写个图片浏览器，说出你的思路
 
+**Bitmap 压缩策略**
+
+    加载 Bitmap 的方式：
+    BitmapFactory 四类方法：
+    decodeFile( 文件系统 )
+    decodeResourece( 资源 )
+    decodeStream( 输入流 ) 
+    decodeByteArray( 字节数 )
+    BitmapFactory.options 参数
+    inSampleSize 采样率，对图片高和宽进行缩放，以最小比进行缩放（一般取值为 2 的指数）。通常是根据图片宽高实际的大小/需要的宽高大小，分别计算出宽和高的缩放比。但应该取其中最小的缩放比，避免缩放图片太小，到达指定控件中不能铺满，需要拉伸从而导致模糊。
+    inJustDecodeBounds 获取图片的宽高信息，交给  inSampleSize 参数选择缩放比。通过 inJustDecodeBounds = true，然后加载图片就可以实现只解析图片的宽高信息，并不会真正的加载图片，所以这个操作是轻量级的。当获取了宽高信息，计算出缩放比后，然后在将 inJustDecodeBounds = false,再重新加载图片，就可以加载缩放后的图片。
+    高效加载 Bitmap 的流程
+    将 BitmapFactory.Options 的 inJustDecodeBounds 参数设为 true 并加载图片
+    从 BitmapFactory.Options 中取出图片原始的宽高信息，对应于 outWidth 和 outHeight 参数
+    根据采样率规则并结合目标 view 的大小计算出采样率 inSampleSize
+    将 BitmapFactory.Options 的 inJustDecodeBounds 设置为 false 重新加载图片
+
 **Bitmap的处理：**
 
 当使用ImageView的时候，可能图片的像素大于ImageView，此时就可以通过BitmapFactory.Option来对图片进行压缩，inSampleSize表示缩小2^(inSampleSize-1)倍。
@@ -1291,30 +1308,15 @@ Java 引用类型分类：
     如果只是想避免 OOM 异常的发生，则可以使用软引用。如果对于应用的性能更在意，想尽快回收一些占用内存比较大的对象，则可以使用弱引用。
     可以根据对象是否经常使用来判断选择软引用还是弱引用。如果该对象可能会经常使用的，就尽量用软引用。如果该对象不被使用的可能性更大些，就可以用弱引用。
 
-**98.Bitmap 压缩策略**
 
-    加载 Bitmap 的方式：
-    BitmapFactory 四类方法：
-    decodeFile( 文件系统 )
-    decodeResourece( 资源 )
-    decodeStream( 输入流 ) 
-    decodeByteArray( 字节数 )
-    BitmapFactory.options 参数
-    inSampleSize 采样率，对图片高和宽进行缩放，以最小比进行缩放（一般取值为 2 的指数）。通常是根据图片宽高实际的大小/需要的宽高大小，分别计算出宽和高的缩放比。但应该取其中最小的缩放比，避免缩放图片太小，到达指定控件中不能铺满，需要拉伸从而导致模糊。
-    inJustDecodeBounds 获取图片的宽高信息，交给  inSampleSize 参数选择缩放比。通过 inJustDecodeBounds = true，然后加载图片就可以实现只解析图片的宽高信息，并不会真正的加载图片，所以这个操作是轻量级的。当获取了宽高信息，计算出缩放比后，然后在将 inJustDecodeBounds = false,再重新加载图片，就可以加载缩放后的图片。
-    高效加载 Bitmap 的流程
-    将 BitmapFactory.Options 的 inJustDecodeBounds 参数设为 true 并加载图片
-    从 BitmapFactory.Options 中取出图片原始的宽高信息，对应于 outWidth 和 outHeight 参数
-    根据采样率规则并结合目标 view 的大小计算出采样率 inSampleSize
-    将 BitmapFactory.Options 的 inJustDecodeBounds 设置为 false 重新加载图片
     
-**99.Android长连接，怎么处理心跳机制。**
+**Android长连接，怎么处理心跳机制。**
 
     长连接：长连接是建立连接之后, 不主动断开. 双方互相发送数据, 发完了也不主动断开连接, 之后有需要发送的数据就继续通过这个连接发送.
     心跳包：其实主要是为了防止NAT超时，客户端隔一段时间就主动发一个数据，探测连接是否断开
     服务器处理心跳包：假如客户端心跳间隔是固定的, 那么服务器在连接闲置超过这个时间还没收到心跳时, 可以认为对方掉线, 关闭连接. 如果客户端心跳会动态改变,  应当设置一个最大值, 超过这个最大值才认为对方掉线. 还有一种情况就是服务器通过TCP连接主动给客户端发消息出现写超时, 可以直接认为对方掉线.
     
-**100.Zygote的启动过程**
+**Zygote的启动过程**
 
     在 Android 系统里面，zygote 是一个进程的名字。Android 是基于 Linux System 的，当你的手机开机的时候，Linux 的内核加载完成之后就会启动一个叫 “init“ 的进程。在 Linux System 里面，所有的进程都是由 init 进程 fork 出来的，我们的zygote进程也不例外。
 
