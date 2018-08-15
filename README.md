@@ -63,7 +63,7 @@ A awesome  android expert interview questions and answers
 
 ### 其它
 
-* [其他扩展面试题](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E5%85%B6%E5%AE%83/%E5%85%B6%E5%AE%83%E6%89%A9%E5%B1%95%E9%9D%A2%E8%AF%95%E9%A2%98.md)
+* [其他扩展面试题(加分项)](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E5%85%B6%E5%AE%83/%E5%85%B6%E5%AE%83%E6%89%A9%E5%B1%95%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
 * [非技术面试题](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E5%85%B6%E5%AE%83/%E9%9D%9E%E6%8A%80%E6%9C%AF%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
