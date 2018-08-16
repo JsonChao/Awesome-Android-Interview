@@ -559,7 +559,7 @@ IPC:
     Binder 通信采用 C/S 架构，包含 Client、Server、ServiceManager 以及 binder 驱动，其中 ServiceManager 用于管理系统中的各种服务。
 架构图如下所示：
 
-![image](http://note.youdao.com/favicon.icohttps://user-gold-cdn.xitu.io/2017/10/10/1c04668dd0b841d99f96a9f82d3eb345?imageslim)
+![image](https://raw.githubusercontent.com/wangkuiwu/android_applets/master/os/pic/binder/binder_frame.jpg)
 
     Binder 四个角色：
     Client 进程：使用服务的进程
