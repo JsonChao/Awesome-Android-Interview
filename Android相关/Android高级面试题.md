@@ -1117,13 +1117,11 @@ App中唤醒其他进程的实现方式
 
 **进程间通信方式？Binder的构成有几部分？**
 
-
 **想改变listview的高度，怎么做**
-
 
 **Fragment的懒加载实现，参数传递与保存** 
 
-**ViewPager的缓存实现 **
+**ViewPager的缓存实现**
 
 **Android里的内存缓存和磁盘缓存是怎么实现的。**
 
@@ -1511,8 +1509,7 @@ activty的加载过程 请详细介绍下（不是生命周期切记）
 
 **[RecyclerView与ListView缓存机制的不同](https://segmentfault.com/a/1190000007331249)**
 
-
-**ButterKnife原理 **
+**ButterKnife原理**
 
 ButterKnife对性能的影响很小，因为没有使用使用反射，而是使用的Annotation Processing Tool(APT),注解处理器，javac中用于编译时扫描和解析Java注解的工具。在编译阶段执行的，它的原理就是读入Java源代码，解析注解，然后生成新的Java代码。新生成的Java代码最后被编译成Java字节码，注解解析器不能改变读入的Java 类，比如不能加入或删除Java方法。
 
