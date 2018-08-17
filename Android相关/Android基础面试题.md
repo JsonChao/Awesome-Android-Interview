@@ -192,62 +192,84 @@ Android8.0新特性
     
 **11.Json**
 
-    JSON的全程是JavaScript Object Notation，也就是JavaScript 对象表示法
-    JSON是存储和交换文本信息的语法，类似XML，但是比XML更小、更快，更易解析
-    JSON是轻量级的文本数据交换格式，独立于语言，具有自我描述性，更易理解
-    对象可以包含多个名称/值对，比如：
-    
+JSON的全称是JavaScript Object Notation，也就是JavaScript 对象表示法
+JSON是存储和交换文本信息的语法，类似XML，但是比XM更小、更快，更易解析
+JSON是轻量级的文本数据交换格式，独立于语言，具有我描述性，更易理解
+对象可以包含多个名称/值对，比如：
+
     {"name":"zhangsan" , "age":25}
-    使用谷歌的GSON包进行解析
-    在 Android Studio 里引入依赖：
-    
+使用谷歌的GSON包进行解析
+在 Android Studio 里引入依赖：
+
     compile 'com.google.code.gson:gson:2.7'
-    值得注意的是实体类中变量名称必须和json中的值名相同。
-    json1的解析
-    我们这里的实体类是Student.class
-    
+值得注意的是实体类中变量名称必须和json中的值名相。
+json1的解析
+我们这里的实体类是Student.class
+
     Gson gson = new Gson();
-    Student student = gson.fromJson(json1, Student.class);
-    json2的解析
-    我们可以解析成int数组，也可以解析成Integer的List。
-    解析成数组：
+    Student student = gson.fromJson(json1,Student.class);
     
+json2的解析
+我们可以解析成int数组，也可以解析成Integer的List。
+解析成数组：
+
     Gson gson = new Gson();
     int[] ages = gson.fromJson(json2, int[].class);
-    解析成List：
     
+解析成List：
+
     Gson gson = new Gson();
-    List<Integer> ages = gson.fromJson(json2, new TypeToken<List<Integer>>(){}.getType);
-    json3的解析
-    同样可以解析成List或者数组，我们就直接解析成List.
+    List<Integer> ages = gson.fromJson(json2,  newTypeToken<List<Integer>>(){}.getType);
     
+json3的解析
+同样可以解析成List或者数组，我们就直接解析成List.
+
     Gson gson = new Gson();
-    List<Student> students = gson.fromJson(json3, new TypeToke<List<Student>>(){}.getType);
+    List<Student> students = gson.fromJson(json3,     newTypeToke<List<Student>>(){}.getType);
 
 **12.android中有哪几种解析xml的类,官方推荐哪种？以及它们的原理和区别**
 
-    DOM解析
-    优点:
-    1.XML树在内存中完整存储,因此可以直接修改其数据和结构.
-    2.可以通过该解析器随时访问XML树中的任何一个节点.
-    3.DOM解析器的API在使用上也相对比较简单.
-    缺点:如果XML文档体积比较大时,将文档读入内存是非常消耗系统资源的.
-    使用场景:DOM 是用与平台和语言无关的方式表示 XML 文档的官方 W3C 标准.DOM 是以层次结构组织的节点的集合.这个层次结构允许开发人员在树中寻找特定信息.分析该结构通常需要加载整个文档和构造层次结构,然后才能进行任何工作.DOM是基于对象层次结构的.
-    
-    SAX解析
-    优点:
-    SAX 对内存的要求比较低,因为它让开发人员自己来决定所要处理的标签.特别是当开发人员只需要处理文档中所包含的部分数据时,SAX 这种扩展能力得到了更好的体现.
-    缺点:
-    用SAX方式进行XML解析时,需要顺序执行,所以很难访问到同一文档中的不同数据.此外,在基于该方式的解析编码过程也相对复杂.
-    使用场景:
-    对于含有数据量十分巨大,而又不用对文档的所有数据进行遍历或者分析的时候,使用该方法十分有效.该方法不用将整个文档读入内存,而只需读取到程序所需的文档标签处即可.
-    
-    Xmlpull解析
-    android SDK提供了xmlpull api,xmlpull和sax类似,是基于流（stream）操作文件,然后根据节点事件回调开发者编写的处理程序.因为是基于流的处理,因此xmlpull和sax都比较节约内存资源,不会象dom那样要把所有节点以对橡树的形式展现在内存中.xmlpull比sax更简明,而且不需要扫描完整个流.
+DOM解析
+
+优点:
+
+1.XML树在内存中完整存储,因此可以直接修改其数据和构.
+
+2.可以通过该解析器随时访问XML树中的任何一个节点.
+
+3.DOM解析器的API在使用上也相对比较简单.
+
+缺点:
+
+如果XML文档体积比较大时,将文档读入内存是非消耗系统资源的.
+
+使用场景:
+
+- DOM 是用与平台和语言无关的方式表示 XML文档的官方 W3C 标准.
+- DOM是以层次结构组织的节点的集合.这个层次结构允许开人员在树中寻找特定信息.分析该结构通常需要加载整文档和构造层次结构,然后才能进行任何工作.
+- DOM是基对象层次结构的.
+
+SAX解析
+
+优点:
+
+SAX 对内存的要求比较低,因为它让开发人员自己来决所要处理的标签.特别是当开发人员只需要处理文档中包含的部分数据时,SAX 这种扩展能力得到了更好的体现.
+
+缺点:
+
+用SAX方式进行XML解析时,需要顺序执行,所以很难访问同一文档中的不同数据.此外,在基于该方式的解析编码程也相对复杂.
+
+使用场景:
+
+对于含有数据量十分巨大,而又不用对文档的所有数据行遍历或者分析的时候,使用该方法十分有效.该方法不将整个文档读入内存,而只需读取到程序所需的文档标处即可.
+
+Xmlpull解析
+
+android SDK提供了xmlpullapi,xmlpull和sax类似,是基于流（stream）操作文件,后根据节点事件回调开发者编写的处理程序.因为是基流的处理,因此xmlpull和sax都比较节约内存资源,不会dom那样要把所有节点以对橡树的形式展现在内存中.xmpull比sax更简明,而且不需要扫描完整个流.
 
 **13.Jar和Aar的区别**
 
-    Jar包里面只有代码，aar里面不光有代码还包括代码还包括资源文件，比如 drawable 文件，xml 资源文件。对于一些不常变动的 Android Library，我们可以直接引用 aar，加快编译速度
+Jar包里面只有代码，aar里面不光有代码还包括代码还括资源文件，比如 drawable 文件，xml资源文件。对于一些不常变动的 AndroidLibrary，我们可以直接引用 aar，加快编译速度
     
 **14.Android为每个应用程序分配的内存大小是多少**
 
@@ -255,83 +277,94 @@ android程序内存一般限制在16M，也有的是24M。近几年手机发展�
     
 **15.更新UI方式**
 
-    Activity.runOnUiThread(Runnable)
-    View.post(Runnable),View.postDelay(Runnable,long)
-    Handler
-    AsyncTask
-    Rxjava
-    LiveData
+- Activity.runOnUiThread(Runnable)
+- View.post(Runnable),View.postDelay(Runnable,long)
+- Handler
+- AsyncTask
+- Rxjava
+- LiveData
 
 **16.ContentProvider使用方法。**
 
-    进行跨进程通信，实现进程间得数据交互和共享。通过 Context 中 getContentResolver() 获得实例，通过 Uri 匹配进行数据的增删改查。ContentProvider 使用表的形式来组织数据，无论数据的来源是什么，ContentProvider 都会认为是一种表，然后把数据组织成表格
+进行跨进程通信，实现进程间的数据交互和共享。通过Context 中 getContentResolver() 获得实例，通过 Uri匹配进行数据的增删改查。ContentProvider使用表的形式来组织数据，无论数据的来源是什么，ConentProvider 都会认为是一种表，然后把数据组织成表格
 
 **17.Thread、AsyncTask、IntentService的使用场景与特点。**
 
-    1. Thread线程，独立运行与于 Activity 的，当 Activity 被 finish 后，如果没有主动停止 Thread 或者 run 方法没有执行完，其会一直执行下去。
-    2. AsyncTask 封装了两个线程池和一个 Handler，（SerialExecutor 用于排队，THREAD_POOL_EXECUTOR 为真正的执行任务，Handler 将工作线程切换到主线程），其必须在 UI 线程中创建，execute 方法必须在 UI 线程中执行，一个任务实例只允许执行一次，执行多次将抛出异常，用于网络请求或者简单数据处理。
-    3. IntentService：处理异步请求，实现多线程，在 onHandleIntent 中处理耗时操作，多个耗时任务会依次执行，执行完毕后自动结束。
+1. Thread线程，独立运行与于 Activity 的，当Activity 被 finish 后，如果没有主动停止 Thread或者 run 方法没有执行完，其会一直执行下去。
+
+2. AsyncTask 封装了两个线程池和一个Handler，（SerialExecutor用于排队，THREAD_POOL_EXECUTOR为真正的执行任务，Handler将工作线程切换到主线程），其必须在 UI线程中创建，execute 方法必须在 UI线程中执行，一个任务实例只允许执行一次，执行多次抛出异常，用于网络请求或者简单数据处理。
+
+3. IntentService：处理异步请求，实现多线程，在onHandleIntent中处理耗时操作，多个耗时任务会依次执行，执行完毕自动结束。
 
 **18.Merge、ViewStub 的作用。**
 
-    Merge: 减少视图层级，可以删除多余的层级，优化 UI。
-    ViewStub: 按需加载，减少内存使用量、加快渲染速度。不支持 merge 标签
+Merge: 减少视图层级，可以删除多余的层级，优化 UI。
+
+ViewStub: 按需加载，减少内存使用量、加快渲染速度不支持 merge 标签
     
 **19.Json有什么优劣势。**
 
-    优点
-    轻量级的数据交换格式
-    读写更加容易
-    易于机器的解析和生成
-    缺点
-    语义性较差，不如 xml 直观
+优点
+
+- 轻量级的数据交换格式
+- 读写更加容易
+- 易于机器的解析和生成
+- 
+缺点
+
+- 语义性较差，不如 xml 直观
     
 **20.动画有哪两类，各有什么特点？**
 
-    传统动画：帧动画和补间动画。
-    属性动画。
-    区别
-    属性动画才是真正的实现了 view 的移动，补间动画对 view 的移动更像是在不同地方绘制了一个影子，实际的对象还是处于原来的地方。
-    当动画的 repeatCount 设置为无限循环时，如果在 Activity 退出时没有及时将动画停止，属性动画会导致 Activity 无法释放而导致内存泄漏，而补间动画却没有问题。
-    xml 文件实现的补间动画，复用率极高。在 Activity 切换，窗口弹出时等情景中有着很好的效果。
-    使用帧动画时需要注意，不要使用过多特别大的图，容易导致内存不足。
+传统动画：帧动画和补间动画。
+
+属性动画。
+
+区别
+
+属性动画才是真正的实现了 view 的移动，补间动画对view 的移动更像是在不同地方绘制了一个影子，实际对象还是处于原来的地方。
+当动画的 repeatCount 设置为无限循环时，如果在Activity 退出时没有及时将动画停止，属性动画会导致Activity 无法释放而导致内存泄漏，而补间动画却没问题。
+xml 文件实现的补间动画，复用率极高。在 Activity切换，窗口弹出时等情景中有着很好的效果。
+使用帧动画时需要注意，不要使用过多特别大的图，容导致内存不足。
     
 **21.Asset目录与res目录的区别。**
 
-    assets：不会在 R 文件中生成相应标记，存放到这里的资源在打包时会打入程序安装包中。（通过 AssetManager 类访问这些文件）
-    res：会在 R 文件中生成 id 标记，资源在打包时如果使用到则打包到安装包中，未使用到不会打入安装包中。
-    res/anim: 存放动画资源
-    res/raw：和 asset 下文件一样打包时直接打入程序安装包中（会映射到 R 文件中）
+assets：不会在 R文件中生成相应标记，存放到这里的资源在打包时会打程序安装包中。（通过 AssetManager 类访问这些文件）
+
+res：会在 R 文件中生成 id标记，资源在打包时如果使用到则打包到安装包中，未用到不会打入安装包中。
+
+res/anim：存放动画资源
+
+res/raw：和 asset下文件一样打包时直接打入程序安装包中（会映射到 R文件中）
     
 **22.Android怎么加速启动Activity。**
 
-    onCreate() 中不执行耗时操作
-    把页面显示的 View 细分一下，放在 AsyncTask 里逐步显示，用 Handler 更好。这样用户的看到的就是有层次有步骤的一个个的 View 的展示，不会是先看到一个黑屏，然后一下显示所有 View。
-    最好做成动画，效果更自然。
-    利用多线程的目的就是尽可能的减少 onCreate() 和onReume() 的时间，使得用户能尽快看到页面，操作页面。
-    减少主线程阻塞时间
-    提高 Adapter 和 AdapterView 的效率
-    优化布局文件
+- onCreate() 中不执行耗时操作
+把页面显示的 View 细分一下，放在 AsyncTask里逐步显示，用 Handler更好。这样用户的看到的就是有层次有步骤的一个个的View 的展示，不会是先看到一个黑屏，然后一下显示所有 View。最好做成动画，效果更自然。
+- 利用多线程的目的就是尽可能的减少 onCreate()和onReume()的时间，使得用户能尽快看到页面，操作页面。
+- 减少主线程阻塞时间
+- 提高 Adapter 和 AdapterView 的效率
+- 优化布局文件
     
 **23.Handler机制**
 
 Handler各个部分的作用：
 
-    1.MessageQueue：读取会自动删除消息，单链表维护，在插入和删除上有优势。在其next()中会无限循环，不断判断是否有消息，有就返回这条消息并移除。
-    2.Looper：Looper创建的时候会创建一个MessageQueue，调用loop()方法的时候消息循环开始，loop()也是一个死循环，会不断调用messageQueue的next()，当有消息就处理，否则阻塞在messageQueue的next()中。当Looper的quit()被调用的时候会调用messageQueue的quit(),此时next()会返回null，然后loop()方法也跟着退出。
-    3.Handler：在主线程构造一个Handler，然后在其他线程调用sendMessage(),此时主线程的MessageQueue中会插入一条message，然后被Looper使用。
-    4.系统的主线程在ActivityThread的main()为入口开启主线程，其中定义了内部类Activity.H定义了一系列消息类型，包含四大组件的启动停止。
+1.MessageQueue：读取会自动删除消息，单链表维护，插入和删除上有优势。在其next()中会无限循环，不断断是否有消息，有就返回这条消息并移除。
 
-    Android 的消息机制也就是 handler 机制,创建 handler 的时候会创建一个 looper ( 通过 looper.prepare() 来创建 ),looper 一般为主线程 looper.
-    
-    
-    handler 通过 send 发送消息 (sendMessage) ,当然 post 一系列方法最终也是通过 send 来实现的,在 send 方法中handler 会通过 enqueueMessage() 方法中的 enqueueMessage(msg,millis )向消息队列 MessageQueue 插入一条消息,同时会把本身的 handler 通过 msg.target = this 传入.
-    
-    
-    Looper 是一个死循环,不断的读取MessageQueue中的消息,loop 方法会调用 MessageQueue 的 next 方法来获取新的消息,next 操作是一个阻塞操作,当没有消息的时候 next 方法会一直阻塞,进而导致 loop 一直阻塞,当有消息的时候,Looper 就会处理消息 Looper 收到消息之后就开始处理消息: msg.target.dispatchMessage(msg),当然这里的 msg.target 就是上面传过来的发送这条消息的 handler 对象,这样 handler 发送的消息最终又交给他的dispatchMessage方法来处理了,这里不同的是,handler 的 dispatchMessage 方法是在创建 Handler时所使用的 Looper 中执行的,这样就成功的将代码逻辑切换到了主线程了.
-    
-    
-    Handler 处理消息的过程是:首先,检查Message 的 callback 是否为 null,不为 null 就通过 handleCallBack 来处理消息,Message 的 callback 是一个 Runnable 对象,实际上是 handler 的 post 方法所传递的 Runnable 参数.其次是检查 mCallback 是 否为 null,不为 null 就调用 mCallback 的handleMessage 方法来处理消息.
+2.Looper：Looper创建的时候会创建一个MessageQueue调用loop()方法的时候消息循环开始，loop()也是一个循环，会不断调用messageQueue的next()，当有消息就理，否则阻塞在messageQueue的next()中。当Looper的qit()被调用的时候会调用messageQueue的quit(),此时nxt()会返回null，然后loop()方法也跟着退出。
+
+3.Handler：在主线程构造一个Handler，然后在其他线调用sendMessage(),此时主线程的MessageQueue中会插一条message，然后被Looper使用。
+
+4.系统的主线程在ActivityThread的main()为入口开启线程，其中定义了内部类Activity.H定义了一系列消息型，包含四大组件的启动停止。
+
+Android 的消息机制也就是 handler 机制,创建 handler的时候会创建一个 looper ( 通过 looper.prepare()来创建 ),looper 一般为主线程 looper.
+handler 通过 send 发送消息 (sendMessage) ,当然post 一系列方法最终也是通过 send 来实现的,在 send方法中handler 会通过 enqueueMessage() 方法中的enqueueMessage(msg,millis )向消息队列 MessageQueue插入一条消息,同时会把本身的 handler 通过msg.target = this 传入.
+
+Looper 是一个死循环,不断的读取MessageQueue中的消,loop 方法会调用 MessageQueue 的 next方法来获取新的消息,next操作是一个阻塞操作,当没有消息的时候 next方法会一直阻塞,进而导致 loop一直阻塞,当有消息的时候,Looper 就会处理消息 Looper收到消息之后就开始处理消息:msg.target.dispatchMessage(msg),当然这里的msg.target 就是上面传过来的发送这条消息的 handler对象,这样 handler发送的消息最终又交给他的dispatchMessage方法来处理了,这里不同的是,handler 的 dispatchMessage方法是在创建 Handler时所使用的 Looper中执行的,这样就成功的将代码逻辑切换到了主线程了.
+
+
+Handler 处理消息的过程是:首先,检查Message 的callback 是否为 null,不为 null 就通过handleCallBack 来处理消息,Message 的 callback是一个 Runnable 对象,实际上是 handler 的 post方法所传递的 Runnable 参数.其次是检查 mCallback 是否为 null,不为 null 就调用 mCallback的handleMessage 方法来处理消息.
     
 Android消息循环流程图如下所示：
 
@@ -340,9 +373,13 @@ Android消息循环流程图如下所示：
 主要涉及的角色如下所示：
 
 Message：消息，分为硬件产生的消息（例如：按钮、触摸）和软件产生的消息。
+
 MessageQueue：消息队列，主要用来向消息池添加消息和取走消息。
+
 Looper：消息循环器，主要用来把消息分发给相应的处理者。
+
 Handler：消息处理器，主要向消息队列发送各种消息以及处理各种消息。
+
 整个消息的循环流程还是比较清晰的，具体说来：
 
 Handler通过sendMessage()发送消息Message到消息队列MessageQueue。
@@ -356,11 +393,11 @@ target handler调用自身的handleMessage()方法来处理Message。
 
 在这些类中MessageQueue是Java层与C++层维系的桥梁，MessageQueue与Looper相关功能都通过MessageQueue的Native方法来完成，而其他虚线连接的类只有关联关系，并没有 直接调用的关系，它们发生关联的桥梁是MessageQueue。
     
-    https://www.zhihu.com/question/34652589
-    https://github.com/xitu/gold-miner/blob/master/TODO/android-handler-internals.md
-    http://blog.csdn.net/guolin_blog/article/details/9991569
-    http://droidyue.com/blog/2015/11/08/make-use-of-handlerthread
-    http://blog.csdn.net/luoshengyang/article/details/6817933
+https://www.zhihu.com/question/34652589
+https://github.com/xitu/gold-miner/blob/master/TODO/android-handler-internals.md
+http://blog.csdn.net/guolin_blog/article/details/9991569
+http://droidyue.com/blog/2015/11/08/make-use-of-handlerthread
+http://blog.csdn.net/luoshengyang/article/deta6817933
 
 
 **24.程序A能否接收到程序B的广播？接入微信支付的时候，微信是如何跟当前程序进行通信？**
@@ -371,114 +408,93 @@ target handler调用自身的handleMessage()方法来处理Message。
 
 **27. Android中进程的级别，以及各自的区别。**
 
-    1、前台进程
+1、前台进程
+
+用户当前正在做的事情需要这个进程。如果满足下面的件之一，一个进程就被认为是前台进程：
+
+1).这个进程拥有一个正在与用户交互的Activity(这个Ativity的onResume()方法被调用)。
+
+2).这个进程拥有一个绑定到正在与用户交互的activit上的Service。
+
+3).这个进程拥有一个前台运行的Service（service调了方法startForeground()）.
+
+4).这个进程拥有一个正在执行其任何一个生命周期回方法（onCreate(),onStart(),或onDestroy()）的Servie。
+
+5).这个进程拥有正在执行其onReceive()方法的BroadcatReceiver。
+
+通常，在任何时间点，只有很少的前台进程存在。它们有在达到无法调合的矛盾时才会被杀－－如内存太小而能继续运行时。通常，到了这时，设备就达到了一个内分页调度状态，所以需要杀一些前台进程来保证用户界的反应.
+
+2、可见进程
+
+一个进程不拥有运行于前台的组件，但是依然能影响用所见。满足下列条件时，进程即为可见：
+
+这个进程拥有一个不在前台但仍可见的Activity(它的onause()方法被调用)。当一个前台activity启动一个对框时，就出了这种情况。
+
+3、服务进程
+
+一个可见进程被认为是极其重要的。并且，除非只有杀它才可以保证所有前台进程的运行，否则是不能动它的。
+
+这个进程拥有一个绑定到可见activity的Service。
+
+一个进程不在上述两种之内，但它运行着一个被startSevice()所启动的service。
+
+尽管一个服务进程不直接影响用户所见，但是它们通常一些用户关心的事情（比如播放音乐或下载数据），所系统不到前台进程和可见进程活不下去时不会杀它。
+
+4、后台进程
+
+一个进程拥有一个当前不可见的activity(activity的ontop()方法被调用)。
+
+这样的进程们不会直接影响到用户体验，所以系统可以任意时刻杀了它们从而为前台、可见、以及服务进程们供存储空间。通常有很多后台进程在运行。它们被保存一个LRU(最近最少使用)列表中来确保拥有最近刚被看到的activity的进程最后被杀。如果一个activity正确的实现了它的生命周期方法，并保存了它的当前状态，那么杀死它的进程将不会对用户的可视化体验造成影响。因为当用户返回到这个activity时，这个activity会恢复它所有的可见状态。
     
-    
-    用户当前正在做的事情需要这个进程。如果满足下面的条件之一，一个进程就被认为是前台进程：
-    
-    
-    1).这个进程拥有一个正在与用户交互的Activity(这个Activity的onResume()方法被调用)。
-    
-    2).这个进程拥有一个绑定到正在与用户交互的activity上的Service。
-    
-    3).这个进程拥有一个前台运行的Service（service调用了方法startForeground()）.
-    
-    4).这个进程拥有一个正在执行其任何一个生命周期回调方法（onCreate(),onStart(),或onDestroy()）的Service。
-    
-    5).这个进程拥有正在执行其onReceive()方法的BroadcastReceiver。
-    
-    通常，在任何时间点，只有很少的前台进程存在。它们只有在达到无法调合的矛盾时才会被杀－－如内存太小而不能继续运行时。通常，到了这时，设备就达到了一个内存分页调度状态，所以需要杀一些前台进程来保证用户界面的反应.
-    
-    
-    2、可见进程
-    
-    
-    一个进程不拥有运行于前台的组件，但是依然能影响用户所见。满足下列条件时，进程即为可见：
-    
-    这个进程拥有一个不在前台但仍可见的Activity(它的onPause()方法被调用)。当一个前台activity启动一个对话框时，就出了这种情况。
-    
-    
-    3、服务进程
-    
-    
-    一个可见进程被认为是极其重要的。并且，除非只有杀掉它才可以保证所有前台进程的运行，否则是不能动它的。
-    
-    这个进程拥有一个绑定到可见activity的Service。
-    
-    一个进程不在上述两种之内，但它运行着一个被startService()所启动的service。
-    
-    尽管一个服务进程不直接影响用户所见，但是它们通常做一些用户关心的事情（比如播放音乐或下载数据），所以系统不到前台进程和可见进程活不下去时不会杀它。
-    
-    
-    4、后台进程
-    
-    
-    一个进程拥有一个当前不可见的activity(activity的onStop()方法被调用)。
-    
-    这样的进程们不会直接影响到用户体验，所以系统可以在任意时刻杀了它们从而为前台、可见、以及服务进程们提供存储空间。通常有很多后台进程在运行。它们被保存在一个LRU(最近最少使用)列表中来确保拥有最近刚被看到的activity的进程最后被杀。如果一个activity正确的实现了它的生命周期方法，并保存了它的当前状态，那么杀死它的进程将不会对用户的可视化体验造成影响。因为当用户返回到这个activity时，这个activity会恢复它所有的可见状态。
-    
-    
-    5、空进程
-    
-    
-    一个进程不拥有入何active组件。
-    
-    
-    保留这类进程的唯一理由是高速缓存，这样可以提高下一次一个组件要运行它时的启动速度。系统经常为了平衡在进程高速缓存和底层的内核高速缓存之间的整体系统资源而杀死它们。
+5、空进程
+
+一个进程不拥有入何active组件。
+
+保留这类进程的唯一理由是高速缓存，这样可以提高下次一个组件要运行它时的启动速度。系统经常为了平衡进程高速缓存和底层的内核高速缓存之间的整体系统资而杀死它们。
 
 **28.线程池的相关知识。**
 
-    Android中的线程池都是之间或间接通过配置ThreadPoolExecutor来实现不同特性的线程池.Android中最常见的四类具有不同特性的线程池分别为FixThreadPool、CachedThreadPool、SingleThreadPool、ScheduleThreadExecutor.
+Android中的线程池都是之间或间接通过配置ThreadPoolxecutor来实现不同特性的线程池.Android中最常见的类具有不同特性的线程池分别为FixThreadPool、CachedhreadPool、SingleThreadPool、ScheduleThreadExecutr.
+
+1).FixThreadPool
+
+只有核心线程,并且数量固定的,也不会被回收,所有线都活动时,因为队列没有限制大小,新任务会等待执行.
+
+优点:更快的响应外界请求.
+
+2).SingleThreadPool
+
+只有一个核心线程,确保所有的任务都在同一线程中按序完成.因此不需要处理线程同步的问题.
+
+3).CachedThreadPool
+
+只有非核心线程,最大线程数非常大,所有线程都活动时会为新任务创建新线程,否则会利用空闲线程(60s空闲时间,过了就会被回收,所以线程池中有0个线程的可能)处理任务.
     
-    
-    1).FixThreadPool
-    
-    
-    只有核心线程,并且数量固定的,也不会被回收,所有线程都活动时,因为队列没有限制大小,新任务会等待执行.
-    
-    优点:更快的响应外界请求.
-    
-    
-    2).SingleThreadPool
-    
-    
-    只有一个核心线程,确保所有的任务都在同一线程中按顺序完成.因此不需要处理线程同步的问题.
-    
-    
-    3).CachedThreadPool
-    
-    
-    只有非核心线程,最大线程数非常大,所有线程都活动时,会为新任务创建新线程,否则会利用空闲线程(60s空闲时间,过了就会被回收,所以线程池中有0个线程的可能)处理任务.
-    
-    优点:任何任务都会被立即执行(任务队列SynchronousQueue相当于一个空集合);比较适合执行大量的耗时较少的任务.
-    
-    
-    4).ScheduledThreadPool
-    
-    
-    核心线程数固定,非核心线程(闲着没活干会被立即回收)数没有限制.
-    
-    优点:执行定时任务以及有固定周期的重复任务
+优点:任何任务都会被立即执行(任务队列SynchronousQuue相当于一个空集合);比较适合执行大量的耗时较少的务.
+
+4).ScheduledThreadPool
+
+核心线程数固定,非核心线程(闲着没活干会被立即回收数没有限制.
+
+优点:执行定时任务以及有固定周期的重复任务
 
 **29.内存泄露，怎样查找，怎么产生的内存泄露。**
 
-    1).资源对象没关闭造成的内存泄漏
-    
-    2).构造Adapter时，没有使用缓存的convertView
-    
-    3).Bitmap对象不在使用时调用recycle()释放内存
-    
-    4).试着使用关于application的context来替代和activity相关的context
-    
-    5).注册没取消造成的内存泄漏
-    
-    6).集合中对象没清理造成的内存泄漏
-    
-    
-    查找内存泄漏
-    
-    
-    查找内存泄漏可以使用Android Stdio 自带的Android Profiler工具,也可以使用Square产品的LeakCanary.
+1).资源对象没关闭造成的内存泄漏
+
+2).构造Adapter时，没有使用缓存的convertView
+
+3).Bitmap对象不在使用时调用recycle()释放内存
+
+4).试着使用关于application的context来替代和activiy相关的context
+
+5).注册没取消造成的内存泄漏
+
+6).集合中对象没清理造成的内存泄漏
+
+查找内存泄漏
+
+查找内存泄漏可以使用Android Studio 自带的AndroidProfiler工具,也可以使用Square产品的LeakCanary.
 
 **30.类的初始化顺序依次是（静态变量、静态代码块）>（变量、代码块）>构造方法**
 
@@ -535,7 +551,7 @@ target handler调用自身的handleMessage()方法来处理Message。
 
 **51.如何计算一个Bitmap占用内存的大小，怎么保证加载Bitmap不产生内存溢出？**
 
-Bitamp 占用内存大小 = 宽度像素 x （inTargetDensity / inDensity） x 高度像素 x （inTargetDensity / inDensity）x 一个像素所占的内存
+    Bitamp 占用内存大小 = 宽度像素 x （inTargetDensity / inDensity） x 高度像素 x （inTargetDensity / inDensity）x 一个像素所占的内存
 
 注：这里inDensity表示目标图片的dpi（放在哪个资源文件夹下），inTargetDensity表示目标屏幕的dpi，所以你可以发现inDensity和inTargetDensity会对Bitmap的宽高 进行拉伸，进而改变Bitmap占用内存的大小。
 
@@ -605,9 +621,9 @@ BitmapFactory.Options.inPurgeable：让系统可以内存不足时回收内存�
 
 **78.两个Activity之间跳转时必然会执行的是哪几个方法？**
 
-    答：一般情况下比如说有两个activity,分别叫A,B,当在A 里面激活B 组件的时候, A 会调用onPause()方法,然后B 调用onCreate() ,onStart(), onResume()。
-    这个时候B 覆盖了窗体, A 会调用onStop()方法. 如果B 是个透明的,或者是对话框的样式, 就不会调用A 的
-    onStop()方法。
+答：一般情况下比如说有两个activity,分别叫A,B,当在A里面激活B 组件的时候, A 会调用onPause()方法,然后B调用onCreate() ,onStart(), onResume()。
+这个时候B 覆盖了窗体, A 会调用onStop()方法. 如果B是个透明的,或者是对话框的样式, 就不会调用A 的
+onStop()方法。
     
 **79.如何选择第三方，从那些方面考虑？**
 
@@ -709,8 +725,7 @@ RelativeLayout的子View如果高度和RelativeLayout不同，则会引发效率
 
 **116.Activity的生命周期，finish调用后其他生命周期还会走么？**
 
-**117.内存泄漏如何排查，MAT分析方法以及原理，各种泄漏的原因是什么比如
-Handler为什么会泄漏**
+**117.内存泄漏如何排查，MAT分析方法以及原理，各种泄漏的原因是什么比如Handler为什么会泄漏**
 
 
 **118.view的绘制熟悉么，介绍下**
@@ -815,31 +830,37 @@ pull解析：同样基于事件驱动型,android 官方API提供,可随时终止
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ; 
     mContext.startActivity(intent);
 
-
-       
 怎么在Service中创建Dialog对话框
 
-    1.在我们取得Dialog对象后，需给它设置类型，即：
-    dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
-    2.在Manifest中加上权限:
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    
+1.在我们取得Dialog对象后，需给它设置类型，即：
 
+    dialog.getWindow().setType(WindowManager.LayoutPaams.TYPE_SYSTEM_ALERT)
+
+2.在Manifest中加上权限:
+
+    <uses-permissionandroid:name="android.permission.SYSTEM_ALERT_WINOW" />
+    
 **130.HandlerThread**
 
 1、HandlerThread作用
 
-    当系统有多个耗时任务需要执行时，每个任务都会开启一个新线程去执行耗时任务，这样会导致系统多次创建和销毁线程，从而影响性能。为了解决这一问题，Google提供了HandlerThread，HandlerThread是在线程中创建一个Looper循环器，让Looper轮询消息队列，当有耗时任务进入队列时，则不需要开启新线程，在原有的线程中执行耗时任务即可，否则线程阻塞。
+当系统有多个耗时任务需要执行时，每个任务都会开启个新线程去执行耗时任务，这样会导致系统多次创建和毁线程，从而影响性能。为了解决这一问题，Google提了HandlerThread，HandlerThread是在线程中创建一个Loper循环器，让Looper轮询消息队列，当有耗时任务进队列时，则不需要开启新线程，在原有的线程中执行耗任务即可，否则线程阻塞。
     
 2、HanlderThread的优缺点
 
-    HandlerThread本质上是一个线程类，它继承了Thread；
-    HandlerThread有自己的内部Looper对象，可以进行looper循环；
-    通过获取HandlerThread的looper对象传递给Handler对象，可以在handleMessage()方法中执行异步任务。
-    创建HandlerThread后必须先调用HandlerThread.start()方法，Thread会先调用run方法，创建Looper对象。
-    HandlerThread优点是异步不会堵塞，减少对性能的消耗
-    HandlerThread缺点是不能同时继续进行多任务处理，需要等待进行处理，处理效率较低
-    HandlerThread与线程池不同，HandlerThread是一个串行队列，背后只有一个线程。
+- HandlerThread本质上是一个线程类，它继承了Thread；
+
+- HandlerThread有自己的内部Looper对象，可以进行loopr循环；
+
+- 通过获取HandlerThread的looper对象传递给Handler对，可以在handleMessage()方法中执行异步任务。
+
+- 创建HandlerThread后必须先调用HandlerThread.start(方法，Thread会先调用run方法，创建Looper对象。
+
+- HandlerThread优点是异步不会堵塞，减少对性能的消耗
+
+- HandlerThread缺点是不能同时继续进行多任务处理，要等待进行处理，处理效率较低
+
+- HandlerThread与线程池不同，HandlerThread是一个串队列，背后只有一个线程。
 
 **131.IntentService**
 
@@ -859,8 +880,14 @@ https://www.jianshu.com/p/69d9444e2a9a
 
 **135.如何将一个Activity设置成窗口的样式。**
 
-    <activity>中配置：android :theme="@android:style/Theme.Dialog"
-    另外 android:theme="@android:style/Theme.Translucent" 是设置透明
+<activity>中配置：
+
+    android:theme="@android:style/Theme.Dialog"
+    
+另外 
+
+    android:theme="@android:style/Theme.Translucnt"
+是设置透明
 
 
 **136.Android Application对象必须掌握的七点**
@@ -895,8 +922,6 @@ https://blog.csdn.net/javazejian/article/details/71860633
 **143.int,long的取值范围以及BigDecimal，数值越界了如何处理？**
 
 **144.Android中如何查看一个对象的回收情况？**
-
-
 
 **145.ContentProvider、ContentResolver、ContentObserver 之间的关系。**
 
@@ -1159,36 +1184,44 @@ BigDecimal类进行商业计算，Float和Double只能用来做科学计算或�
 Android 进程不死从3个层面入手：
 
 A.提供进程优先级，降低进程被杀死的概率
-方法一：监控手机锁屏解锁事件，在屏幕锁屏时启动1个像素的 Activity，在用户解锁时将 Activity 销毁掉。
-方法二：启动前台service。
-方法三：提升service优先级：
-在AndroidManifest.xml文件中对于intent-filter可以通过android:priority = "1000"这个属性设置最高优先级，1000是最高值，如果数字越小则优先级越低，同时适用于广播。
-B. 在进程被杀死后，进行拉活
-方法一：注册高频率广播接收器，唤起进程。如网络变化，解锁屏幕，开机等
-方法二：双进程相互唤起。
-方法三：依靠系统唤起。
-方法四：onDestroy方法里重启service：service +broadcast 方式，就是当service走ondestory的时候，发送一个自定义的广播，当收到广播的时候，重新启动service；
-C. 依靠第三方
-根据终端不同，在小米手机（包括 MIUI）接入小米推送、华为手机接入华为推送；其他手机可以考虑接入腾讯信鸽或极光推送与小米推送做 A/B Test。
 
+方法一：监控手机锁屏解锁事件，在屏幕锁屏时启动1个像素的 Activity，在用户解锁时将 Activity 销毁掉。
+
+方法二：启动前台service。
+
+方法三：提升service优先级：
+
+在AndroidManifest.xml文件中对于intent-filter可以通过android:priority = "1000"这个属性设置最高优先级，1000是最高值，如果数字越小则优先级越低，同时适用于广播。
+
+B. 在进程被杀死后，进行拉活
+
+方法一：注册高频率广播接收器，唤起进程。如网络变化，解锁屏幕，开机等
+
+方法二：双进程相互唤起。
+
+方法三：依靠系统唤起。
+
+方法四：onDestroy方法里重启service：service +broadcast 方式，就是当service走ondestory的时候，发送一个自定义的广播，当收到广播的时候，重新启动service；
+
+C. 依靠第三方
+
+根据终端不同，在小米手机（包括 MIUI）接入小米推送、华为手机接入华为推送；其他手机可以考虑接入腾讯信鸽或极光推送与小米推送做 A/B Test。
 
 **183.引起内存泄漏的情况**
 
-1. 对于使用了BraodcastReceiver，ContentObserver，File，游标 Cursor，Stream，Bitmap等资源的使用，应该在Activity销毁时及时关闭或者注销。
-1. 静态内部类持有外部成员变量（或context）:可以使用弱引用或使用ApplicationContext。
-1. 内部类持有外部类引用,异步任务中，持有外部成员变量。
-1. 集合中没用的对象没有及时remove。
-1. 不用的对象及时释放，如使用完Bitmap后掉用recycle（），再赋null。
-1. handler引起的内存泄漏，MessageQueue里的消息如果在activity销毁时没有处理完，就会引起内存的泄漏，可以使用弱引用解决。
-1. 设置过的监听不用时，及时移除。如在Destroy时及时remove。尤其以addListener开头的，在Destroy中都需要remove。
-1. activity泄漏可以使用LeakCanary。
-1. 在内存引用上做些处理，常用的有软引用、弱引用
-1. 在内存中加载图片时直接在内存中作处理，如：边界压缩
-1. 动态回收内存
-1. 优化Dalvik虚拟机的堆内存分配
-1. 自定义堆内存大小
-2. 
-
+- 对于使用了BraodcastReceiver，ContentObserver，File，游标 Cursor，Stream，Bitmap等资源的使用，应该在Activity销毁时及时关闭或者注销。
+- 静态内部类持有外部成员变量（或context）:可以使用弱引用或使用ApplicationContext。
+- 内部类持有外部类引用,异步任务中，持有外部成员变量。
+- 集合中没用的对象没有及时remove。
+- 不用的对象及时释放，如使用完Bitmap后掉用recycle（），再赋null。
+- handler引起的内存泄漏，MessageQueue里的消息如果在activity销毁时没有处理完，就会引起内存的泄漏，可以使用弱引用解决。
+- 设置过的监听不用时，及时移除。如在Destroy时及时remove。尤其以addListener开头的，在Destroy中都需要remove。
+- activity泄漏可以使用LeakCanary。
+- 在内存引用上做些处理，常用的有软引用、弱引用
+- 在内存中加载图片时直接在内存中作处理，如：边界压缩
+- 动态回收内存
+- 优化Dalvik虚拟机的堆内存分配
+- 自定义堆内存大小
 
 **184.Handler机制** 
 
@@ -1221,7 +1254,6 @@ listview 被多层嵌套，多次的onMessure导致卡顿，如果多层嵌套�
 2.JSON相对于XML来讲，数据的体积小
 
 3.JSON对数据的描述性比XML较差
-
 
 **187.AndroidManifest的作用与理解**
 
@@ -1265,10 +1297,11 @@ singleInstance应用场景：
 
 **193.请介绍下ContentProvider 是如何实现数据共享的？**
 
-**194.AndroidService与Activity之间通信的几种方式**
+**194.Android Service 与 Activity 之间通信的几种方式**
 
-通过Binder对象
-通过broadcast(广播)的形式
+- 通过Binder对象
+
+- 通过broadcast(广播)的形式
 
 **195.IntentService原理及作用是什么？**
 
@@ -1295,6 +1328,7 @@ singleInstance应用场景：
 ThreadLocal是一个关于创建线程局部变量的类。使用场景如下所示：
 
 实现单个线程单例以及单个线程上下文信息存储，比如交易id等。
+
 实现线程安全，非线程安全的对象使用ThreadLocal之后就会变得线程安全，因为每个线程都会有一个对应的实例。
 承载一些线程相关的数据，避免在方法中来回传递参数。
 
@@ -1314,7 +1348,9 @@ Service在特定的时间内无法处理完成 20秒
 使用AsyncTask处理耗时IO操作。
 
 使用Thread或者HandlerThread时，调用Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)设置优先级，否则仍然会降低程序响应，因为默认Thread的优先级和主线程相同。
+
 使用Handler处理工作线程结果，而不是使用Thread.wait()或者Thread.sleep()来阻塞主线程。
+
 Activity的onCreate和onResume回调中尽量避免耗时的代码
 BroadcastReceiver中onReceive代码也要尽量减少耗时，建议使用IntentService处理。
 
@@ -1342,7 +1378,9 @@ http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0920/3478.html
 
 1.资源对象没关闭造成的内存泄漏
 
-描述： 资源性对象比如(Cursor，File文件等)往往都用了一些缓冲，我们在不使用的时候，应该及时关闭它们，以便它们的缓冲及时回收内存。它们的缓冲不仅存在于 java虚拟机内，还存在于java虚拟机外。如果我们仅仅是把它的引用设置为null,而不关闭它们，往往会造成内存泄漏。因为有些资源性对象，比如 SQLiteCursor(在析构函数finalize(),如果我们没有关闭它，它自己会调close()关闭)，如果我们没有关闭它，系统在回收它时也会关闭它，但是这样的效率太低了。因此对于资源性对象在不使用的时候，应该调用它的close()函数，将其关闭掉，然后才置为null.在我们的程序退出时一定要确保我们的资源性对象已经关闭。 程序中经常会进行查询数据库的操作，但是经常会有使用完毕Cursor后没有关闭的情况。如果我们的查询结果集比较小，对内存的消耗不容易被发现，只有在常时间大量操作的情况下才会复现内存问题，这样就会给以后的测试和问题排查带来困难和风险。
+描述： 资源性对象比如(Cursor，File文件等)往往都用了一些缓冲，我们在不使用的时候，应该及时关闭它们，以便它们的缓冲及时回收内存。它们的缓冲不仅存在于 java虚拟机内，还存在于java虚拟机外。如果我们仅仅是把它的引用设置为null,而不关闭它们，往往会造成内存泄漏。因为有些资源性对象，比如SQLiteCursor(在析构函数finalize(),如果我们没有关闭它，它自己会调close()关闭)，如果我们没有关闭它，系统在回收它时也会关闭它，但是这样的效率太低了。因此对于资源性对象在不使用的时候，应该调用它的close()函数，将其关闭掉，然后才置为null.在我们的程序退出时一定要确保我们的资源性对象已经关闭。
+
+程序中经常会进行查询数据库的操作，但是经常会有使用完毕Cursor后没有关闭的情况。如果我们的查询结果集比较小，对内存的消耗不容易被发现，只有在常时间大量操作的情况下才会复现内存问题，这样就会给以后的测试和问题排查带来困难和风险。
 
 2.构造Adapter时，没有使用缓存的convertView
 
@@ -1353,6 +1391,7 @@ http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0920/3478.html
     ... ... 
     return view; 
     }
+    
 修正示例代码：
 
     public View getView(int position, ViewconvertView, ViewGroup parent) {
@@ -1367,6 +1406,7 @@ http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0920/3478.html
     } 
     return view; 
     }
+    
 3.Bitmap对象不在使用时调用recycle()释放内存
 
 描述： 有时我们会手工的操作Bitmap对象，如果一个Bitmap对象比较占内存，当它不在被使用的时候，可以调用Bitmap.recycle()方法回收此对象的像素所占用的内存，但这不是必须的，视情况而定。可以看一下代码中的注释：
@@ -1485,9 +1525,6 @@ SharedPreference无法进行跨进程通信，MODE_MULTI_PROCESS只是保证了�
 **232.写出你认为最优的懒汉式单例模式**
 
 **233.activity意外退出时信息的储存与恢复，onCreate正常进入时的判断。**
-
-
-
 
 **234.抽象类能否实例化，理论依据是什么？**
 
