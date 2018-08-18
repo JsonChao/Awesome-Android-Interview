@@ -1,13 +1,11 @@
 ## Android高级面试题
 
-
 **一、图片**
 
 **图片库对比**
 
 http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
 http://www.trinea.cn/android/android-image-cache-compare/
-
 
 图片库的源码分析
 
@@ -747,18 +745,283 @@ C++调用Java
         (*env)->DeleteLocalRef(env,str_arg);  
     }  
     
-八、其它高频面试题
+**八、Android Framework相关**
+
+**android重要术语解释**
+
+1.ActivityManagerServices，简称AMS，服务端对象，责系统中所有Activity的生命周期
+
+2.ActivityThread，App的真正入口。当开启App之后，调用main()开始运行，开启消息循环队列，这就是传说的UI线程或者叫主线程。与ActivityManagerServices合，一起完成Activity的管理工作
+
+3.ApplicationThread，用来实现ActivityManagerServie与ActivityThread之间的交互。在ActivityManagerSevice需要管理相关Application中的Activity的生命周时，通过ApplicationThread的代理对象与ActivityThrad通讯。
+
+4.ApplicationThreadProxy，是ApplicationThread在务器端的代理，负责和客户端的ApplicationThread通讯。AMS就是通过该代理与ActivityThread进行通信的。
+
+5.Instrumentation，每一个应用程序只有一个Instrumetation对象，每个Activity内都有一个对该对象的引用Instrumentation可以理解为应用进程的管家，Activityhread要创建或暂停某个Activity时，都需要通过Instruentation来进行具体的操作。
+
+6.ActivityStack，Activity在AMS的栈管理，用来记录经启动的Activity的先后关系，状态信息等。通过ActivtyStack决定是否需要启动新的进程。
+
+7.ActivityRecord，ActivityStack的管理对象，每个Acivity在AMS对应一个ActivityRecord，来记录Activity状态以及其他的管理信息。其实就是服务器端的Activit对象的映像。
+
+8.TaskRecord，AMS抽象出来的一个“任务”的概念，是录ActivityRecord的栈，一个“Task”包含若干个ActivitRecord。AMS用TaskRecord确保Activity启动和退出的序。如果你清楚Activity的4种launchMode，那么对这概念应该不陌生。
+    
+**理解Window和WindowManager**
+
+1.Window用于显示View和接收各种事件，Window有三种型：应用Window(每个Activity对应一个Window)、子Widow(不能单独存在，附属于特定Window)、系统window(oast和状态栏)
+
+2.Window分层级，应用Window在1-99、子Window在1000-999、系统Window在2000-2999.WindowManager提供了增改View三个功能。
+
+3.Window是个抽象概念：每一个Window对应着一个ViewViewRootImpl，Window通过ViewRootImpl来和View建立系，View是Window存在的实体，只能通过WindowManage来访问Window。
+
+4.WindowManager的实现是WindowManagerImpl其再委托WindowManagerGlobal来对Window进行操作，其中有四List分别储存对应的View、ViewRootImpl、WindowMange.LayoutParams和正在被删除的View
+
+5.Window的实体是存在于远端的WindowMangerService，所以增删改Window在本端是修改上面的几个List然后过ViewRootImpl重绘View，通过WindowSession(每个应一个)在远端修改Window。
+
+6.Activity创建Window：Activity会在attach()中创建Wndow并设置其回调(onAttachedToWindow()、dispatchTochEvent()),Activity的Window是由Policy类创建PhoneWndow实现的。然后通过Activity#setContentView()调用honeWindow的setContentView。
+
+**说下四大组件的启动过程，四大组件的启动与销毁的方式。**
+
+**Android Framework层有没有了解过，说说 Window 窗口添加的过程；**
+
+**ActivityThread工作原理** 
+
+**Android dalvik虚拟机和Art虚拟机的优化升级点**
+
+**Android2个虚拟机的区别（一个5.0之前，一个5.0之后）**
+
+**ART和Dalvik区别**
+
+art上应用启动快，运行快，但是耗费更多存储空间，安装时间长，总的来说ART的功效就是”空间换时间”。
+
+ART: Ahead of Time
+Dalvik: Just in Time
+
+什么是Dalvik：Dalvik是Google公司自己设计用于Android平台的Java虚拟机。Dalvik虚拟机是Google等厂商合作开发的Android移动设备平台的核心组成部分之一，它可以支持已转换为.dex(即Dalvik Executable)格式的Java应用程序的运行，.dex格式是专为Dalvik应用设计的一种压缩格式，适合内存和处理器速度有限的系统。Dalvik经过优化，允许在有限的内存中同时运行多个虚拟机的实例，并且每一个Dalvik应用作为独立的Linux进程执行。独立的进程可以防止在虚拟机崩溃的时候所有程序都被关闭。
+
+什么是ART:Android操作系统已经成熟，Google的Android团队开始将注意力转向一些底层组件，其中之一是负责应用程序运行的Dalvik运行时。Google开发者已经花了两年时间开发更快执行效率更高更省电的替代ART运行时。ART代表Android Runtime,其处理应用程序执行的方式完全不同于Dalvik，Dalvik是依靠一个Just-In-Time(JIT)编译器去解释字节码。开发者编译后的应用代码需要通过一个解释器在用户的设备上运行，这一机制并不高效，但让应用能更容易在不同硬件和架构上运行。ART则完全改变了这套做法，在应用安装的时候就预编译字节码到机器语言，这一机制叫Ahead-Of-Time(AOT)编译。在移除解释代码这一过程后，应用程序执行将更有效率，启动更快。
+
+ART优点：
+
+系统性能的显著提升
+应用启动更快、运行更快、体验更流畅、触感反馈更及时。
+更长的电池续航能力
+支持更低的硬件
+
+ART缺点：
+更大的存储空间占用，可能会增加10%-20%
+更长的应用安装时间
+
+**对 Dalvik、ART 虚拟机有基本的了解**
+
+https://blog.csdn.net/jason0539/article/details/50440669
+
+http://www.jackywang.tech/2017/08/21/%E5%85%B3%E4%BA%8EDalvik%EF%BC%8C%E6%88%91%E4%BB%AC%E8%AF%A5%E7%9F%A5%E9%81%93%E4%BA%9B%E4%BB%80%E4%B9%88%EF%BC%9F/
+
+**Android中App 是如何沙箱化的,为何要这么做**
+
+**权限管理系统**
+
+https://juejin.im/entry/57a99fba5bbb500064418fc0
+
+**说说 apk 打包流程；**
+
+Android的包文件APK分为两个部分：代码和资源，所以打包方面也分为资源打包和代码打包两个方面，这篇文章就来分析资源和代码的编译打包原理。
+
+APK整体的的打包流程如下图所示：
+
+![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/native/vm/apk_package_flow.png)
+
+具体说来：
+
+通过AAPT工具进行资源文件（包括AndroidManifest.xml、布局文件、各种xml资源等）的打包，生成R.java文件。
+通过AIDL工具处理AIDL文件，生成相应的Java文件。
+通过Javac工具编译项目源码，生成Class文件。
+通过DX工具将所有的Class文件转换成DEX文件，该过程主要完成Java字节码转换成Dalvik字节码，压缩常量池以及清除冗余信息等工作。
+通过ApkBuilder工具将资源文件、DEX文件打包生成APK文件。
+利用KeyStore对生成的APK文件进行签名。
+如果是正式版的APK，还会利用ZipAlign工具进行对齐处理，对齐的过程就是将APK文件中所有的资源文件举例文件的起始距离都偏移4字节的整数倍，这样通过内存映射访问APK文件 的速度会更快。
+
+**介绍下Android应用程序启动过程**
+
+整个应用程序的启动过程要执行很多步骤，但是整体来看，主要分为以下五个阶段：
+
+一. ：Launcher通过Binder进程间通信机制通知ActityManagerService，它要启动一个Activity；
+
+二.：ActivityManagerService通过Binder进程间机制通知Launcher进入Paused状态；
+
+三.：Launcher通过Binder进程间通信机制通知ActityManagerService，它已经准备就绪进入Paused状态，于是ActivityManagerService就创建一个新的进程，用来启动一个ActivityThread实例，即将要启动的Activity就是在这个ActivityThread实例中运行；
+    
+四. ：ActivityThread通过Binder进程间通信机制将一个ApplicationThread类型的Binder对象传递给ActivityManagerService，以便以后ActivityManagerService能够通过这个Binder对象和它进行通信；
+    
+五 ：ActivityManagerService通过Binder进程间通信机制通知ActivityThread，现在一切准备就绪，它可以真正执行Activity的启动操作了。
+
+**App启动流程，从点击桌面开始**
+
+点击应用图标后会去启动应用的LauncherActivity，如果LancerActivity所在的进程没有创建，还会创建新进程，整体的流程就是一个Activity的启动流程。
+
+Activity的启动流程图（放大可查看）如下所示：
+
+![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/app/component/activity_start_flow.png)
+
+整个流程涉及的主要角色有：
+
+Instrumentation: 监控应用与系统相关的交互行为。
+AMS：组件管理调度中心，什么都不干，但是什么都管。
+ActivityStarter：Activity启动的控制器，处理Intent与Flag对Activity启动的影响，具体说来有：1 寻找符合启动条件的Activity，如果有多个，让用户选择；2 校验启动参数的合法性；3 返回int参数，代表Activity是否启动成功。
+ActivityStackSupervisior：这个类的作用你从它的名字就可以看出来，它用来管理任务栈。
+ActivityStack：用来管理任务栈里的Activity。
+ActivityThread：最终干活的人，是ActivityThread的内部类，Activity、Service、BroadcastReceiver的启动、切换、调度等各种操作都在这个类里完成。
+注：这里单独提一下ActivityStackSupervisior，这是高版本才有的类，它用来管理多个ActivityStack，早期的版本只有一个ActivityStack对应着手机屏幕，后来高版本支持多屏以后，就 有了多个ActivityStack，于是就引入了ActivityStackSupervisior用来管理多个ActivityStack。
+
+整个流程主要涉及四个进程：
+
+调用者进程，如果是在桌面启动应用就是Launcher应用进程。
+ActivityManagerService等所在的System Server进程，该进程主要运行着系统服务组件。
+Zygote进程，该进程主要用来fork新进程。
+新启动的应用进程，该进程就是用来承载应用运行的进程了，它也是应用的主线程（新创建的进程就是主线程），处理组件生命周期、界面绘制等相关事情。
+有了以上的理解，整个流程可以概括如下：
+
+点击桌面应用图标，Launcher进程将启动Activity（MainActivity）的请求以Binder的方式发送给了AMS。
+AMS接收到启动请求后，交付ActivityStarter处理Intent和Flag等信息，然后再交给ActivityStackSupervisior/ActivityStack 处理Activity进栈相关流程。同时以Socket方式请求Zygote进程fork新进程。
+Zygote接收到新进程创建请求后fork出新进程。
+在新进程里创建ActivityThread对象，新创建的进程就是应用的主线程，在主线程里开启Looper消息循环，开始处理创建Activity。
+ActivityThread利用ClassLoader去加载Activity、创建Activity实例，并回调Activity的onCreate()方法。这样便完成了Activity的启动。
+
+![image](http://img.mp.itc.cn/upload/20170329/ca9567ce3bf04c4abdb4d124cebfee76_th.jpeg)
+
+http://www.sohu.com/a/130814934_675634
+
+**一个应用程序安装到手机上时发生了什么**
+
+http://www.androidchina.net/6667.html
+
+**Android系统启动过程，App启动过程** 
+    
+从桌面点击到activity启动的过程
+
+1.Launcher线程捕获onclick的点击事件，调用LauncherstartActivitySafely,进一步调用Launcher.startActivty，最后调用父类Activity的startActivity。
+
+2.Activity和ActivityManagerService交互，引入Instrmentation，将启动请求交给Instrumentation，调用Insrumentation.execStartActivity。
+
+3.调用ActivityManagerService的startActivity方法这里做了进程切换（具体过程请查看源码）。
+
+4.开启Activity，调用onCreate方法
+    
+**JVM 和Dalvik虚拟机的区别**
+
+JVM:.java -> javac -> .class -> jar -> .jar
+    
+架构: 堆和栈的架构.
+
+DVM:.java -> javac -> .class -> dx.bat -> .dex
+
+架构: 寄存器(cpu上的一块高速缓存)
+
+**Zygote的启动过程**
+
+在 Android 系统里面，zygote是一个进程的名字。Android 是基于 Linux System的，当你的手机开机的时候，Linux的内核加载完成之后就会启动一个叫 “init“ 的进程。在Linux System 里面，所有的进程都是由 init 进程 fork出来的，我们的zygote进程也不例外。
+
+    
+**安卓view绘制机制和加载过程，请详细说下整个流程**
+
+1.ViewRootImpl会调用performTraversals(),其内部会用performMeasure()、performLayout、performDraw()。
+
+2.performMeasure()会调用最外层的ViewGroup的measur()-->onMeasure(),ViewGroup的onMeasure()是抽象方，但其提供了measureChildren()，这之中会遍历子Vie然后循环调用measureChild()这之中会用getChildMeasueSpec()+父View的MeasureSpec+子View的LayoutParam起获取本View的MeasureSpec，然后调用子View的measur()到View的onMeasure()-->setMeasureDimension(getDeaultSize(),getDefaultSize()),getDefaultSize()默认返回measureSpec的测量数值，所以继承View进行自定义的wrap_content需要重写。
+
+3.performLayout()会调用最外层的ViewGroup的layout(,t,r,b),本View在其中使用setFrame()设置本View的四顶点位置。在onLayout(抽象方法)中确定子View的位置如LinearLayout会遍历子View，循环调用setChildFrame-->子View.layout()。
+
+4.performDraw()会调用最外层ViewGroup的draw():其会先后调用background.draw()(绘制背景)、onDraw()(制自己)、dispatchDraw()(绘制子View)、onDrawScrollars()(绘制装饰)。
+
+5.MeasureSpec由2位SpecMode(UNSPECIFIED、EXACTLY(应精确值和match_parent)、AT_MOST(对应warp_content)和30位SpecSize组成一个int,DecorView的MeasureSpe由窗口大小和其LayoutParams决定，其他View由父ViewMeasureSpec和本View的LayoutParams决定。ViewGroup有getChildMeasureSpec()来获取子View的MeasureSpec。
+
+6.三种方式获取measure()后的宽高：
+
+- Activity#onWindowFocusChange()中调用获取
+- view.post(Runnable)将获取的代码投递到消息队列尾部。
+- ViewTreeObservable.
+    
+**activty的加载过程 请详细介绍下:**
+
+1.Activity中最终到startActivityForResult()（mMainhread.getApplicationThread()传入了一个Applicationhread检查APT）
+->Instrumentation#execStartActivity()和checkStartctivityResult()(这是在启动了Activity之后判断Activty是否启动成功，例如没有在AM中注册那么就会报错)
+->ActivityManagerNative.getDefault().startActivit()（类似AIDL，实现了IAM，实际是由远端的AMS实现statActivity()）
+->ActivityStackSupervisor#startActivityMayWait()
+->ActivityStack#resumeTopActivityInnerLocked
+->ActivityStackSupervisor#realStartActivityLocked（在这里调用APT的scheduleLaunchActivity,也是AID，不过是在远端调起了本进程Application线程）
+->ApplicationThread#scheduleLaunchActivity()（这本进程的一个线程，用于作为Service端来接受AMSclient端的调起）
+->ActivityThread#handleLaunchActivity()（接收内类H的消息，ApplicationThread线程发送LAUNCH_ACTIVTY消息给H）
+->最终在ActivityThread#performLaunchActivity()中现Activity的启动完成了以下几件事：
+
+2.从传入的ActivityClientRecord中获取待启动的Activty的组件信息
+
+3.创建类加载器，使用Instrumentation#newActivity(加载Activity对象
+
+4.调用LoadedApk.makeApplication方法尝试创建Appliction，由于单例所以不会重复创建。
+
+5.创建Context的实现类ContextImpl对象，并通过Activty#attach()完成数据初始化和Context建立联系，因为Ativity是Context的桥接类，
+最后就是创建和关联window，让Window接收的事件传给Ativity，在Window的创建过程中会调用ViewRootImpl的prformTraversals()初始化View。
+
+6.Instrumentation#callActivityOnCreate()->Activit#performCreate()->Activity#onCreate().onCreate()会通过Activity#setContentView()调用PhoneWindow的stContentView()
+更新界面。    
+
+**OSGI**
+
+**描述清点击 Android Studio 的 build 按钮后发生了什么**
+
+**大体说清一个应用程序安装到手机上时发生了什么；**
+
+APK的安装流程如下所示：
+
+![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/app/package/apk_install_structure.png)
+
+复制APK到/data/app目录下，解压并扫描安装包。
+资源管理器解析APK里的资源文件。
+解析AndroidManifest文件，并在/data/data/目录下创建对应的应用数据目录。
+然后对dex文件进行优化，并保存在dalvik-cache目录下。
+将AndroidManifest文件解析出的四大组件信息注册到PackageManagerService中。
+安装完成后，发送广播。
+
+**Android 上的 Inter-Process-Communication 跨进程通信时如何工作的；**
+
+**权限管理系统（底层的权限是如何进行 grant 的）**
+
+**adb install 和 pms scan 的区别有哪些？**
+
+**一个图片在app中调用R.id后是如何找到的？**
+
+**Android权限管理的技术是什么？**
+
+**开机流程和关机流程请描述下？**
+
+**Android ++ 智能指针相关使用介绍？**
+
+**PowerManagerService主要做了哪些相关的操作？系统亮灭屏都有哪些流程？**
+
+**AMS是如何管理Activity的**
+
+**Hook以及插桩技术**
+
+**android api层的源码熟悉哪些？解释一下**
+
+**对Dalvik、ART虚拟机有什么了解？**
+
+**虚拟机原理，如何自己设计一个虚拟机(内存管理，类加载，双亲委派)**
+
+**Ubuntu编译安卓系统**
+
+**系统启动流程是什么？（提示：Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程）**    
+    
+**九、其它高频面试题**
 
 **事件传递机制**
 
 ![image](https://upload-images.jianshu.io/upload_images/2911038-5349d6ebb32372da)
 
-    1).Android事件分发机制的本质是要解决：点击事件由哪个对象发出，经过哪些对象，最终达到哪个对象并最终得到处理。这里的对象是指Activity、ViewGroup、View.
-    
-    2).Android中事件分发顺序：Activity（Window） -> ViewGroup -> View.
-    
-    3).事件分发过程由dispatchTouchEvent() 、onInterceptTouchEvent()和onTouchEvent()三个方法协助完成
+1).Android事件分发机制的本质是要解决：点击事件由个对象发出，经过哪些对象，最终达到哪个对象并最终到处理。这里的对象是指Activity、ViewGroup、View.
 
+2).Android中事件分发顺序：Activity（Window） ->ViewGroup -> View.
+
+3).事件分发过程由dispatchTouchEvent()、onInterceptTouchEvent()和onTouchEvent()三个方协助完成
 
 设置Button按钮来响应点击事件事件传递情况：（如下图）
 
@@ -766,23 +1029,21 @@ C++调用Java
 
 ![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfaed36b0e?imageslim)
     
-    最外层：Activiy A，包含两个子View：ViewGroup B、View C
-    
-    中间层：ViewGroup B，包含一个子View：View C
-    
-    最内层：View C
-    
-    
-    假设用户首先触摸到屏幕上View C上的某个点（如图中黄色区域），那么Action_DOWN事件就在该点产生，然后用户移动手指并最后离开屏幕。
-    
-    按钮点击事件:
-    
-    
-    DOWN事件被传递给C的onTouchEvent方法，该方法返回true，表示处理这个事件;
-    
-    因为C正在处理这个事件，那么DOWN事件将不再往上传递给B和A的onTouchEvent()；
-    
-    该事件列的其他事件（Move、Up）也将传递给C的onTouchEvent();
+最外层：Activiy A，包含两个子View：ViewGroupB、View C
+
+中间层：ViewGroup B，包含一个子View：View C
+
+最内层：View C
+
+假设用户首先触摸到屏幕上ViewC上的某个点（如图中黄色区域），那么Action_DOWN事就在该点产生，然后用户移动手指并最后离开屏幕。
+
+按钮点击事件:
+
+DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理这个事件;
+
+因为C正在处理这个事件，那么DOWN事件将不再往上传给B和A的onTouchEvent()；
+
+该事件列的其他事件（Move、Up）也将传递给C的onToucEvent();
 
 ![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd00ab478?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
@@ -790,42 +1051,47 @@ C++调用Java
 
 (记住这个图的传递顺序,面试的时候能够画出来,就很详细了)
 
-
 请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理
           
 安卓子线程是否能更新UI，如果能请说明具体细节。
 
 **广播发送和接收的原理了解吗？**
 
-继承BroadcastReceiver，重写onReceive()方法。
-通过Binder机制向ActivityManagerService注册广播。
-通过Binder机制向ActivityMangerService发送广播。
-ActivityManagerService查找符合相应条件的广播（IntentFilter/Permission）的BroadcastReceiver，将广播发送到BroadcastReceiver所在的消息队列中。
-BroadcastReceiver所在消息队列拿到此广播后，回调它的onReceive()方法。
+- 继承BroadcastReceiver，重写onReceive()方法。
+- 通过Binder机制向ActivityManagerService注册广播。
+- 通过Binder机制向ActivityMangerService发送广播。
+- ActivityManagerService查找符合相应条件的广播（IntentFilter/Permission）的BroadcastReceiver，将广播发送到BroadcastReceiver所在的消息队列中。
+- BroadcastReceiver所在消息队列拿到此广播后，回调它的onReceive()方法。
 
 **View的绘制流程**
 
-    View的绘制流程：OnMeasure()——>OnLayout()——>OnDraw()
-    
-    各步骤的主要工作：
-    
-    
-    OnMeasure()：
-    
-    
-    测量视图大小。从顶层父View到子View递归调用measure方法，measure方法又回调OnMeasure。
-    
-    
-    OnLayout()：
-    
-    
-    确定View位置，进行页面布局。从顶层父View向子View的递归调用view.layout方法的过程，即父View根据上一步measure子View所得到的布局大小和布局参数，将子View放在合适的位置上。
-    
-    
-    OnDraw()：
-    
-    
-    绘制视图:ViewRoot创建一个Canvas对象，然后调用OnDraw()。六个步骤：①、绘制视图的背景；②、保存画布的图层（Layer）；③、绘制View的内容；④、绘制View子视图，如果没有就不用；⑤、还原图层（Layer）；⑥、绘制滚动条。
+View的绘制流程：OnMeasure()——>OnLayout()——>OnDraw
+
+各步骤的主要工作：
+
+OnMeasure()：
+
+测量视图大小。从顶层父View到子View递归调用measur方法，measure方法又回调OnMeasure。
+
+OnLayout()：
+
+确定View位置，进行页面布局。从顶层父View向子View递归调用view.layout方法的过程，即父View根据上一步easure子View所得到的布局大小和布局参数，将子View在合适的位置上。
+
+OnDraw()：
+
+绘制视图:ViewRoot创建一个Canvas对象，然后调用OnDrw()。六个步骤：
+
+①、绘制视图的背景；
+
+②、保存画布的图层（Layer）；
+
+③、绘制View的内容；
+
+④、绘制View子视图，如果没有就不用；
+
+⑤、还原图层（Layer）；
+
+⑥、绘制滚动条。
 
 事件分发中的onTouch 和onTouchEvent 有什么区别，又该如何使用？
 
@@ -840,7 +1106,6 @@ Bitmap对象的理解
 ActivityThread，AMS，WMS的工作原理
 
 AstncTask+HttpClient 与 AsyncHttpClient有什么区别？
-
 
 View绘制流程
 
@@ -920,34 +1185,7 @@ SP是进程同步的吗?有什么方法做到同步
 
 线程间 操作 List
 
-App启动流程，从点击桌面开始
-
-OSGI
-
-描述清点击 Android Studio 的 build 按钮后发生了什么
-
-**大体说清一个应用程序安装到手机上时发生了什么；**
-
-APK的安装流程如下所示：
-
-![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/app/package/apk_install_structure.png)
-
-复制APK到/data/app目录下，解压并扫描安装包。
-资源管理器解析APK里的资源文件。
-解析AndroidManifest文件，并在/data/data/目录下创建对应的应用数据目录。
-然后对dex文件进行优化，并保存在dalvik-cache目录下。
-将AndroidManifest文件解析出的四大组件信息注册到PackageManagerService中。
-安装完成后，发送广播。
-
-Android 上的 Inter-Process-Communication 跨进程通信时如何工作的；
-
-App 是如何沙箱化，为什么要这么做；
-
-权限管理系统（底层的权限是如何进行 grant 的）
-
 进程和 Application 的生命周期；
-
-系统启动流程 Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程
 
 recycleview listview 的区别,性能
 
@@ -1020,20 +1258,7 @@ App中唤醒其他进程的实现方式
 
 **如何保持应用的稳定性**
 
-**adb install 和 pms scan 的区别有哪些？**
-
 **Runtime permission,如何把一个预置的app默认给它权限，不要授权。**
-
-**一个图片在app中调用R.id后是如何找到的？**
-
-**Android权限管理的技术是什么？**
-
-**开机流程和关机流程请描述下？**
-
-**Android ++ 智能指针相关使用介绍？**
-
-**PowerManagerService主要做了哪些相关的操作？系统亮灭屏都有哪些流程？**
-
 
 **MVC的情况下怎么把Activity的C和V抽离**
 
@@ -1066,10 +1291,6 @@ App中唤醒其他进程的实现方式
 **SplashActivity中进行初始化MainActivity的参数，Splash没有初始化，AMS直接启动了MainActivity怎么办**
 
 **设计一个多线程，可以同时读，读的时候不能写，写的时候不能读(读写锁)**
-
-**AMS是如何管理Activity的**
-
-**Hook以及插桩技术**
 
 **Android的签名机制，APK包含哪些东西**
 
@@ -1179,9 +1400,6 @@ CLEAN的后面还记录了文件的长度，注意可能会一个key对应多个
 
 **webwiew了解？怎么实现和javascript的通信？相互双方的通信。@JavascriptInterface在？版本有bug，除了这个还有其他调用android方法的方案吗？**
 
-
-**android api层的源码熟悉哪些？解释一下**
-
 **线程sleep对消息的影响**
 
 **如果在当前线程内使用Handler postdelayed 两个消息，一个延迟5s，一个延迟10s，然后使当前线程sleep 5秒，以上消息的执行时间会如何变化？**
@@ -1189,20 +1407,6 @@ CLEAN的后面还记录了文件的长度，注意可能会一个key对应多个
 答：照常执行
 
 扩展：sleep时间<=5 对两个消息无影响，5< sleep时间 <=10 对第一个消息有影响，第一个消息会延迟到sleep后执行，sleep时间>10 对两个时间都有影响，都会延迟到sleep后执行。
-
-**对Dalvik、ART虚拟机有什么了解？**
-
-**虚拟机原理，如何自己设计一个虚拟机(内存管理，类加载，双亲委派)**
-
-**Ubuntu编译安卓系统**
-
-**系统启动流程是什么？（提示：Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程）**
-
-**大体说清一个应用程序安装到手机上时发生了什么**
-
-**简述Activity启动全部过程**
-
-**App启动流程，从点击桌面开始**
 
 **逻辑地址与物理地址，为什么使用逻辑地址？**
 
@@ -1308,63 +1512,6 @@ Java 引用类型分类：
     长连接：长连接是建立连接之后, 不主动断开. 双方互相发送数据, 发完了也不主动断开连接, 之后有需要发送的数据就继续通过这个连接发送.
     心跳包：其实主要是为了防止NAT超时，客户端隔一段时间就主动发一个数据，探测连接是否断开
     服务器处理心跳包：假如客户端心跳间隔是固定的, 那么服务器在连接闲置超过这个时间还没收到心跳时, 可以认为对方掉线, 关闭连接. 如果客户端心跳会动态改变,  应当设置一个最大值, 超过这个最大值才认为对方掉线. 还有一种情况就是服务器通过TCP连接主动给客户端发消息出现写超时, 可以直接认为对方掉线.
-    
-**Zygote的启动过程**
-
-    在 Android 系统里面，zygote 是一个进程的名字。Android 是基于 Linux System 的，当你的手机开机的时候，Linux 的内核加载完成之后就会启动一个叫 “init“ 的进程。在 Linux System 里面，所有的进程都是由 init 进程 fork 出来的，我们的zygote进程也不例外。
-
-    
-**安卓view绘制机制和加载过程，请详细说下整个流程**
-
-    1.ViewRootImpl会调用performTraversals(),其内部会调用performMeasure()、performLayout、performDraw()。
-    2.performMeasure()会调用最外层的ViewGroup的measure()-->onMeasure(),ViewGroup的onMeasure()是抽象方法，但其提供了measureChildren()，这之中会遍历子View然后循环调用measureChild()这之中会用getChildMeasureSpec()+父View的MeasureSpec+子View的LayoutParam一起获取本View的MeasureSpec，然后调用子View的measure()到View的onMeasure()-->setMeasureDimension(getDefaultSize(),getDefaultSize()),getDefaultSize()默认返回measureSpec的测量数值，所以继承View进行自定义的wrap_content需要重写。
-    3.performLayout()会调用最外层的ViewGroup的layout(l,t,r,b),本View在其中使用setFrame()设置本View的四个顶点位置。在onLayout(抽象方法)中确定子View的位置，如LinearLayout会遍历子View，循环调用setChildFrame()-->子View.layout()。
-    4.performDraw()会调用最外层ViewGroup的draw():其中会先后调用background.draw()(绘制背景)、onDraw()(绘制自己)、dispatchDraw()(绘制子View)、onDrawScrollBars()(绘制装饰)。
-    5.MeasureSpec由2位SpecMode(UNSPECIFIED、EXACTLY(对应精确值和match_parent)、AT_MOST(对应warp_content))和30位SpecSize组成一个int,DecorView的MeasureSpec由窗口大小和其LayoutParams决定，其他View由父View的MeasureSpec和本View的LayoutParams决定。ViewGroup中有getChildMeasureSpec()来获取子View的MeasureSpec。
-    6.三种方式获取measure()后的宽高：
-    1.Activity#onWindowFocusChange()中调用获取
-    2.view.post(Runnable)将获取的代码投递到消息队列的尾部。
-    3.ViewTreeObservable.
-    
-**activty的加载过程 请详细介绍下:**
-
-    1.Activity中最终到startActivityForResult()（mMainThread.getApplicationThread()传入了一个ApplicationThread检查APT）
-    ->Instrumentation#execStartActivity()和checkStartActivityResult()(这是在启动了Activity之后判断Activity是否启动成功，例如没有在AM中注册那么就会报错)
-    ->ActivityManagerNative.getDefault().startActivity()（类似AIDL，实现了IAM，实际是由远端的AMS实现startActivity()）
-    ->ActivityStackSupervisor#startActivityMayWait()
-    ->ActivityStack#resumeTopActivityInnerLocked
-    ->ActivityStackSupervisor#realStartActivityLocked()（在这里调用APT的scheduleLaunchActivity,也是AIDL，不过是在远端调起了本进程Application线程）
-    ->ApplicationThread#scheduleLaunchActivity()（这是本进程的一个线程，用于作为Service端来接受AMS client端的调起）
-    ->ActivityThread#handleLaunchActivity()（接收内部类H的消息，ApplicationThread线程发送LAUNCH_ACTIVITY消息给H）
-    ->最终在ActivityThread#performLaunchActivity()中实现Activity的启动完成了以下几件事：
-    2.从传入的ActivityClientRecord中获取待启动的Activity的组件信息
-    3.创建类加载器，使用Instrumentation#newActivity()加载Activity对象
-    4.调用LoadedApk.makeApplication方法尝试创建Application，由于单例所以不会重复创建。
-    5.创建Context的实现类ContextImpl对象，并通过Activity#attach()完成数据初始化和Context建立联系，因为Activity是Context的桥接类，
-    最后就是创建和关联window，让Window接收的事件传给Activity，在Window的创建过程中会调用ViewRootImpl的performTraversals()初始化View。
-    6.Instrumentation#callActivityOnCreate()->Activity#performCreate()->Activity#onCreate().onCreate()中会通过Activity#setContentView()调用PhoneWindow的setContentView()
-    更新界面。    
-
-**android重要术语解释**
-
-    1.ActivityManagerServices，简称AMS，服务端对象，负责系统中所有Activity的生命周期
-    2.ActivityThread，App的真正入口。当开启App之后，会调用main()开始运行，开启消息循环队列，这就是传说中的UI线程或者叫主线程。与ActivityManagerServices配合，一起完成Activity的管理工作
-    3.ApplicationThread，用来实现ActivityManagerService与ActivityThread之间的交互。在ActivityManagerService需要管理相关Application中的Activity的生命周期时，通过ApplicationThread的代理对象与ActivityThread通讯。
-    4.ApplicationThreadProxy，是ApplicationThread在服务器端的代理，负责和客户端的ApplicationThread通讯。AMS就是通过该代理与ActivityThread进行通信的。
-    5.Instrumentation，每一个应用程序只有一个Instrumentation对象，每个Activity内都有一个对该对象的引用。Instrumentation可以理解为应用进程的管家，ActivityThread要创建或暂停某个Activity时，都需要通过Instrumentation来进行具体的操作。
-    6.ActivityStack，Activity在AMS的栈管理，用来记录已经启动的Activity的先后关系，状态信息等。通过ActivityStack决定是否需要启动新的进程。
-    7.ActivityRecord，ActivityStack的管理对象，每个Activity在AMS对应一个ActivityRecord，来记录Activity的状态以及其他的管理信息。其实就是服务器端的Activity对象的映像。
-    8.TaskRecord，AMS抽象出来的一个“任务”的概念，是记录ActivityRecord的栈，一个“Task”包含若干个ActivityRecord。AMS用TaskRecord确保Activity启动和退出的顺序。如果你清楚Activity的4种launchMode，那么对这个概念应该不陌生。
-    
-**理解Window和WindowManager**
-
-    1.Window用于显示View和接收各种事件，Window有三种类型：应用Window(每个Activity对应一个Window)、子Window(不能单独存在，附属于特定Window)、系统window(Toast和状态栏)
-    2.Window分层级，应用Window在1-99、子Window在1000-1999、系统Window在2000-2999.WindowManager提供了增删改View三个功能。
-    3.Window是个抽象概念：每一个Window对应着一个View和ViewRootImpl，Window通过ViewRootImpl来和View建立联系，View是Window存在的实体，只能通过WindowManager来访问Window。
-    4.WindowManager的实现是WindowManagerImpl其再委托给WindowManagerGlobal来对Window进行操作，其中有四个List分别储存对应的View、ViewRootImpl、WindowManger.LayoutParams和正在被删除的View
-    5.Window的实体是存在于远端的WindowMangerService中，所以增删改Window在本端是修改上面的几个List然后通过ViewRootImpl重绘View，通过WindowSession(每个应用一个)在远端修改Window。
-    6.Activity创建Window：Activity会在attach()中创建Window并设置其回调(onAttachedToWindow()、dispatchTouchEvent()),Activity的Window是由Policy类创建PhoneWindow实现的。然后通过Activity#setContentView()调用PhoneWindow的setContentView。
-
 
 **CrashHandler实现原理**
 
@@ -1442,18 +1589,6 @@ Runtime,比如说空指针异常
     返回数据的body也可以做gzip压缩，body数据体积可以缩小到原来的30%左右。（也可以考虑压缩返回的json数据的key数据的体积，尤其是针对返回数据格式变化不大的情况，支付宝聊天返回的数据用到了）
     根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）
 
-**Android系统启动过程，App启动过程** 
-    
-    从桌面点击到activity启动的过程
-    
-    1.Launcher线程捕获onclick的点击事件，调用Launcher.startActivitySafely,进一步调用Launcher.startActivity，最后调用父类Activity的startActivity。
-    
-    2.Activity和ActivityManagerService交互，引入Instrumentation，将启动请求交给Instrumentation，调用Instrumentation.execStartActivity。
-    
-    3.调用ActivityManagerService的startActivity方法，这里做了进程切换（具体过程请查看源码）。
-    
-    4.开启Activity，调用onCreate方法
-
 **Android系统的架构**
 
 ![image](https://upload-images.jianshu.io/upload_images/2893137-1047c70c15c1589b.png?imageMogr2/auto-orient)
@@ -1530,15 +1665,6 @@ ButterKnife对性能的影响很小，因为没有使用使用反射，而是使
     调用ViewGroup的removeAllView()，先将所有的view移除掉
     添加新的view：addView()
 
-**JVM 和Dalvik虚拟机的区别**
-
-    JVM:
-    .java -> javac -> .class -> jar -> .jar
-    架构: 堆和栈的架构.
-    DVM:
-    .java -> javac -> .class -> dx.bat -> .dex
-    架构: 寄存器(cpu上的一块高速缓存)
-
 **事件传递机制**
 
     当手指触摸到屏幕时，系统就会调用相应View的onTouchEvent，并传入一系列的action。
@@ -1591,28 +1717,6 @@ ButterKnife对性能的影响很小，因为没有使用使用反射，而是使
 http://gityuan.com/2015/09/19/android-touch/
 https://www.jianshu.com/p/84b2e0038080
 http://hanhailong.com/2015/09/24/Android-%E4%B8%89%E5%BC%A0%E5%9B%BE%E6%90%9E%E5%AE%9ATouch%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92%E6%9C%BA%E5%88%B6/
-
-**ART和Dalvik区别**
-
-art上应用启动快，运行快，但是耗费更多存储空间，安装时间长，总的来说ART的功效就是”空间换时间”。
-
-ART: Ahead of Time
-Dalvik: Just in Time
-
-什么是Dalvik：Dalvik是Google公司自己设计用于Android平台的Java虚拟机。Dalvik虚拟机是Google等厂商合作开发的Android移动设备平台的核心组成部分之一，它可以支持已转换为.dex(即Dalvik Executable)格式的Java应用程序的运行，.dex格式是专为Dalvik应用设计的一种压缩格式，适合内存和处理器速度有限的系统。Dalvik经过优化，允许在有限的内存中同时运行多个虚拟机的实例，并且每一个Dalvik应用作为独立的Linux进程执行。独立的进程可以防止在虚拟机崩溃的时候所有程序都被关闭。
-
-什么是ART:Android操作系统已经成熟，Google的Android团队开始将注意力转向一些底层组件，其中之一是负责应用程序运行的Dalvik运行时。Google开发者已经花了两年时间开发更快执行效率更高更省电的替代ART运行时。ART代表Android Runtime,其处理应用程序执行的方式完全不同于Dalvik，Dalvik是依靠一个Just-In-Time(JIT)编译器去解释字节码。开发者编译后的应用代码需要通过一个解释器在用户的设备上运行，这一机制并不高效，但让应用能更容易在不同硬件和架构上运行。ART则完全改变了这套做法，在应用安装的时候就预编译字节码到机器语言，这一机制叫Ahead-Of-Time(AOT)编译。在移除解释代码这一过程后，应用程序执行将更有效率，启动更快。
-
-ART优点：
-
-系统性能的显著提升
-应用启动更快、运行更快、体验更流畅、触感反馈更及时。
-更长的电池续航能力
-支持更低的硬件
-
-ART缺点：
-更大的存储空间占用，可能会增加10%-20%
-更长的应用安装时间
 
 **Scroller原理**
 
@@ -1692,8 +1796,6 @@ TabLayout中如何让当前标签永远位于屏幕中间；
 
 TextView调用setText方法的内部执行流程；
 
-Android dalvik虚拟机和Art虚拟机的优化升级点
-
 Activity启动模式，allowReparent的特点和栈亲和性
 
 怎么控制另外一个进程的View显示
@@ -1710,14 +1812,9 @@ Activity启动模式，allowReparent的特点和栈亲和性
 
 aop思想
 
-Android2个虚拟机的区别（一个5.0之前，一个5.0之后）
-
-ActivityThread工作原理 
-
 RecyclerView的ItemTouchHelper的实现原理
 
 7.0 8.0 p特性及兼容
-
 
 Bitmap的四种属性，如何加载大图（inJustDecodeBounds）。
 
@@ -1756,60 +1853,6 @@ React框架代码执行慢，可以将这部分代码拆分出来，提前进行
 
 50fps 有什么办法可以提高到 60fps
 
-**App启动流程，从点击桌面开始**
-
-点击应用图标后会去启动应用的LauncherActivity，如果LancerActivity所在的进程没有创建，还会创建新进程，整体的流程就是一个Activity的启动流程。
-
-Activity的启动流程图（放大可查看）如下所示：
-
-![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/app/component/activity_start_flow.png)
-
-整个流程涉及的主要角色有：
-
-Instrumentation: 监控应用与系统相关的交互行为。
-AMS：组件管理调度中心，什么都不干，但是什么都管。
-ActivityStarter：Activity启动的控制器，处理Intent与Flag对Activity启动的影响，具体说来有：1 寻找符合启动条件的Activity，如果有多个，让用户选择；2 校验启动参数的合法性；3 返回int参数，代表Activity是否启动成功。
-ActivityStackSupervisior：这个类的作用你从它的名字就可以看出来，它用来管理任务栈。
-ActivityStack：用来管理任务栈里的Activity。
-ActivityThread：最终干活的人，是ActivityThread的内部类，Activity、Service、BroadcastReceiver的启动、切换、调度等各种操作都在这个类里完成。
-注：这里单独提一下ActivityStackSupervisior，这是高版本才有的类，它用来管理多个ActivityStack，早期的版本只有一个ActivityStack对应着手机屏幕，后来高版本支持多屏以后，就 有了多个ActivityStack，于是就引入了ActivityStackSupervisior用来管理多个ActivityStack。
-
-整个流程主要涉及四个进程：
-
-调用者进程，如果是在桌面启动应用就是Launcher应用进程。
-ActivityManagerService等所在的System Server进程，该进程主要运行着系统服务组件。
-Zygote进程，该进程主要用来fork新进程。
-新启动的应用进程，该进程就是用来承载应用运行的进程了，它也是应用的主线程（新创建的进程就是主线程），处理组件生命周期、界面绘制等相关事情。
-有了以上的理解，整个流程可以概括如下：
-
-点击桌面应用图标，Launcher进程将启动Activity（MainActivity）的请求以Binder的方式发送给了AMS。
-AMS接收到启动请求后，交付ActivityStarter处理Intent和Flag等信息，然后再交给ActivityStackSupervisior/ActivityStack 处理Activity进栈相关流程。同时以Socket方式请求Zygote进程fork新进程。
-Zygote接收到新进程创建请求后fork出新进程。
-在新进程里创建ActivityThread对象，新创建的进程就是应用的主线程，在主线程里开启Looper消息循环，开始处理创建Activity。
-ActivityThread利用ClassLoader去加载Activity、创建Activity实例，并回调Activity的onCreate()方法。这样便完成了Activity的启动。
-
-![image](http://img.mp.itc.cn/upload/20170329/ca9567ce3bf04c4abdb4d124cebfee76_th.jpeg)
-
-http://www.sohu.com/a/130814934_675634
-
-**一个应用程序安装到手机上时发生了什么**
-
-http://www.androidchina.net/6667.html
-
-**对 Dalvik、ART 虚拟机有基本的了解**
-
-https://blog.csdn.net/jason0539/article/details/50440669
-
-http://www.jackywang.tech/2017/08/21/%E5%85%B3%E4%BA%8EDalvik%EF%BC%8C%E6%88%91%E4%BB%AC%E8%AF%A5%E7%9F%A5%E9%81%93%E4%BA%9B%E4%BB%80%E4%B9%88%EF%BC%9F/
-
-
-Android中App 是如何沙箱化的,为何要这么做
-
-**权限管理系统**
-
-https://juejin.im/entry/57a99fba5bbb500064418fc0
-
-
 如何实现右滑finish activity
 
 如何在整个系统层面实现界面的圆角效果（即所有的APP打开界面都会是圆角，我承认，当时我懵逼了）
@@ -1818,21 +1861,7 @@ https://juejin.im/entry/57a99fba5bbb500064418fc0
 
 APK 包含了哪些东西，打包过程是什么；
 
-
 Android 界面刷新原理
-
-**介绍下Android应用程序启动过程**
-
-    整个应用程序的启动过程要执行很多步骤，但是整体来看，主要分为以下五个阶段：
-       一. ：Launcher通过Binder进程间通信机制通知ActivityManagerService，它要启动一个Activity；
-    
-       二.：ActivityManagerService通过Binder进程间通信机制通知Launcher进入Paused状态；
-    
-       三.：Launcher通过Binder进程间通信机制通知ActivityManagerService，它已经准备就绪进入Paused状态，于是ActivityManagerService就创建一个新的进程，用来启动一个ActivityThread实例，即将要启动的Activity就是在这个ActivityThread实例中运行；
-    
-       四. ：ActivityThread通过Binder进程间通信机制将一个ApplicationThread类型的Binder对象传递给ActivityManagerService，以便以后ActivityManagerService能够通过这个Binder对象和它进行通信；
-    
-       五 ：ActivityManagerService通过Binder进程间通信机制通知ActivityThread，现在一切准备就绪，它可以真正执行Activity的启动操作了。
 
 **非UI线程可以更新UI吗?**
 
@@ -1858,33 +1887,9 @@ https://blog.csdn.net/btt2013/article/details/53447649
     另外一个非常耗时的操作是请求layout。任何时候执行requestLayout()，会使得Android UI系统去遍历整个View的层级来计算出每一个view的大小。如果找到有冲突的值，它会需要重新计算好几次。另外需要尽量保持View的层级是扁平化的，这样对提高效率很有帮助。
     如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置的view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。这个PieChart 例子展示了如何继承ViewGroup作为自定义view的一部分。PieChart 有子views，但是它从来不测量它们。而是根据他自身的layout法则，直接设置它们的大小。
 
-
-framework方面有什么理解
-
 Android Studio 3.0 中 Gradle 的 api 和 implementation 有什么区别；
 
-**说说 apk 打包流程；**
-
-Android的包文件APK分为两个部分：代码和资源，所以打包方面也分为资源打包和代码打包两个方面，这篇文章就来分析资源和代码的编译打包原理。
-
-APK整体的的打包流程如下图所示：
-
-![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/native/vm/apk_package_flow.png)
-
-具体说来：
-
-通过AAPT工具进行资源文件（包括AndroidManifest.xml、布局文件、各种xml资源等）的打包，生成R.java文件。
-通过AIDL工具处理AIDL文件，生成相应的Java文件。
-通过Javac工具编译项目源码，生成Class文件。
-通过DX工具将所有的Class文件转换成DEX文件，该过程主要完成Java字节码转换成Dalvik字节码，压缩常量池以及清除冗余信息等工作。
-通过ApkBuilder工具将资源文件、DEX文件打包生成APK文件。
-利用KeyStore对生成的APK文件进行签名。
-如果是正式版的APK，还会利用ZipAlign工具进行对齐处理，对齐的过程就是将APK文件中所有的资源文件举例文件的起始距离都偏移4字节的整数倍，这样通过内存映射访问APK文件 的速度会更快。
-
-Android Framework层有没有了解过，说说 Window 窗口添加的过程；
-
 消息推送有没有做过，推送到达率的问题；
-
 
 如何解决git冲突
 
@@ -1928,13 +1933,16 @@ Java动态代理的使用，InvocationHandler 有什么用；
 微信上消息小红点的原理
 
 实现stack 的pop和push接口 要求：
+
 1.用基本的数组实现
+
 2.考虑范型
+
 3.考虑下同步问题
+
 4.考虑扩容问题
 
-
-介绍下先的app架构和通信
+介绍下先前的app架构和通信
 
 推送消息有富文本么？
 
@@ -1952,24 +1960,9 @@ View和ViewGroup分别有哪些事件分发相关的回调方法；
 
 注解的作用与原理
 
-说下四大组件的启动过程，四大组件的启动与销毁的方式。
+
 
 说下冷启动与热启动是什么，区别，如何优化，使用场景等。
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
 
 
 
