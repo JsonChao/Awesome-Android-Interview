@@ -2,60 +2,56 @@
 
 **1.什么是线程池，如何使用?**
 
-    答：线程池就是事先将多个线程对象放到一个容器中，当使用的时候就不用new 线程而是直接去池中拿线程即可，节
-    省了开辟子线程的时间，提高的代码执行效率。
+答：线程池就是事先将多个线程对象放到一个容器中，使用的时候就不用new线程而是直接去池中拿线程即可，节
+省了开辟子线程的时间，提高的代码执行效率。
     
 **2.在Java中wait和seelp方法的不同；**
 
-    答：最大的不同是在等待时wait 会释放锁，而sleep 一直持有锁。wait 通常被用于线程间交互，sleep 通常被用于暂停执行。
+答：最大的不同是在等待时wait 会释放锁，而sleep一直持有锁。wait 通常被用于线程间交互，sleep通常被用于暂停执行。
     
 **3.synchronized 和volatile 关键字的作用；**
 
-    答：1）保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。2）禁止进行指令重排序。
-    volatile 本质是在告诉jvm 当前变量在寄存器（工作内存）中的值是不确定的，需要从主存中读取；synchronized 则是锁定当前变量，只有当前线程可以访问该变量，其他线程被阻塞住。
-    1.volatile 仅能使用在变量级别；synchronized 则可以使用在变量、方法、和类级别的
-    2.volatile 仅能实现变量的修改可见性，并不能保证原子性；synchronized 则可以保证变量的修改可见性和原子性
-    3.volatile 不会造成线程的阻塞；synchronized 可能会造成线程的阻塞。
-    4.volatile 标记的变量不会被编译器优化；synchronized 标记的变量可以被编译器优化
+答：
+
+1）保证了不同线程对这个变量进行操作时的可见性即一个线程修改了某个变量的值，这新值对其他线程来是立即可见的。
+
+2）禁止进行指令重排序。
+
+volatile 本质是在告诉jvm当前变量在寄存器（工作内存）中的值是不确定的，需从主存中读取；synchronized则是锁定当前变量，只有当前线程可以访问该变量，其线程被阻塞住。
+
+1.volatile 仅能使用在变量级别；synchronized则可以使用在变量、方法、和类级别的
+
+2.volatile仅能实现变量的修改可见性，并不能保证原子性；synchrnized 则可以保证变量的修改可见性和原子性
+
+3.volatile 不会造成线程的阻塞；synchronized可能会造成线程的阻塞。
+
+4.volatile 标记的变量不会被编译器优化；synchronized标记的变量可以被编译器优化
     
 **4. concurrentHashmap原理，原子类。**
 
-    ConcurrentHashMap作为一种线程安全且高效的哈希表的解决方案，尤其其中的"分段锁"的方案，相比HashTable的全表锁在性能上的提升非常之大.
+ConcurrentHashMap作为一种线程安全且高效的哈希表的决方案，尤其其中的"分段锁"的方案，相比HashTable的表锁在性能上的提升非常之大.
 
 **5.volatile原理**
 
-    在《Java并发编程：核心理论》一文中，我们已经提到过可见性、有序性及原子性问题，通常情况下我们可以通过Synchronized关键字来解决这些个问题，不过如果对Synchronized原理有了解的话，应该知道Synchronized是一个比较重量级的操作，对系统的性能有比较大的影响，所以，如果有其他解决方案，我们通常都避免使用Synchronized来解决问题。
+在《Java并发编程：核心理论》一文中，我们已经提到可见性、有序性及原子性问题，通常情况下我们可以通过ynchronized关键字来解决这些个问题，不过如果对Synchonized原理有了解的话，应该知道Synchronized是一个较重量级的操作，对系统的性能有比较大的影响，所以如果有其他解决方案，我们通常都避免使用Synchronize来解决问题。
     
-    
-    而volatile关键字就是Java中提供的另一种解决可见性和有序性问题的方案。对于原子性，需要强调一点，也是大家容易误解的一点：对volatile变量的单次读/写操作可以保证原子性的，如long和double类型变量，但是并不能保证i++这种操作的原子性，因为本质上i++是读、写两次操作。
+而volatile关键字就是Java中提供的另一种解决可见性有序性问题的方案。对于原子性，需要强调一点，也是家容易误解的一点：对volatile变量的单次读/写操作可保证原子性的，如long和double类型变量，但是并不能保证i++这种操作的原子性，因为本质上i++是读、写两次操作。
 
 **6.多线程的使用场景**
 
-    使用多线程就一定效率高吗？ 有时候使用多线程并不是为了提高效率，而是使得CPU能够同时处理多个事件。
-    
-    
-    1).为了不阻塞主线程,启动其他线程来做好事的事情,比如APP中耗时操作都不在UI中做.
-    
-    
-    2).实现更快的应用程序,即主线程专门监听用户请求,子线程用来处理用户请求,以获得大的吞吐量.感觉这种情况下，多线程的效率未必高。 这种情况下的多线程是为了不必等待， 可以并行处理多条数据。
-    
-    比如JavaWeb的就是主线程专门监听用户的HTTP请求，然后启动子线程去处理用户的HTTP请求。
-    
-    
-    3).某种虽然优先级很低的服务，但是却要不定时去做。
-    
-    比如Jvm的垃圾回收。
-    
-    
-    4.)某种任务，虽然耗时，但是不耗CPU的操作时，开启多个线程，效率会有显著提高。
-    
-    比如读取文件，然后处理。 磁盘IO是个很耗费时间，但是不耗CPU计算的工作。 所以可以一个线程读取数据，一个线程处理数据。肯定比一个线程读取数据，然后处理效率高。 因为两个线程的时候充分利用了CPU等待磁盘IO的空闲时间。
-    
+使用多线程就一定效率高吗？有时候使用多线程并不是为了提高效率，而是使得CPU能同时处理多个事件。
 
+- 为了不阻塞主线程,启动其他线程来做好事的事情,比APP中耗时操作都不在UI中做.
+
+- 实现更快的应用程序,即主线程专门监听用户请求,子程用来处理用户请求,以获得大的吞吐量.感觉这种情况，多线程的效率未必高。这种情况下的多线程是为了不必等待，可以并行处理多条数据。比如JavaWeb的就是主线程专门监听用户的HTTP请求，然启动子线程去处理用户的HTTP请求。
+
+- 某种虽然优先级很低的服务，但是却要不定时去做。比如Jvm的垃圾回收。
+
+- 某种任务，虽然耗时，但是不耗CPU的操作时，开启个线程，效率会有显著提高。比如读取文件，然后处理。磁盘IO是个很耗费时间，但是不耗CPU计算的工作。所以可以一个线程读取数据，一个线程处理数据。肯定一个线程读取数据，然后处理效率高。因为两个线程的时候充分利用了CPU等待磁盘IO的空闲时。
+    
 **7.ConcurrentHashMap加锁机制是什么，详细说一下？**
 
 HashTable容器在竞争激烈的并发环境下表现出效率低下的原因，是因为所有访问HashTable的线程都必须竞争同一把锁，那假如容器里有多把锁，每一把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不会存在锁竞争，从而可以有效的提高并发访问效率，这就是ConcurrentHashMap所使用的锁分段技术，首先将数据分成一段一段的存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据的时候，其他段的数据也能被其他线程访问。
-
 
 **8.Synchronized优化后的锁机制简单介绍一下，包括自旋锁、偏向锁、轻量级锁、重量级锁？**
 
@@ -65,9 +61,7 @@ HashTable容器在竞争激烈的并发环境下表现出效率低下的原因�
 
 偏向锁
 
-偏向锁就是一旦线程第一次获得了监视对象，之后让监视对象“偏向”这个线程，之后的多次调用则可以避免CAS操作，
-
-说白了就是置个变量，如果发现为true则无需再走各种加锁/解锁流程。
+偏向锁就是一旦线程第一次获得了监视对象，之后让监视对象“偏向”这个线程，之后的多次调用则可以避免CAS操作，说白了就是置个变量，如果发现为true则无需再走各种加锁/解锁流程。
 
 轻量级锁：
 
@@ -83,11 +77,11 @@ Java四种线程池
 
 第一种：newCachedThreadPool
 
-　　创建一个可根据需要创建新线程的线程池，但是在以前构造的线程可用时将重用它们。
+创建一个可根据需要创建新线程的线程池，但是在以前构造的线程可用时将重用它们。
 
 第二种：newFixedThreadPool
 
-　　创建一个指定工作线程数量的线程池
+创建一个指定工作线程数量的线程池
 
 第三种：newScheduledThreadPool
 
@@ -95,7 +89,7 @@ Java四种线程池
 
 第四种：newSingleThreadExecutor
 
-　　创建一个使用单个 worker 线程的 Executor，以无界队列方式来运行该线程。
+创建一个使用单个 worker 线程的 Executor，以无界队列方式来运行该线程。
 
 **10.volatile和synchronized区别**
 
@@ -103,9 +97,9 @@ volatile和synchronized简介：
 
 在Java中,为了保证多线程读写数据时保证数据的一致性,可以采用两种方式：
 
-　 1）使用synchronized关键字
+1）使用synchronized关键字
 
-　 2）使用volatile关键字：用一句话概括volatile,它能够使变量在值发生改变时能尽快地让其他线程知道。
+2）使用volatile关键字：用一句话概括volatile,它能够使变量在值发生改变时能尽快地让其他线程知道。
 
 两者的区别：
 
@@ -196,7 +190,6 @@ volatile和synchronized简介：
 
 进程和线程的主要差别在于它们是不同的操作系统资源管理方式。进程有独立的地址空间，一个进程崩溃后，在保护模式下不会对其它进程产生影响，而线程只是一个进程中的不同执行路径。线程有自己的堆栈和局部变量，但线程之间没有单独的地址空间，一个线程死掉就等于整个进程死掉，所以多进程的程序要比多线程的程序健壮，但在进程切换时，耗费资源较大，效率要差一些。但对于一些要求同时进行并且又要共享某些变量的并发操作，只能用线程，不能用进程。如果有兴趣深入的话，我建议你们看看《现代操作系统》或者《操作系统的设计与实现》。对就个问题说得比较清楚。
 
-
 **39.开启线程的三种方式？**
 
 **40.为什么要有线程，而不是仅仅用进程？**
@@ -218,8 +211,11 @@ volatile和synchronized简介：
 阻塞指的是暂停一个线程的执行以等待某个条件发生（如某资源就绪），学过操作系统的同学对它一定已经很熟悉了。Java 提供了大量方法来支持阻塞，下面让我们逐一分析。
 
 sleep() 方法：sleep() 允许 指定以毫秒为单位的一段时间作为参数，它使得线程在指定的时间内进入阻塞状态，不能得到CPU 时间，指定的时间一过，线程重新进入可执行状态。 典型地，sleep() 被用在等待某个资源就绪的情形：测试发现条件不满足后，让线程阻塞一段时间后重新测试，直到条件满足为止。
+
 suspend() 和 resume() 方法：两个方法配套使用，suspend()使得线程进入阻塞状态，并且不会自动恢复，必须其对应的resume() 被调用，才能使得线程重新进入可执行状态。典型地，suspend() 和 resume() 被用在等待另一个线程产生的结果的情形：测试发现结果还没有产生后，让线程阻塞，另一个线程产生了结果后，调用 resume() 使其恢复。
+
 yield() 方法：yield() 使得线程放弃当前分得的 CPU 时间，但是不使线程阻塞，即线程仍处于可执行状态，随时可能再次分得 CPU 时间。调用 yield() 的效果等价于调度程序认为该线程已执行了足够的时间从而转到另一个线程.
+
 wait() 和 notify() 方法：两个方法配套使用，wait() 使得线程进入阻塞状态，它有两种形式，一种允许 指定以毫秒为单位的一段时间作为参数，另一种没有参数，前者当对应的 notify() 被调用或者超出指定时间时线程重新进入可执行状态，后者则必须对应的 notify() 被调用.
 初看起来它们与 suspend() 和 resume() 方法对没有什么分别，但是事实上它们是截然不同的。区别的核心在于，前面叙述的所有方法，阻塞时都不会释放占用的锁（如果占用了的话），而这一对方法则相反。
 
@@ -271,10 +267,6 @@ http://www.juwends.com/tech/android/android-inter-thread-comm.html
         return mSingleton;
       }
     }
-    
-volatile 的意义？
-
-防止CPU指令重排序
 
 **51.两个进程同时要求写或者读，能不能实现？如何防止进程的同步？**
 
@@ -293,6 +285,10 @@ volatile 的意义？
 **58.volatile的原理**
 
 volatile也是互斥同步的一种实现，不过它非常的轻量级。
+
+volatile 的意义？
+
+- 防止CPU指令重排序
 
 volatile有两条关键的语义：
 
@@ -314,7 +310,7 @@ Java内存模型规定了所有字段（这些字段包括实例字段、静态�
 
 关于“保证被volatile修饰的变量对所有线程都是可见的”，有种常见的错误理解：
 
-    错误理解：由于volatile修饰的变量在各个线程里都是一致的，所以基于volatile变量的运算在多线程并发的情况下是安全的。
+- 由于volatile修饰的变量在各个线程里都是一致的，所以基于volatile变量的运算在多线程并发的情况下是安全的。
 
 这句话的前半部分是对的，后半部分却错了，因此它忘记考虑变量的操作是否具有原子性这一问题。
 
@@ -361,102 +357,15 @@ Java内存模型规定了所有字段（这些字段包括实例字段、静态�
 禁止进行指令重排序
 什么是指令重排序？🤔
 
-    指令重排序是值指令乱序执行，即在条件允许的情况下，直接运行当前有能力立即执行的后续指令，避开为获取下一条指令所需数据而造成的等待，通过乱序执行的技术，提供执行效率。
+- 指令重排序是值指令乱序执行，即在条件允许的情况下直接运行当前有能力立即执行的后续指令，避开为获取一条指令所需数据而造成的等待，通过乱序执行的技术提供执行效率。
 
-指令重排序绘制被volatile修饰的变量的赋值操作前，添加一个内存屏障，指令重排序时不能把后面的指令重排序的内存屏障之前的位置。
+- 指令重排序绘制被volatile修饰的变量的赋值操作前，添加一个内存屏障，指令重排序时不能把后面的指令重排序的内存屏障之前的位置。
 
 关于指令重排序不是本篇文章重点讨论的内容，更多细节可以参考指令重排序。
-
-如何防止反射、序列化攻击单例？
-
-枚举单例
-
-    public enum Singleton {
-        INSTANCE {
-    
-            @Override
-            protected void read() {
-                System.out.println("read");
-            }
-    
-            @Override
-            protected void write() {
-                System.out.println("write");
-            }
-    
-        };
-        protected abstract void read();
-        protected abstract void write();
-    }
-class文件：
-
-    public abstract class Singleton extends Enum
-    {
-    
-        private Singleton(String s, int i)
-        {
-            super(s, i);
-        }
-    
-        protected abstract void read();
-    
-        protected abstract void write();
-    
-        public static Singleton[] values()
-        {
-            Singleton asingleton[];
-            int i;
-            Singleton asingleton1[];
-            System.arraycopy(asingleton = ENUM$VALUES, 0, asingleton1 = new Singleton[i = asingleton.length], 0, i);
-            return asingleton1;
-        }
-    
-        public static Singleton valueOf(String s)
-        {
-            return (Singleton)Enum.valueOf(singleton/Singleton, s);
-        }
-    
-        Singleton(String s, int i, Singleton singleton)
-        {
-            this(s, i);
-        }
-    
-        public static final Singleton INSTANCE;
-        private static final Singleton ENUM$VALUES[];
-    
-        static 
-        {
-            INSTANCE = new Singleton("INSTANCE", 0) {
-    
-                protected void read()
-                {
-                    System.out.println("read");
-                }
-    
-                protected void write()
-                {
-                    System.out.println("write");
-                }
-    
-            };
-            ENUM$VALUES = (new Singleton[] {
-                INSTANCE
-            });
-        }
-    }
-类的修饰abstract，所以没法实例化，反射也无能为力。
-关于线程安全的保证，其实是通过类加载机制来保证的，我们看看INSTANCE的实例化时机，是在static块中，JVM加载类的过程显然是线程安全的。
-对于防止反序列化生成新实例的问题还不是很明白，一般的方法我们会在该类中添加上如下方法，不过枚举中也没有显示的写明该方法。
-    //readResolve to prevent another instance of Singleton
-    private Object readResolve(){
-        return INSTANCE;
-    }
 
 **59.谈谈volatile关键字的用法**
 
 **60.谈谈volatile关键字的作用**
-
-
 
 **61.synchronized 和volatile 关键字的区别**
 
@@ -466,7 +375,7 @@ class文件：
 
 synchronized是互斥同步的一种实现。
 
-    synchronized：当某个线程访问被synchronized标记的方法或代码块时，这个线程便获得了该对象的锁，其他线程暂时无法访问这个方法，只有等待这个方法执行完毕或者代码块执行完毕，这个 线程才会释放该对象的锁，其他线程才能执行这个方法或代码块。
+synchronized：当某个线程访问被synchronized标记的法或代码块时，这个线程便获得了该对象的锁，其他线暂时无法访问这个方法，只有等待这个方法执行完毕或代码块执行完毕，这个线程才会释放该对象的锁，其他线程才能执行这个方法代码块。
 
 前面我们已经说了volatile关键字，这里我们举个例子来综合分析volatile与synchronized关键字的使用。
 
@@ -493,6 +402,7 @@ synchronized是互斥同步的一种实现。
             return instance;
         }
     }
+    
 这是一个经典的DCL单例。
 
 它的字节码如下：
@@ -504,15 +414,20 @@ synchronized是互斥同步的一种实现。
 关于加锁和解锁的对象：
 
 synchronized代码块 ：同步代码块，作用范围是整个代码块，作用对象是调用这个代码块的对象。
+
 synchronized方法 ：同步方法，作用范围是整个方法，作用对象是调用这个方法的对象。
+
 synchronized静态方法 ：同步静态方法，作用范围是整个静态方法，作用对象是调用这个类的所有对象。
+
 synchronized(this)：作用范围是该对象中所有被synchronized标记的变量、方法或代码块，作用对象是对象本身。
+
 synchronized(ClassName.class) ：作用范围是静态的方法或者静态变量，作用对象是Class对象。
+
 synchronized(this)添加的是对象锁，synchronized(ClassName.class)添加的是类锁，它们的区别如下：
 
-    对象锁：Java的所有对象都含有1个互斥锁，这个锁由JVM自动获取和释放。线程进入synchronized方法的时候获取该对象的锁，当然如果已经有线程获取了这个对象的锁，那么当前线 程会等待；synchronized方法正常返回或者抛异常而终止，JVM会自动释放对象锁。这里也体现了用synchronized来加锁的好处，方法抛异常的时候，锁仍然可以由JVM来自动释放。
+- 对象锁：Java的所有对象都含有1个互斥锁，这个锁由JV自动获取和释放。线程进入synchronized方法的时候获该对象的锁，当然如果已经有线程获取了这个对象的锁那么当前线程会等待；synchronized方法正常返回或者抛异常而终止，JVM会自动释放对象锁。这里也体现了用synchronized来加锁的好处，方法抛异常的时候，锁仍然可以由JVM来自动释放。
 
-    类锁：对象锁是用来控制实例方法之间的同步，类锁是用来控制静态方法（或静态变量互斥体）之间的同步。其实类锁只是一个概念上的东西，并不是真实存在的，它只是用来帮助我们理 解锁定实例方法和静态方法的区别的。我们都知道，java类可能会有很多个对象，但是只有1个Class对象，也就是说类的不同实例之间共享该类的Class对象。Class对象其实也仅仅是1个 java对象，只不过有点特殊而已。由于每个java对象都有1个互斥锁，而类的静态方法是需要Class对象。所以所谓的类锁，不过是Class对象的锁而已。获取类的Class对象有好几种，最简 单的就是MyClass.class的方式。 类锁和对象锁不是同一个东西，一个是类的Class对象的锁，一个是类的实例的锁。也就是说：一个线程访问静态synchronized的时候，允许另一个线程访 问对象的实例synchronized方法。反过来也是成立的，因为他们需要的锁是不同的。
+- 类锁：对象锁是用来控制实例方法之间的同步，类锁是来控制静态方法（或静态变量互斥体）之间的同步。其类锁只是一个概念上的东西，并不是真实存在的，它只用来帮助我们理解锁定实例方法和静态方法的区别的。我们都知道，java类可能会有很多个对象，但是只有1个Class对象，也就说类的不同实例之间共享该类的Class对象。Class对象实也仅仅是1个java对象，只不过有点特殊而已。由于每个java对象都有个互斥锁，而类的静态方法是需要Class对象。所以所谓类锁，不过是Class对象的锁而已。获取类的Class对象好几种，最简 单的就是MyClass.class的方式。类锁和对象锁不是同一个东西，一个是类的Class对象的，一个是类的实例的锁。也就是说：一个线程访问静态sychronized的时候，允许另一个线程访问对象的实例synchronized方法。反过来也是成立的，为他们需要的锁是不同的。
 
 **64.ReentrantLock的内部实现**
 
@@ -572,12 +487,14 @@ synchronized(this)添加的是对象锁，synchronized(ClassName.class)添加的
             }
         }
     }
+    
 造成死锁的四个条件：
 
-互斥条件：一个资源每次只能被一个线程使用。
-请求与保持条件：一个线程因请求资源而阻塞时，对已获得的资源保持不放。
-不剥夺条件：线程已获得的资源，在未使用完之前，不能强行剥夺。
-循环等待条件：若干线程之间形成一种头尾相接的循环等待资源关系。
+- 互斥条件：一个资源每次只能被一个线程使用。
+- 请求与保持条件：一个线程因请求资源而阻塞时，对已获得的资源保持不放。
+- 不剥夺条件：线程已获得的资源，在未使用完之前，不能强行剥夺。
+- 循环等待条件：若干线程之间形成一种头尾相接的循环等待资源关系。
+
 在并发程序中，避免了逻辑中出现复数个线程互相持有对方线程所需要的独占锁的的情况，就可以避免死锁，如下所示：
 
     public class BreakDeadLockDemo {
@@ -645,10 +562,12 @@ synchronized(this)添加的是对象锁，synchronized(ClassName.class)添加的
 
 **73.如何保证多线程读写文件的安全？**
 
-**74.线程状态：**
+**74.线程状态**
+
 https://my.oschina.net/mingdongcheng/blog/139263
 
 **75.锁：**
+
 https://blog.csdn.net/vking_wang/article/details/9952063
 http://wiki.jikexueyuan.com/project/java-concurrent/locks-in-java.html
 
@@ -670,15 +589,11 @@ https://www.jianshu.com/p/053943a425c3#
 http://www.cnblogs.com/chenssy/p/4701027.html
 http://www.infoq.com/cn/articles/ConcurrentHashMap#
 
-
-
 **77.synchrolzie关键字和Lock的区别你知道吗？为什么Lock的性能好一些？**
-
 
 **78.Java线程安全涉及的概念和分类。**
 
 http://www.iteye.com/topic/806990
-
 
 **79.线程的状态和优先级。**
 
@@ -696,7 +611,6 @@ http://www.iteye.com/topic/806990
 
 **86.Java中的并发工具（CountDownLatch，CyclicBarrier等）**
 
-
 **87.CopyOnWriteArrayList的了解。**
 
 **88.TreeMap、HashMap、LindedHashMap、ArrayMap的区别。**
@@ -711,38 +625,44 @@ http://www.iteye.com/topic/806990
 
 ![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/native/process/java_thread_state.png)
 
-NEW：创建状态，线程创建之后，但是还未启动。
-RUNNABLE：运行状态，处于运行状态的线程，但有可能处于等待状态，例如等待CPU、IO等。
-WAITING：等待状态，一般是调用了wait()、join()、LockSupport.spark()等方法。
-TIMED_WAITING：超时等待状态，也就是带时间的等待状态。一般是调用了wait(time)、join(time)、LockSupport.sparkNanos()、LockSupport.sparkUnit()等方法。
-BLOCKED：阻塞状态，等待锁的释放，例如调用了synchronized增加了锁。
-TERMINATED：终止状态，一般是线程完成任务后退出或者异常终止。
+- NEW：创建状态，线程创建之后，但是还未启动。
+- RUNNABLE：运行状态，处于运行状态的线程，但有可能处于等待状态，例如等待CPU、IO等。
+- WAITING：等待状态，一般是调用了wait()、join()、LockSupport.spark()等方法。
+- TIMED_WAITING：超时等待状态，也就是带时间的等待状态。一般是调用了wait(time)、join(time)、LockSupport.sparkNanos()、LockSupport.sparkUnit()等方法。
+- BLOCKED：阻塞状态，等待锁的释放，例如调用了synchronized增加了锁。
+- TERMINATED：终止状态，一般是线程完成任务后退出或者异常终止。
+
 NEW、WAITING、TIMED_WAITING都比较好理解，我们重点说一说RUNNABLE运行态和BLOCKED阻塞态。
 
 线程进入RUNNABLE运行态一般分为五种情况：
 
-线程调用sleep(time)后查出了休眠时间
-线程调用的阻塞IO已经返回，阻塞方法执行完毕
-线程成功的获取了资源锁
-线程正在等待某个通知，成功的获得了其他线程发出的通知
-线程处于挂起状态，然后调用了resume()恢复方法，解除了挂起。
+- 线程调用sleep(time)后查出了休眠时间
+- 线程调用的阻塞IO已经返回，阻塞方法执行完毕
+- 线程成功的获取了资源锁
+- 线程正在等待某个通知，成功的获得了其他线程发出的通知
+- 线程处于挂起状态，然后调用了resume()恢复方法，解除了挂起。
+
 线程进入BLOCKED阻塞态一般也分为五种情况：
 
-线程调用sleep()方法主动放弃占有的资源
-线程调用了阻塞式IO的方法，在该方法返回前，该线程被阻塞。
-线程视图获得一个资源锁，但是该资源锁正被其他线程锁持有。
-线程正在等待某个通知
-线程调度器调用suspend()方法将该线程挂起
+- 线程调用sleep()方法主动放弃占有的资源
+- 线程调用了阻塞式IO的方法，在该方法返回前，该线程被阻塞。
+- 线程视图获得一个资源锁，但是该资源锁正被其他线程锁持有。
+- 线程正在等待某个通知
+- 线程调度器调用suspend()方法将该线程挂起
+
 我们再来看看和线程状态相关的一些方法。
 
-sleep()方法让当前正在执行的线程在指定时间内暂停执行，正在执行的线程可以通过Thread.currentThread()方法获取。
-yield()方法放弃线程持有的CPU资源，将其让给其他任务去占用CPU执行时间。但放弃的时间不确定，有可能刚刚放弃，马上又获得CPU时间片。
-wait()方法是当前执行代码的线程进行等待，将当前线程放入预执行队列，并在wait()所在的代码处停止执行，知道接到通知或者被中断为止。该方法可以使得调用该方法的线程释放共享资源的锁， 然后从运行状态退出，进入等待队列，直到再次被唤醒。该方法只能在同步代码块里调用，否则会抛出IllegalMonitorStateException异常。
-wait(long millis)方法等待某一段时间内是否有线程对锁进行唤醒，如果超过了这个时间则自动唤醒。
-notify()方法用来通知那些可能等待该对象的对象锁的其他线程，该方法可以随机唤醒等待队列中等同一共享资源的一个线程，并使该线程退出等待队列，进入可运行状态。
-notifyAll()方法可以是所有正在等待队列中等待同一共享资源的全部线程从等待状态退出，进入可运行状态，一般会是优先级高的线程先执行，但是根据虚拟机的实现不同，也有可能是随机执行。
-join()方法可以让调用它的线程正常执行完成后，再去执行该线程后面的代码，它具有让线程排队的作用。
+- sleep()方法让当前正在执行的线程在指定时间内暂停执行，正在执行的线程可以通过Thread.currentThread()方法获取。
 
+- yield()方法放弃线程持有的CPU资源，将其让给其他任务去占用CPU执行时间。但放弃的时间不确定，有可能刚刚放弃，马上又获得CPU时间片。
+
+- wait()方法是当前执行代码的线程进行等待，将当前线程放入预执行队列，并在wait()所在的代码处停止执行，知道接到通知或者被中断为止。该方法可以使得调用该方法的线程释放共享资源的锁， 然后从运行状态退出，进入等待队列，直到再次被唤醒。该方法只能在同步代码块里调用，否则会抛出IllegalMonitorStateException异常。wait(long millis)方法等待某一段时间内是否有线程对锁进行唤醒，如果超过了这个时间则自动唤醒。
+
+- notify()方法用来通知那些可能等待该对象的对象锁的其他线程，该方法可以随机唤醒等待队列中等同一共享资源的一个线程，并使该线程退出等待队列，进入可运行状态。
+
+- notifyAll()方法可以是所有正在等待队列中等待同一共享资源的全部线程从等待状态退出，进入可运行状态，一般会是优先级高的线程先执行，但是根据虚拟机的实现不同，也有可能是随机执行。
+
+- join()方法可以让调用它的线程正常执行完成后，再去执行该线程后面的代码，它具有让线程排队的作用。
 
 **92.多线程中的安全队列一般通过什么实现？线程池原理？**
 
@@ -756,3 +676,91 @@ https://my.oschina.net/mingdongcheng/blog/139263
 https://blog.csdn.net/u011240877/article/details/58756137
 https://blog.csdn.net/u011240877/article/details/73440993 
 https://itimetraveler.github.io/2018/02/13/%E3%80%90Java%E3%80%91%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolExecutor%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/
+
+**93.如何防止反射、序列化攻击单例？**
+
+枚举单例
+
+    public enum Singleton {
+        INSTANCE {
+    
+            @Override
+            protected void read() {
+                System.out.println("read");
+            }
+    
+            @Override
+            protected void write() {
+                System.out.println("write");
+            }
+    
+        };
+        protected abstract void read();
+        protected abstract void write();
+    }
+    
+class文件：
+
+    public abstract class Singleton extends Enum
+    {
+    
+        private Singleton(String s, int i)
+        {
+            super(s, i);
+        }
+    
+        protected abstract void read();
+    
+        protected abstract void write();
+    
+        public static Singleton[] values()
+        {
+            Singleton asingleton[];
+            int i;
+            Singleton asingleton1[];
+            System.arraycopy(asingleton = ENUM$VALUES, 0, asingleton1 = new Singleton[i = asingleton.length], 0, i);
+            return asingleton1;
+        }
+    
+        public static Singleton valueOf(String s)
+        {
+            return (Singleton)Enum.valueOf(singleton/Singleton, s);
+        }
+    
+        Singleton(String s, int i, Singleton singleton)
+        {
+            this(s, i);
+        }
+    
+        public static final Singleton INSTANCE;
+        private static final Singleton ENUM$VALUES[];
+    
+        static 
+        {
+            INSTANCE = new Singleton("INSTANCE", 0) {
+    
+                protected void read()
+                {
+                    System.out.println("read");
+                }
+    
+                protected void write()
+                {
+                    System.out.println("write");
+                }
+    
+            };
+            ENUM$VALUES = (new Singleton[] {
+                INSTANCE
+            });
+        }
+    }
+    
+类的修饰abstract，所以没法实例化，反射也无能为力。
+关于线程安全的保证，其实是通过类加载机制来保证的，我们看看INSTANCE的实例化时机，是在static块中，JVM加载类的过程显然是线程安全的。
+对于防止反序列化生成新实例的问题还不是很明白，一般的方法我们会在该类中添加上如下方法，不过枚举中也没有显示的写明该方法。
+
+    //readResolve to prevent another instance of Singleton
+    private Object readResolve(){
+        return INSTANCE;
+    }
