@@ -58,7 +58,7 @@ AsyncTask在不同的SDK版本中的区别：
 
 4.并行还是串行
 
-在Android1.6之前的版本，AsyncTask是串行的，在1.62.3的版本，改成了并行的。在2.3之后的版本又做了修改，可以支持并行和串行，当想要串行执行时，直接行execute()方法，如果需要执行executeOnExecutor(Excutor)。
+在Android1.6之前的版本，AsyncTask是串行的，在1.62.3的版本，改成了并行的。在2.3之后的版本又做了修改，可以支持并行和串行，当想要串行执行时，直接行execute()方法，如果需要并行执行时，执行executeOnExecutor(Excutor)。
 
 **5.onSaveInstanceState() 与onRestoreIntanceState()**
 
@@ -69,7 +69,7 @@ AsyncTask在不同的SDK版本中的区别：
 
 1. 前台进程：
 
-即与用户正在交互的Activity或者Activiy用到的Service等，如果系统内存不足时前台进程是最被杀死的
+即与用户正在交互的Activity或者Activiy用到的Service等，如果系统内存不足时前台进程是最晚被杀死的
 
 2. 可见进程：
 
@@ -77,7 +77,7 @@ AsyncTask在不同的SDK版本中的区别：
 
 3. 服务进程：
 
-其中运行着使用startService方法启动的ervice，虽然不被用户可见，但是却是用户关心的，例用户正在非音乐界面听的音乐或者正在非下载页面自己载的文件等；当系统要空间运行前两者进程时才会被终止
+其中运行着使用startService方法启动的ervice，虽然不被用户可见，但是却是用户关心的，例如用户正在非音乐界面听的音乐或者正在非下载页面下载的文件等；当系统要空间运行前两者进程时才会被终止
 
 4. 后台进程：
 
@@ -85,7 +85,7 @@ AsyncTask在不同的SDK版本中的区别：
 
 5. 空进程：
 
-不包含任何应用程序的程序组件的进程，样的进程系统是一般不会让他存在的
+不包含任何应用程序的程序组件的进程，这样的进程系统是一般不会让他存在的
     
 **7.Serializable和Parcelable**
 
@@ -150,13 +150,13 @@ Property Animation 动画有两个步聚：
 
 **9.Context相关**
 
-- Activity和Service以及Application的Context是不一的,Activity继承自ContextThemeWraper.其他的继承自CntextWrapper.
+- Activity和Service以及Application的Context是不一的,Activity继承自ContextThemeWraper.其他的继承自ContextWrapper.
 
 - 每一个Activity和Service以及Application的Context是一个新的ContextImpl对象
 
 - getApplication()用来获取Application实例的，但是个方法只有在Activity和Service中才能调用的到。那也许在绝大多数情况下我们都是在Activity或者Servic中使用Application的，但是如果在一些其它的场景，比如BroadcastReceiver中也想获得Application的实例，这时就可以借助getApplicationContext()方法，getApplicationContext()比getApplication()方法的作用域会更广一些，任何一个Context的实例，只要调用getApplicationContext()方法都可以拿到我们的Application对象。
 
-- 创建Toast和对话框不可以用Application的context，只能用Activity的context。
+- 创建对话框时不可以用Application的context，只能用Activity的context。
 
 - Context的数量等于Activity的个数 + Service的个数 +1，这个1为Application
 
