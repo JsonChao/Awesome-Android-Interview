@@ -15,7 +15,7 @@
 
 将所有耗时操作，比如访问网络，Socket通信，查询大
 量SQL 语句，复杂逻辑计算等都放在子线程中去，然
-后通过handler.sendMessage、runonUITread、AsyncTask 等方式更新UI。无论如何都要确保用户界面作的流畅
+后通过handler.sendMessage、runonUIThread、AsyncTask 等方式更新UI。无论如何都要确保用户界面作的流畅
 度。如果耗时操作需要让用户等待，那么可以在界面上显示度条。
     
 **2.Activity和Fragment生命周期有哪些？**
@@ -26,7 +26,7 @@
     
 **3.横竖屏切换时候Activity的生命周期**
 
-不设置Activity的android:configChanges时，切屏会重新回掉各个生命周期，切横屏时会执行一次，切竖屏时会执行两次
+不设置Activity的android:configChanges时，切屏会重新回调各个生命周期，切横屏时会执行一次，切竖屏时会执行两次。
 设置Activity的android:configChanges=”orientation”时，切屏还是会调用各个生命周期，切换横竖屏只会执行一次
 设置Activity的android:configChanges=”orientation |keyboardHidden”时，切屏不会重新调用各个生命周期，只会执行onConfigurationChanged方法
 
@@ -34,54 +34,54 @@
     
 关于线程池：
 
-asynctask对应的线程池ThreadPoolExecutr都是进程范围内共享的，都是static的，所以是asynctsk控制着进程范围内所有的子类实例。由于这个限制的在，当使用默认线程池时，如果线程数超过线程池的最容量，线程池就会爆掉(3.0后默认串行执行，不会出现个问题)。针对这种情况，可以尝试自定义线程池，配合synctask使用。
+Asynctask对应的线程池ThreadPoolExecutr都是进程范围内共享的，都是static的，所以是Asynctask控制着进程范围内所有的子类实例。由于这个限制的存在，当使用默认线程池时，如果线程数超过线程池的最大容量，线程池就会爆掉(3.0后默认串行执行，不会出现个问题)。针对这种情况，可以尝试自定义线程池，配合Asynctask使用。
 
 关于默认线程池：
 
-核心线程池中最多有CPU_COUNT+1个最多有CPU_COUNT*2+1个，线程等待队列的最大等待数为28，但是可以自定义线程池。线程池是由AsyncTask来理的，线程池允许tasks并行运行，需要注意的是并发况下数据的一致性问题，新数据可能会被老数据覆盖掉类似volatile变量。所以希望tasks能够串行运行的话，使用SERIAL_EXECUTOR。
+AsyncTask里面线程池是一个核心线程数为CPU + 1，最大线程数为CPU * 2 + 1，工作队列长度为128的线程池，线程等待队列的最大等待数为28，但是可以自定义线程池。线程池是由AsyncTask来处理的，线程池允许tasks并行运行，需要注意的是并发情况下数据的一致性问题，新数据可能会被老数据覆盖掉类似volatile变量。所以希望tasks能够串行运行的话，使用SERIAL_EXECUTOR。
     
 AsyncTask在不同的SDK版本中的区别：
 
-调用AsyncTask的excute方法不能立即执行程序的原因析及改善方案通过查阅官方文档发现，AsyncTask首次引入时，异步务是在一个独立的线程中顺序的执行，也就是说一次只执行一个任务，不能并行的执行，从1.6开始，AsyncTas引入了线程池，支持同时执行5个异步任务，也就是说时只能有5个线程运行，超过的线程只能等待，等待前的线程某个执行完了才被调度和运行。换句话说，如果个进程中的AsyncTask实例个数超过5个，那么假如前5都运行很长时间的话，那么第6个只能等待机会了。这是syncTask的一个限制，而且对于2.3以前的版本无法解。如果你的应用需要大量的后台线程去执行任务，那么只能放弃使用AsyncTask，自己创建线程池来管理Threa。不得不说，虽然AsyncTask较Thread使用起来方便，是它最多只能同时运行5个线程，这也大大局限了它的力，你必须要小心设计你的应用，错开使用AsyncTask时间，尽力做到分时，或者保证数量不会大于5个，否就会遇到上次提到的问题。可能是Google意识到了AsynTask的局限性了，从Android3.0开始对AsyncTask的API出了一些调整：每次只启动一个线程执行一个任务，完之后再执行第二个任务，也就是相当于只有一个后台线在执行所提交的任务。
+调用AsyncTask的execute方法不能立即执行程序的原因析及改善方案通过查阅官方文档发现，AsyncTask首次引入时，异步任务是在一个独立的线程中顺序的执行，也就是说一次只执行一个任务，不能并行的执行，从1.6开始，AsyncTask引入了线程池，支持同时执行5个异步任务，也就是说时只能有5个线程运行，超过的线程只能等待，等待前的线程某个执行完了才被调度和运行。换句话说，如果个进程中的AsyncTask实例个数超过5个，那么假如前5都运行很长时间的话，那么第6个只能等待机会了。这是AsyncTask的一个限制，而且对于2.3以前的版本无法解决。如果你的应用需要大量的后台线程去执行任务，那么只能放弃使用AsyncTask，自己创建线程池来管理Thread。不得不说，虽然AsyncTask较Thread使用起来方便，但是它最多只能同时运行5个线程，这也大大局限了它的作用，你必须要小心设计你的应用，错开使用AsyncTask时间，尽力做到分时，或者保证数量不会大于5个，否就会遇到上次提到的问题。可能是Google意识到了AsynTask的局限性了，从Android 3.0开始对AsyncTask的API做出了一些调整：每次只启动一个线程执行一个任务，完了之后再执行第二个任务，也就是相当于只有一个后台线在执行所提交的任务。
 
 1.生命周期
 
-很多开发者会认为一个在Activity中创建的AsyncTask随着Activity的销毁而销毁。然而事实并非如此。AsynTask会一直执行，直到doInBackground()方法执行完毕然后，如果cancel(boolean)被调用,那么onCancelled(Result result)方法会被执行；否则，执行onPostExecuteResult result)方法。如果我们的Activity销毁之前，有取消AsyncTask，这有可能让我们的AsyncTask崩溃(cash)。因为它想要处理的view已经不在了。所以，我们是必须确保在销毁活动之前取消任务。总之，我们使用AyncTask需要确保AsyncTask正确的取消。
+很多开发者会认为一个在Activity中创建的AsyncTask随着Activity的销毁而销毁。然而事实并非如此。AsynTask会一直执行，直到doInBackground()方法执行完毕，然后，如果cancel(boolean)被调用,那么onCancelled(Result result)方法会被执行；否则，执行onPostExecuteResult result)方法。如果我们的Activity销毁之前，没有取消AsyncTask，这有可能让我们的应用崩溃(crash)。因为它想要处理的view已经不存在了。所以，我们是必须确保在销毁活动之前取消任务。总之，我们使用AsyncTask需要确保AsyncTask正确的取消。
 
 2.内存泄漏
 
-如果AsyncTask被声明为Activity的非静态的内部类，么AsyncTask会保留一个对Activity的引用。如果Activty已经被销毁，AsyncTask的后台线程还在执行，它将续在内存里保留这个引用，导致Activity无法被回收，起内存泄漏。
+如果AsyncTask被声明为Activity的非静态的内部类，那么AsyncTask会保留一个对Activity的引用。如果Activity已经被销毁，AsyncTask的后台线程还在执行，它将续在内存里保留这个引用，导致Activity无法被回收，引起内存泄漏。
 
 3.结果丢失
 
-屏幕旋转或Activity在后台被系统杀掉等情况会导致Actvity的重新创建，之前运行的AsyncTask会持有一个之前ctivity的引用，这个引用已经无效，这时调用onPostExcute()再去更新界面将不再生效。
+屏幕旋转或Activity在后台被系统杀掉等情况会导致Actvity的重新创建，之前运行的AsyncTask会持有一个之前Activity的引用，这个引用已经无效，这时调用onPostExecute()再去更新界面将不再生效。
 
 4.并行还是串行
 
-在Android1.6之前的版本，AsyncTask是串行的，在1.62.3的版本，改成了并行的。在2.3之后的版本又做了修改，可以支持并行和串行，当想要串行执行时，直接行execute()方法，如果需要并行执行时，执行executeOnExecutor(Excutor)。
+在Android1.6之前的版本，AsyncTask是串行的，在1.6-2.3的版本，改成了并行的。在2.3之后的版本又做了修改，可以支持并行和串行，当想要串行执行时，直接行execute()方法，如果需要并行执行时，执行executeOnExecutor(Executor)。
 
 **5.onSaveInstanceState() 与onRestoreIntanceState()**
 
-用户或者程序员主动去销毁一个Activity的时候不会掉
-，其他情况都会调动，来保存界面信息。如代码中finish()或用户按下back，不会掉用。
+用户或者程序员主动去销毁一个Activity的时候不会调用
+，其他情况都会调动，来保存界面信息。如代码中finish()或用户按下back，不会调用。
 
 **6.android中进程的优先级？**
 
 1. 前台进程：
 
-即与用户正在交互的Activity或者Activiy用到的Service等，如果系统内存不足时前台进程是最晚被杀死的
+即与用户正在交互的Activity或者Activity用到的Service等，如果系统内存不足时前台进程是最晚被杀死的
 
 2. 可见进程：
 
-可以是处于暂停状态(onPause)的Activit或者绑定在其上的Service，即被用户可见，但由于失了焦点而不能与用户交互
+可以是处于暂停状态(onPause)的Activity或者绑定在其上的Service，即被用户可见，但由于失了焦点而不能与用户交互
 
 3. 服务进程：
 
-其中运行着使用startService方法启动的ervice，虽然不被用户可见，但是却是用户关心的，例如用户正在非音乐界面听的音乐或者正在非下载页面下载的文件等；当系统要空间运行前两者进程时才会被终止
+其中运行着使用startService方法启动的Service，虽然不被用户可见，但是却是用户关心的，例如用户正在非音乐界面听的音乐或者正在非下载页面下载的文件等；当系统要空间运行，前两者进程才会被终止
 
 4. 后台进程：
 
-其中运行着执行onStop方法而停止的程，但是却不是用户当前关心的，例如后台挂着的QQ，这的进程系统一旦没了有内存就首先被杀死
+其中运行着执行onStop方法而停止的程序，但是却不是用户当前关心的，例如后台挂着的QQ，这时的进程系统一旦没了有内存就首先被杀死
 
 5. 空进程：
 
@@ -89,20 +89,20 @@ AsyncTask在不同的SDK版本中的区别：
     
 **7.Serializable和Parcelable**
 
-序列化，表示将一个对象转换成可存储或可传输的状态序列化后的对象可以在网络上进行传输，也可以存储到地。
+序列化，表示将一个对象转换成可存储或可传输的状态，序列化后的对象可以在网络上进行传输，也可以存储到本地。
 
 Serializable（Java自带）：
 
 Serializable是序列化的意思，表示将一个对象转换成存储或可传输的状态。序列化后的对象可以在网络上进传输，也可以存储到本地。
 
-Parcelable（android 专用）：
+Parcelable（android专用）：
 
-除了Serializable之外，使用Parcelable也可以实现相的效果，不过不同于将对象进行序列化，Parcelable方式的实现理是将一个完整的对象进行分解，而分解后的每一部分都是Intent所支持的数据类型，这也就实现传递对象的功能了。
+除了Serializable之外，使用Parcelable也可以实现相同的效果，不过不同于将对象进行序列化，Parcelable方式的实现原理是将一个完整的对象进行分解，而分解后的每一部分都是Intent所支持的数据类型，这也就实现传递对象的功能了。
 
 **8.动画**
 
-- tween 补间动画。通过指定View的初末状态和变化时间方式，对View的内容完成一系列的图形变换来实现动画效果。 Alpha, Scale ,Translate, Rotate。
-- frame 帧动画。AnimationDrawable控制animation-list.xml布局
+- tween 补间动画。通过指定View的初末状态和变化方式，对View的内容完成一系列的图形变换来实现动画效果。 Alpha, Scale ,Translate, Rotate。
+- frame 帧动画。Animation Drawable控制animation-list.xml布局
 - PropertyAnimation 属性动画3.0引入，属性动画核心思想是对值的变化。
 
 Property Animation 动画有两个步聚：
@@ -117,22 +117,22 @@ Property Animation 动画有两个步聚：
 
 过程一：
 
-计算已完成动画分数 elapsed fraction为了执行一个动画，你需要创建一个ValueAnimator，并且指定目标对象属性的开始、结束和持续时间。在调用 start 后的整个动画过程中，ValueAnimator 会根据已经完成的动画时间计算得到一个0 到 1 之间的分数，代表该动画的已完成动画百分比。0表示 0%，1 表示 100%。
+计算已完成动画分数 elapsed fraction。为了执行一个动画，你需要创建一个ValueAnimator，并且指定目标对象属性的开始、结束和持续时间。在调用 start 后的整个动画过程中，ValueAnimator 会根据已经完成的动画时间计算得到一个0 到 1 之间的分数，代表该动画的已完成动画百分比。0表示 0%，1 表示 100%。
 
 过程二：
 
-计算插值（动画变化率）interpolatedfraction 当 ValueAnimator计算完已完成动画分数后，它会调用当前设置的TimeInterpolator，去计算得到一个interpolated（插值）分数，在计算过程中，已完成动百分比会被加入到新的插值计算中。
+计算插值（动画变化率）interpolated fraction 。当 ValueAnimator计算完已完成动画分数后，它会调用当前设置的TimeInterpolator，去计算得到一个interpolated（插值）分数，在计算过程中，已完成动百分比会被加入到新的插值计算中。
 
 过程三：
 
 计算属性值当插值分数计算完成后，ValueAnimator会根据插值分数调用合适的 TypeEvaluator去计算运动中的属性值。
-以上分析引入了两个概念：已完成动画分数（elapsedfraction）、插值分数( interpolated fraction )。
+以上分析引入了两个概念：已完成动画分数（elapsed fraction）、插值分数( interpolated fraction )。
 
 原理及特点：
 
 1.动画的基本原理：
 
-其实就是利用插值器和估值器，来计出各个时刻View的属性，然后通过改变View的属性来，现View的动画效果。
+其实就是利用插值器和估值器，来计出各个时刻View的属性，然后通过改变View的属性来实现View的动画效果。
 
 2.View动画:
 
@@ -144,9 +144,9 @@ Property Animation 动画有两个步聚：
 
 4.View的属性动画：
 
-1.插值器：作用是根据时间的流逝的百分比来计算属性变的百分比
+1.插值器：作用是根据时间流逝的百分比来计算属性变化的百分比
 
-2.估值器：在1的基础上由这个东西来计算出属性到底化了多少数值的类
+2.估值器：在1的基础上由这个东西来计算出属性到底变化了多少数值的类
 
 **9.Context相关**
 
@@ -193,13 +193,11 @@ Android8.0新特性
 **11.Json**
 
 JSON的全称是JavaScript Object Notation，也就是JavaScript 对象表示法
-JSON是存储和交换文本信息的语法，类似XML，但是比XM更小、更快，更易解析
-JSON是轻量级的文本数据交换格式，独立于语言，具有我描述性，更易理解
-对象可以包含多个名称/值对，比如：
+JSON是存储和交换文本信息的语法，类似XML，但是比XML更小、更快，更易解析
+JSON是轻量级的文本数据交换格式，独立于语言，具有可描述性，更易理解，对象可以包含多个名称/值对，比如：
 
     {"name":"zhangsan" , "age":25}
-使用谷歌的GSON包进行解析
-在 Android Studio 里引入依赖：
+使用谷歌的GSON包进行解析，在 Android Studio 里引入依赖：
 
     compile 'com.google.code.gson:gson:2.7'
 值得注意的是实体类中变量名称必须和json中的值名相。
@@ -233,7 +231,7 @@ DOM解析
 
 优点:
 
-1.XML树在内存中完整存储,因此可以直接修改其数据和构.
+1.XML树在内存中完整存储,因此可以直接修改其数据结构.
 
 2.可以通过该解析器随时访问XML树中的任何一个节点.
 
@@ -247,7 +245,7 @@ DOM解析
 
 - DOM 是用与平台和语言无关的方式表示 XML文档的官方 W3C 标准.
 - DOM是以层次结构组织的节点的集合.这个层次结构允许开人员在树中寻找特定信息.分析该结构通常需要加载整文档和构造层次结构,然后才能进行任何工作.
-- DOM是基对象层次结构的.
+- DOM是基于对象层次结构的.
 
 SAX解析
 
@@ -257,7 +255,7 @@ SAX 对内存的要求比较低,因为它让开发人员自己来决所要处理
 
 缺点:
 
-用SAX方式进行XML解析时,需要顺序执行,所以很难访问同一文档中的不同数据.此外,在基于该方式的解析编码程也相对复杂.
+用SAX方式进行XML解析时,需要顺序执行,所以很难访问同一文档中的不同数据.此外,在基于该方式的解析编码程序也相对复杂.
 
 使用场景:
 
@@ -265,11 +263,11 @@ SAX 对内存的要求比较低,因为它让开发人员自己来决所要处理
 
 Xmlpull解析
 
-android SDK提供了xmlpullapi,xmlpull和sax类似,是基于流（stream）操作文件,后根据节点事件回调开发者编写的处理程序.因为是基流的处理,因此xmlpull和sax都比较节约内存资源,不会dom那样要把所有节点以对橡树的形式展现在内存中.xmpull比sax更简明,而且不需要扫描完整个流.
+android SDK提供了xmlpullapi,xmlpull和sax类似,是基于流（stream）操作文件,后者根据节点事件回调开发者编写的处理程序.因为是基流的处理,因此xmlpull和sax都比较节约内存资源,不会dom那样要把所有节点以对象树的形式展现在内存中.xmpull比sax更简明,而且不需要扫描完整个流.
 
 **13.Jar和Aar的区别**
 
-Jar包里面只有代码，aar里面不光有代码还包括代码还括资源文件，比如 drawable 文件，xml资源文件。对于一些不常变动的 AndroidLibrary，我们可以直接引用 aar，加快编译速度
+Jar包里面只有代码，aar里面不光有代码还包括资源文件，比如 drawable 文件，xml资源文件。对于一些不常变动的 Android Library，我们可以直接引用 aar，加快编译速度
     
 **14.Android为每个应用程序分配的内存大小是多少**
 
@@ -278,7 +276,7 @@ android程序内存一般限制在16M，也有的是24M。近几年手机发展�
 **15.更新UI方式**
 
 - Activity.runOnUiThread(Runnable)
-- View.post(Runnable),View.postDelay(Runnable,long)
+- View.post(Runnable)，View.postDelay(Runnable, long)
 - Handler
 - AsyncTask
 - Rxjava
@@ -300,7 +298,7 @@ android程序内存一般限制在16M，也有的是24M。近几年手机发展�
 
 Merge: 减少视图层级，可以删除多余的层级，优化 UI。
 
-ViewStub: 按需加载，减少内存使用量、加快渲染速度不支持 merge 标签
+ViewStub: 按需加载，减少内存使用量、加快渲染速度、不支持 merge 标签
     
 **19.Json有什么优劣势。**
 
@@ -309,7 +307,7 @@ ViewStub: 按需加载，减少内存使用量、加快渲染速度不支持 mer
 - 轻量级的数据交换格式
 - 读写更加容易
 - 易于机器的解析和生成
-- 
+
 缺点
 
 - 语义性较差，不如 xml 直观
@@ -329,13 +327,13 @@ xml 文件实现的补间动画，复用率极高。在 Activity切换，窗口�
     
 **21.Asset目录与res目录的区别。**
 
-assets：不会在 R文件中生成相应标记，存放到这里的资源在打包时会打程序安装包中。（通过 AssetManager 类访问这些文件）
+assets：不会在 R文件中生成相应标记，存放到这里的资源在打包时会打包到程序安装包中。（通过 AssetManager 类访问这些文件）
 
 res：会在 R 文件中生成 id标记，资源在打包时如果使用到则打包到安装包中，未用到不会打入安装包中。
 
 res/anim：存放动画资源
 
-res/raw：和 asset下文件一样打包时直接打入程序安装包中（会映射到 R文件中）
+res/raw：和 asset下文件一样，打包时直接打入程序安装包中（会映射到 R文件中）
     
 **22.Android怎么加速启动Activity。**
 
