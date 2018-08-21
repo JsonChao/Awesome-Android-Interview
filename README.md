@@ -70,9 +70,9 @@ A awesome  android expert interview questions and answers
 
 ### About me
 
-- #### Email:[chao.qu521@gmail.com]()
-- #### Blog:[https://jsonchao.github.io/](https://jsonchao.github.io/)
-- #### 掘金:[https://juejin.im/user/5a3ba9375188252bca050ade](https://juejin.im/user/5a3ba9375188252bca050ade)
+- #### Email: [chao.qu521@gmail.com]()
+- #### Blog: [https://jsonchao.github.io/](https://jsonchao.github.io/)
+- #### 掘金: [https://juejin.im/user/5a3ba9375188252bca050ade](https://juejin.im/user/5a3ba9375188252bca050ade)
     
 ### License
 
