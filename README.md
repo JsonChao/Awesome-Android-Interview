@@ -27,7 +27,7 @@ A awesome  android expert interview questions and answers
 
 8、Android高新技术：模块化、插件化、组件化、热更新实现原理。
 
-9、最后，如果你会其他的开发方式或语言也会加分不少。比如Kotlin、Python、ReactNative、Flutter、前后端开发。
+9、最后，如果你会其他的开发方式或语言也会加分不少。比如Kotlin、ReactNative、Flutter、Python、前后端开发。
 
 ## Contents
 
