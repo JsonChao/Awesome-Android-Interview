@@ -3,7 +3,7 @@ A awesome  android expert interview questions and answers
 <div align="center">
 <img src="https://user-images.githubusercontent.com/30379002/46050218-6f81cc80-c0f8-11e8-9304-ac77597e0e49.jpg">
 </div>
-<script async src="//cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
+
 > 从十几份顶级面试仓库和200多篇高质量面经中总结出一份全面而详尽的Android面试题集。
 
 
