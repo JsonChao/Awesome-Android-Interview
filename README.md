@@ -3,9 +3,6 @@ A awesome  android expert interview questions and answers
 
 > 从十几份顶级面试仓库和200多篇高质量面经中总结出一份全面而详尽的Android面试题集。
 
-<div align="center">
-<img src="https://raw.githubusercontent.com/JsonChao/Awesome-Android-Interview/master/screenshot/android-interview-questions-and-answers.jpg">
-</div>
 
 ## 前言
 
