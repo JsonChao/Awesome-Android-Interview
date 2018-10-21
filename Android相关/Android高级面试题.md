@@ -1097,10 +1097,6 @@ OnDraw()：
 
 ⑥、绘制滚动条。
 
-事件分发中的onTouch 和onTouchEvent 有什么区别，又该如何使用？
-
-View和ViewGroup分别有哪些事件分发相关的回调方法
-
 View刷新机制
 
 HttpUrlConnection 和 okhttp关系
