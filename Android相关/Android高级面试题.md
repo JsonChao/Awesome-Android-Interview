@@ -928,6 +928,8 @@ DVM:.java -> javac -> .class -> dx.bat -> .dex
     
 **安卓view绘制机制和加载过程，请详细说下整个流程**
 
+[全面的了解请点击此处](https://jsonchao.github.io/2018/10/28/Android%20View%E7%9A%84%E7%BB%98%E5%88%B6%E6%B5%81%E7%A8%8B/)
+
 1.ViewRootImpl会调用performTraversals(),其内部会用performMeasure()、performLayout、performDraw()。
 
 2.performMeasure()会调用最外层的ViewGroup的measur()-->onMeasure(),ViewGroup的onMeasure()是抽象方，但其提供了measureChildren()，这之中会遍历子Vie然后循环调用measureChild()这之中会用getChildMeasueSpec()+父View的MeasureSpec+子View的LayoutParam起获取本View的MeasureSpec，然后调用子View的measur()到View的onMeasure()-->setMeasureDimension(getDeaultSize(),getDefaultSize()),getDefaultSize()默认返回measureSpec的测量数值，所以继承View进行自定义的wrap_content需要重写。
@@ -1055,9 +1057,7 @@ DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理
 
 (记住这个图的传递顺序,面试的时候能够画出来,就很详细了)
 
-请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理
-          
-安卓子线程是否能更新UI，如果能请说明具体细节。
+请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理   
 
 **广播发送和接收的原理了解吗？**
 
@@ -1066,36 +1066,6 @@ DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理
 - 通过Binder机制向ActivityMangerService发送广播。
 - ActivityManagerService查找符合相应条件的广播（IntentFilter/Permission）的BroadcastReceiver，将广播发送到BroadcastReceiver所在的消息队列中。
 - BroadcastReceiver所在消息队列拿到此广播后，回调它的onReceive()方法。
-
-**View的绘制流程**
-
-View的绘制流程：OnMeasure()——>OnLayout()——>OnDraw
-
-各步骤的主要工作：
-
-OnMeasure()：
-
-测量视图大小。从顶层父View到子View递归调用measur方法，measure方法又回调OnMeasure。
-
-OnLayout()：
-
-确定View位置，进行页面布局。从顶层父View向子View递归调用view.layout方法的过程，即父View根据上一步easure子View所得到的布局大小和布局参数，将子View在合适的位置上。
-
-OnDraw()：
-
-绘制视图:ViewRoot创建一个Canvas对象，然后调用OnDrw()。六个步骤：
-
-①、绘制视图的背景；
-
-②、保存画布的图层（Layer）；
-
-③、绘制View的内容；
-
-④、绘制View子视图，如果没有就不用；
-
-⑤、还原图层（Layer）；
-
-⑥、绘制滚动条。
 
 View刷新机制
 
@@ -1107,14 +1077,7 @@ ActivityThread，AMS，WMS的工作原理
 
 AstncTask+HttpClient 与 AsyncHttpClient有什么区别？
 
-View绘制流程
-
-http://www.codekk.com/blogs/detail/54cfab086c4761e5001b253f
-https://www.jianshu.com/p/5a71014e7b1b
-
 自定义控件原理
-
-自定义View如何提供获取View属性的接口？
 
 Android代码中实现WAP方式联网
 
@@ -1168,7 +1131,6 @@ Activity-Window-View三者的差别
 
 低版本SDK如何实现高版本api？
 
-
 计算一个view的嵌套层级
 
 统计启动时长,标准
@@ -1185,15 +1147,11 @@ SP是进程同步的吗?有什么方法做到同步
 
 进程和 Application 的生命周期；
 
-recycleview listview 的区别,性能
-
 数据库数据迁移问题
 
 项目组件化的理解
 
 Android系统为什么会设计ContentProvider，进程共享和线程安全问题
-
-Android相关优化（如内存优化、网络优化、布局优化、电量优化、业务优化）
 
 EventBus作用，实现方式，EventBus实现原理,代替EventBus的方式
 
@@ -1201,14 +1159,9 @@ EventBus作用，实现方式，EventBus实现原理,代替EventBus的方式
 
 下拉状态栏是不是影响activity的生命周期，如果在onStop的时候做了网络请求，onResume的时候怎么恢复
 
-view渲染
-
 逻辑地址与物理地址，为什么使用逻辑地址
 
-RecycleView的使用，原理，RecycleView优化
-
 App中唤醒其他进程的实现方式
-
 
 **软键盘顶起布局**
 
@@ -1248,10 +1201,6 @@ App中唤醒其他进程的实现方式
 
 **如何实现一个推送，极光推送原理**
 
-**图片框架选型**
-
-**图片加载原理**
-
 **统计启动时长**
 
 **如何保持应用的稳定性**
@@ -1262,13 +1211,9 @@ App中唤醒其他进程的实现方式
 
 **各个网络框架之间的差异和优缺点，网络框架代替进化的原因**
 
-**图片缓存框架的差异和优缺点，有没有比Glide更好的图片加载框架？**
-
 **项目框架里有没有Base类，BaseActivity和BaseFragment这种封装导致的问题，以及解决方法**
 
 **为什么不推荐软引用，软引用在dvm上的垃圾回收机制和jvm上一样吗？**
-
-**L6UCache的删除条件，LRU是什么意思**
 
 **启动页缓存设计 白屏问题**
 
@@ -1310,7 +1255,7 @@ App中唤醒其他进程的实现方式
 
 **Canvas的底层机制，绘制框架，硬件加速是什么原理，canvas lock的缓冲区是怎么回事**
 
-**surfaceview， suface，surfacetexure等相关的，以及底层原理**
+**surfaceview， suface，surfacetexture等相关的，以及底层原理**
 
 **android文件存储，各版本存储位置的权限控制的演进，外部存储，内部存储**
 
@@ -1328,9 +1273,7 @@ App中唤醒其他进程的实现方式
 
 **对应用里的线程有做统一管理么？**
 
-**jni的算法提供都是主线程的？是不是想问服务类的啊**
-
-**边沿检测用的啥？深度学习相关的有了解么？**
+**jni的算法提供都是主线程的？**
 
 **上线后的app性能分析检测有做么**
 
@@ -1630,9 +1573,7 @@ Java系统框架层
 C++系统框架层
 Linux内核层
 
-安卓view绘制机制和加载过程，请详细说下整个流程
-
-activty的加载过程 请详细介绍下（不是生命周期切记）
+activty的加载过程 请详细介绍下
 
 安卓采用自动垃圾回收机制，请说下安卓内存管理的原理
 
@@ -1662,59 +1603,6 @@ ButterKnife对性能的影响很小，因为没有使用使用反射，而是使
     调用到ViewGroup
     调用ViewGroup的removeAllView()，先将所有的view移除掉
     添加新的view：addView()
-
-**事件传递机制**
-
-    当手指触摸到屏幕时，系统就会调用相应View的onTouchEvent，并传入一系列的action。
-    
-    dispatchTouchEvent的执行顺序为：
-    
-    首先触发ACTIVITY的dispatchTouchEvent,然后触发ACTIVITY的onInterceptTouchEvent.
-    然后触发LAYOUT的dispatchTouchEvent，然后触发LAYOUT的onInterceptTouchEvent
-    这就解释了重写ViewGroup时必须调用super.dispatchTouchEvent();
-    
-    (1)dispatchTouchEvent:
-    
-    此方法一般用于初步处理事件，因为动作是由此分发，所以通常会调用super.dispatchTouchEvent。这样就会继续调用onInterceptTouchEvent，再由onInterceptTouchEvent决定事件流向。
-    
-    (2)onInterceptTouchEvent:
-    
-    若返回值为true事件会传递到自己的onTouchEvent();若返回值为false传递到下一个View的dispatchTouchEvent();
-    
-    (3)onTouchEvent():
-    
-    若返回值为true，事件由自己消耗，后续动作让其处理；若返回值为false，自己不消耗事件了，向上返回让其他的父View的onTouchEvent接受处理
-    
-    三大方法关系的伪代码：如果当前View拦截事件，就交给自己的onTouchEvent去处理，否则就丢给子View继续走相同的流程。
-    
-    public boolean dispatchTouchEvent(MotionEvent ev)
-    {
-        boolean consume = false;
-        if(onInterceptTouchEvent(ev))
-        {
-            consume = onTouchEvent(ev);
-        }
-        else
-        {
-            consume = child.dispatchTouchEvent(ev);
-        }
-        return consume;
-    }
-    onTouchEvent的传递：
-    
-    当有多个层级的View时，在父层级允许的情况下，这个action会一直传递直到遇到最深层的View。所以touch事件最先调用的是最底层View的onTouchEvent，如果View的onTouchEvent接收到某个touch action并做了相应处理，最后有两种返回方式return true和return false；return true会告诉系统当前的View需要处理这次的touch事件，以后的系统发出的ACTION_MOVE,ACTION_UP还是需要继续监听并接收的，并且这次的action已经被处理掉了，父层的View是不可能触发onTouchEvent的了。所以每一个action最多只能有一个onTouchEvent接口返回true。如果返回false，便会通知系统，当前View不关心这一次的touch事件，此时这个action会传向父级，调用父级View的onTouchEvent。但是这一次的touch事件之后发出任何action，该View都不在接受，onTouchEvent在这一次的touch事件中再也不会触发，也就是说一旦View返回false，那么之后的ACTION_MOVE,ACTION_UP等ACTION就不会在传入这个View,但是下一次touch事件的action还是会传进来的。
-    
-    父层的onInterceptTouchEvent
-    
-    前面说了底层的View能够接收到这次的事件有一个前提条件：在父层允许的情况下。假设不改变父层级的dispatch方法，在系统调用底层onTouchEvent之前会调用父View的onInterceptTouchEvent方法判断，父层View是否要截获本次touch事件之后的action。如果onInterceptTouchEvent返回了true，那么本次touch事件之后的所有action都不会向深层的View传递，统统都会传给父层View的onTouchEvent，就是说父层已经截获了这次touch事件，之后的action也不必询问onInterceptTouchEvent，在这次的touch事件之后发出的action时onInterceptTouchEvent不会再被调用，直到下一次touch事件的来临。如果onInterceptTouchEvent返回false，那么本次action将发送给更深层的View，并且之后的每一次action都会询问父层的onInterceptTouchEvent需不需要截获本次touch事件。只有ViewGroup才有onInterceptTouchEvent方法，因为一个普通的View肯定是位于最深层的View，touch能够传到这里已经是最后一站了，肯定会调用View的onTouchEvent()。
-    
-    底层View的getParent().requestDisallowInterceptTouchEvent(true)
-    
-    对于底层的View来说，有一种方法可以阻止父层的View获取touch事件，就是调用getParent().requestDisallowInterceptTouchEvent(true)方法。一旦底层View收到touch的action后调用这个方法那么父层View就不会再调用onInterceptTouchEvent了，也无法截获以后的action（如果父层ViewGroup和最底层View需要截获不同焦点，或不同手势的touch，不能使用这个写死）。
-    
-http://gityuan.com/2015/09/19/android-touch/
-https://www.jianshu.com/p/84b2e0038080
-http://hanhailong.com/2015/09/24/Android-%E4%B8%89%E5%BC%A0%E5%9B%BE%E6%90%9E%E5%AE%9ATouch%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92%E6%9C%BA%E5%88%B6/
 
 **Scroller原理**
 
@@ -1895,11 +1783,7 @@ Android Studio 3.0 中 Gradle 的 api 和 implementation 有什么区别；
 
 设计一个音乐播放界面，你会如何实现，用到那些类，如何设计，如何定义接口，如何与后台交互，如何缓存与下载，如何优化(15分钟时间)
 
-
-app的架构是怎么样的，并且为什么这样，有什么优缺点？
-
-Android Native 和 JS
-通信有几种方式，有没有用到什么框架之类的；
+Android Native 和 JS通信有几种方式，有没有用到什么框架之类的；
 
 单元测试有没有做过，说说熟悉的单元测试框架；
 
@@ -1925,22 +1809,11 @@ Java动态代理的使用，InvocationHandler 有什么用；
 
 安卓安全方面了解过吗，反编译、加壳之类的；
 
-
 点击事件被拦截，但是想传到下面的View，如何操作？
 
 微信主页面的实现方式
 
 微信上消息小红点的原理
-
-实现stack 的pop和push接口 要求：
-
-1.用基本的数组实现
-
-2.考虑范型
-
-3.考虑下同步问题
-
-4.考虑扩容问题
 
 介绍下先前的app架构和通信
 
@@ -1948,19 +1821,13 @@ Java动态代理的使用，InvocationHandler 有什么用；
 
 apk包大小有限制么？怎么减少包大小？
 
-工作中有没有用过或者写过什么工具？脚本，插件等等
-
-比如：多人协同开发可能对一些相同资源都各自放了一份，有没有方法自动检测这种重复之类的
+工作中有没有用过或者写过什么工具？脚本，插件等等；比如：多人协同开发可能对一些相同资源都各自放了一份，有没有方法自动检测这种重复之类的
 
 自定义View如何考虑机型适配；
 
 自定义View如何提供获取View属性的接口；
 
-View和ViewGroup分别有哪些事件分发相关的回调方法；
-
 注解的作用与原理
-
-
 
 说下冷启动与热启动是什么，区别，如何优化，使用场景等。
 
