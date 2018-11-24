@@ -455,6 +455,60 @@ Binder机制及底层实现
     
     
     但是编写代码还是要按照面向对象思维的，我们应该在能优化的地方进行优化，比如避免在内部调用getters/setters方法。
+    
+**FC(Force Close)**
+
+什么时候会出现
+
+Error
+OOM，内存溢出
+StackOverFlowError
+Runtime,比如说空指针异常
+解决的办法
+
+注意内存的使用和管理
+使用Thread.UncaughtExceptionHandler接口
+
+**界面优化** 
+
+    太多重叠的背景(overdraw)
+    
+    这个问题其实最容易解决，建议就是检查你在布局和代码中设置的背景，有些背景是隐藏在底下的，它永远不可能显示出来，这种没必要的背景一定要移除，因为它很可能会严重影响到app的性能。如果采用的是selector的背景，将normal状态的color设置为”@android:color/transparent”,也同样可以解决问题。
+    
+    太多重叠的View
+    
+    第一个建议是 ：使用ViewStub来加载一些不常用的布局，它是一个轻量级且默认是不可见的视图，可以动态的加载一个布局，只要你用到这个重叠着的View的时候才加载，推迟加载的时间。
+    
+    第二个建议是：如果使用了类似Viewpager＋Fragment这样的组合或者有多个Fragment在一个界面上，需要控制Fragment的显示和隐藏，尽量使用动态的Inflation view，它的性能要比SetVisibility好。
+    
+    复杂的Layout层级
+    
+    这里的建议比较多一些，首先推荐使用Android提供的布局工具Hierarchy Viewer来检查和优化布局。第一个建议是：如果嵌套的线性布局加深了布局层次，可以使用相对布局来取代。第二个建议是：用标签来合并布局。第三个建议是：用标签来重用布局，抽取通用的布局可以让布局的逻辑更清晰明了。记住，这些建议的最终目的都是使得你的Layout在Hierarchy Viewer里变得宽而浅，而不是窄而深。
+    
+    总结：可以考虑多使用merge和include，ViewStub。尽量使布局浅平，根布局尽量少使用RelactivityLayout,因为RelactivityLayout每次需要测量2次。
+
+**内存优化** 
+
+    核心思想：减少内存使用，能不new的不new，能少分配的少分配。因为分配更多的内存就意味着发生更多的GC，每次触发GC都会占用CPU时间，影响性能。
+    
+    集合优化：Android提供了一系列优化过后的数据集合工具类，如SparseArray、SparseBooleanArray、LongSparseArray，使用这些API可以让我们的程序更加高效。HashMap工具类会相对比较低效，因为它需要为每一个键值对都提供一个对象入口，而SparseArray就避免掉了基本数据类型转换成对象数据类型的时间。
+    Bitmap优化：读取一个Bitmap图片的时候，千万不要去加载不需要的分辨率。可以压缩图片等操作。
+    尽量避免使用依赖注入框架。
+    避免创作不必要的对象：字符串拼接使用StringBuffer，StringBuilder。
+    onDraw方法里面不要执行对象的创建.
+    重写onTrimMemory，根据传入的参数，进行内存释放。
+    使用static final 优化成员变量。
+    
+**移动端获取网络数据优化的几个点**
+
+    连接复用：节省连接建立时间，如开启 keep-alive。
+    对于Android来说默认情况下HttpURLConnection和HttpClient都开启了keep-alive。只是2.2之前HttpURLConnection存在影响连接池的Bug，具体可见：Android HttpURLConnection及HttpClient选择
+    
+    请求合并：即将多个请求合并为一个进行请求，比较常见的就是网页中的CSS Image Sprites。如果某个页面内请求过多，也可以考虑做一定的请求合并。
+    
+    减少请求数据的大小：对于post请求，body可以做gzip压缩的，header也可以做数据压缩(不过只支持http 2.0)。
+    返回数据的body也可以做gzip压缩，body数据体积可以缩小到原来的30%左右。（也可以考虑压缩返回的json数据的key数据的体积，尤其是针对返回数据格式变化不大的情况，支付宝聊天返回的数据用到了）
+    根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）
 
 如何对Android 应用进行性能分析以及优化?
 
@@ -1474,61 +1528,6 @@ Java 引用类型分类：
     跳过去可以跳到任意允许的页面，如一个程序可以下载，那么真正下载的页面可能不是首页（也有可能是首页），这时还是构造一个Intent，startActivity.
     这个intent中的action可能有多种view,download都有可能。系统会根据第三方程序向系统注册的功能，为你的Intent选择可以打开的程序或者页面。所以唯一的一点
     不同的是从icon的点击启动的intent的action是相对单一的，从程序中跳转或者启动可能样式更多一些。本质是相同的。
-
-
-**FC(Force Close)**
-
-什么时候会出现
-
-Error
-OOM，内存溢出
-StackOverFlowError
-Runtime,比如说空指针异常
-解决的办法
-
-注意内存的使用和管理
-使用Thread.UncaughtExceptionHandler接口
-
-**界面优化** 
-
-    太多重叠的背景(overdraw)
-    
-    这个问题其实最容易解决，建议就是检查你在布局和代码中设置的背景，有些背景是隐藏在底下的，它永远不可能显示出来，这种没必要的背景一定要移除，因为它很可能会严重影响到app的性能。如果采用的是selector的背景，将normal状态的color设置为”@android:color/transparent”,也同样可以解决问题。
-    
-    太多重叠的View
-    
-    第一个建议是 ：使用ViewStub来加载一些不常用的布局，它是一个轻量级且默认是不可见的视图，可以动态的加载一个布局，只要你用到这个重叠着的View的时候才加载，推迟加载的时间。
-    
-    第二个建议是：如果使用了类似Viewpager＋Fragment这样的组合或者有多个Fragment在一个界面上，需要控制Fragment的显示和隐藏，尽量使用动态的Inflation view，它的性能要比SetVisibility好。
-    
-    复杂的Layout层级
-    
-    这里的建议比较多一些，首先推荐使用Android提供的布局工具Hierarchy Viewer来检查和优化布局。第一个建议是：如果嵌套的线性布局加深了布局层次，可以使用相对布局来取代。第二个建议是：用标签来合并布局。第三个建议是：用标签来重用布局，抽取通用的布局可以让布局的逻辑更清晰明了。记住，这些建议的最终目的都是使得你的Layout在Hierarchy Viewer里变得宽而浅，而不是窄而深。
-    
-    总结：可以考虑多使用merge和include，ViewStub。尽量使布局浅平，根布局尽量少使用RelactivityLayout,因为RelactivityLayout每次需要测量2次。
-
-**内存优化** 
-
-    核心思想：减少内存使用，能不new的不new，能少分配的少分配。因为分配更多的内存就意味着发生更多的GC，每次触发GC都会占用CPU时间，影响性能。
-    
-    集合优化：Android提供了一系列优化过后的数据集合工具类，如SparseArray、SparseBooleanArray、LongSparseArray，使用这些API可以让我们的程序更加高效。HashMap工具类会相对比较低效，因为它需要为每一个键值对都提供一个对象入口，而SparseArray就避免掉了基本数据类型转换成对象数据类型的时间。
-    Bitmap优化：读取一个Bitmap图片的时候，千万不要去加载不需要的分辨率。可以压缩图片等操作。
-    尽量避免使用依赖注入框架。
-    避免创作不必要的对象：字符串拼接使用StringBuffer，StringBuilder。
-    onDraw方法里面不要执行对象的创建.
-    重写onTrimMemory，根据传入的参数，进行内存释放。
-    使用static final 优化成员变量。
-    
-**移动端获取网络数据优化的几个点**
-
-    连接复用：节省连接建立时间，如开启 keep-alive。
-    对于Android来说默认情况下HttpURLConnection和HttpClient都开启了keep-alive。只是2.2之前HttpURLConnection存在影响连接池的Bug，具体可见：Android HttpURLConnection及HttpClient选择
-    
-    请求合并：即将多个请求合并为一个进行请求，比较常见的就是网页中的CSS Image Sprites。如果某个页面内请求过多，也可以考虑做一定的请求合并。
-    
-    减少请求数据的大小：对于post请求，body可以做gzip压缩的，header也可以做数据压缩(不过只支持http 2.0)。
-    返回数据的body也可以做gzip压缩，body数据体积可以缩小到原来的30%左右。（也可以考虑压缩返回的json数据的key数据的体积，尤其是针对返回数据格式变化不大的情况，支付宝聊天返回的数据用到了）
-    根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）
 
 **Android系统的架构**
 
