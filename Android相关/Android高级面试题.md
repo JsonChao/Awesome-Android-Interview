@@ -7,12 +7,6 @@
 http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
 http://www.trinea.cn/android/android-image-cache-compare/
 
-图片库的源码分析
-
-图片框架缓存实现
-
-LRUCache原理
-
 图片加载原理
 
 自己去实现图片库，怎么做？
@@ -138,9 +132,6 @@ BitMap的缓存：
     1.同步加载只创建一个线程然后按照顺序进行图片加载
     2.异步加载使用线程池，让存在的加载任务都处于不同线程
     3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
-
-**图片加载库相关，bitmap如何处理大图，如一张30M的大图，如何预防OOM**
-
     
 **[如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)**
 
@@ -221,7 +212,7 @@ App 是如何沙箱化，为什么要这么做？
 
 **三、数据库**
 
-数据库框架对比和源码分析
+数据库框架对比和源码分析(GreenDao)
 
 数据库的优化
 
