@@ -226,6 +226,24 @@ http://www.liuguangli.win/archives/366
 http://www.liuguangli.win/archives/387
 http://www.liuguangli.win/archives/452
 
+
+插件化：
+    动态加载主要解决3个技术问题：
+    1，使用ClassLoader加载类。
+    2，资源访问。
+    3，生命周期管理。
+    插件化是体现在功能拆分方面的，它将某个功能独立提取出来，独立开发，独立测试，再插入到主应用中。依次来较少主应用的规模。
+热修复：
+    原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个
+    原理：将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。使用Dexclassloader。
+    热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。
+利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在 热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
+
+目前热修复框架主要分为两大类：
+
+Sophix：修改方法指针。
+Tinker：修改dex数组元素。
+
     相同点:
     
     
@@ -242,43 +260,16 @@ http://www.liuguangli.win/archives/452
     
     所以插件化比热修复简单，热修复是在插件化的基础上在进行替旧的Bug类
     
-**了解插件化和热修复吗，它们有什么区别，理解它们的原理吗？**
-
-插件化：插件化是体现在功能拆分方面的，它将某个功能独立提取出来，独立开发，独立测试，再插入到主应用中。依次来较少主应用的规模。
-热修复：热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。
-利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在 热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
-
-目前热修复框架主要分为两大类：
-
-Sophix：修改方法指针。
-Tinker：修改dex数组元素。
-
-**热补丁**
-
-    原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个
-    原理：将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。使用Dexclassloader。
-
-**动态加载(也叫插件化技术)**
-
-    动态加载主要解决3个技术问题：
-    1，使用ClassLoader加载类。
-    2，资源访问。
-    3，生命周期管理。
-    
-**模块化的好处**
-
-https://www.jianshu.com/p/376ea8a19a17
-
-Android 组件化的原理，还有一些组件化平时使用的问题；
-
-
-对热修复和插件化的理解
 
 为什么选用插件化，插件化框架的比较，梳理插件化的架构
 
 插件化原理分析
 
-模块化实现（好处，原因）
+**模块化的好处**
+
+https://www.jianshu.com/p/376ea8a19a17
+
+Android 组件化的原理，还有一些组件化平时使用的问题；
 
 项目组件化的理解
 
@@ -299,8 +290,6 @@ http://www.tianmaying.com/tutorial/AndroidMVC
 谈谈你对Android设计模式的理解
 
 MVC MVP MVVM原理和区别
-
-你所知道的设计模式有哪些？
 
 项目中常用的设计模式
 
@@ -325,8 +314,6 @@ RxJava的作用，与平时使用的异步操作来比的优缺点
 谈谈对java状态机理解
 
 Fragment如果在Adapter中使用应该如何解耦？
-
-Binder机制及底层实现
 
 对于应用更新这块是如何做的？(解答：灰度，强制更新，分区域更新)？
 
