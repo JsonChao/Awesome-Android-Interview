@@ -297,10 +297,6 @@ MVC MVP MVVM原理和区别
 
 适配器模式，装饰者模式，外观模式的异同？
 
-用到的一些开源框架，介绍一个看过源码的，内部实现过程。
-
-谈谈对RxJava的理解
-
 RxJava的功能与原理实现
 
 RxJava的作用，与平时使用的异步操作来比的优缺点
@@ -531,8 +527,6 @@ http://www.trinea.cn/android/performance/
     采用内存缓存和磁盘缓存。
     尽量采用静态内部类，可避免潜在由于内部类导致的内存泄漏。
 
-如何对Android 应用进行性能分析以及优化?
-
 ddms 和 traceView
 
 性能优化如何分析systrace
@@ -564,8 +558,6 @@ RecyclerView和ListView的性能对比
 ListView的优化
 
 RecycleView优化
-
-View渲染
 
 Bitmap如何处理大图，如一张30M的大图，如何预防OOM
 
@@ -755,14 +747,7 @@ Binder原理：
 
 请介绍一下NDK
 
-什么是NDK库?
-
-jni用过吗
-
 如何在jni中注册native函数，有几种注册方式
-
-
-Java如何调用c、c++语言？
 
 **Java调用C++**
 
@@ -868,8 +853,6 @@ C++调用Java
 
 **Android2个虚拟机的区别（一个5.0之前，一个5.0之后）**
 
-**ART和Dalvik区别**
-
 art上应用启动快，运行快，但是耗费更多存储空间，安装时间长，总的来说ART的功效就是”空间换时间”。
 
 ART: Ahead of Time
@@ -889,8 +872,6 @@ ART优点：
 ART缺点：
 更大的存储空间占用，可能会增加10%-20%
 更长的应用安装时间
-
-**对 Dalvik、ART 虚拟机有基本的了解**
 
 https://blog.csdn.net/jason0539/article/details/50440669
 
@@ -934,8 +915,6 @@ APK整体的的打包流程如下图所示：
     
 五 ：ActivityManagerService通过Binder进程间通信机制通知ActivityThread，现在一切准备就绪，它可以真正执行Activity的启动操作了。
 
-**App启动流程，从点击桌面开始**
-
 点击应用图标后会去启动应用的LauncherActivity，如果LancerActivity所在的进程没有创建，还会创建新进程，整体的流程就是一个Activity的启动流程。
 
 Activity的启动流程图（放大可查看）如下所示：
@@ -973,18 +952,6 @@ http://www.sohu.com/a/130814934_675634
 **一个应用程序安装到手机上时发生了什么**
 
 http://www.androidchina.net/6667.html
-
-**Android系统启动过程，App启动过程** 
-    
-从桌面点击到activity启动的过程
-
-1.Launcher线程捕获onclick的点击事件，调用LauncherstartActivitySafely,进一步调用Launcher.startActivty，最后调用父类Activity的startActivity。
-
-2.Activity和ActivityManagerService交互，引入Instrmentation，将启动请求交给Instrumentation，调用Insrumentation.execStartActivity。
-
-3.调用ActivityManagerService的startActivity方法这里做了进程切换（具体过程请查看源码）。
-
-4.开启Activity，调用onCreate方法
     
 **JVM 和Dalvik虚拟机的区别**
 
@@ -1062,10 +1029,6 @@ APK的安装流程如下所示：
 将AndroidManifest文件解析出的四大组件信息注册到PackageManagerService中。
 安装完成后，发送广播。
 
-**Android 上的 Inter-Process-Communication 跨进程通信时如何工作的；**
-
-**权限管理系统（底层的权限是如何进行 grant 的）**
-
 **adb install 和 pms scan 的区别有哪些？**
 
 **一个图片在app中调用R.id后是如何找到的？**
@@ -1084,11 +1047,7 @@ APK的安装流程如下所示：
 
 **android api层的源码熟悉哪些？解释一下**
 
-**对Dalvik、ART虚拟机有什么了解？**
-
 **虚拟机原理，如何自己设计一个虚拟机(内存管理，类加载，双亲委派)**
-
-**Ubuntu编译安卓系统**
 
 **系统启动流程是什么？（提示：Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程）**    
     
