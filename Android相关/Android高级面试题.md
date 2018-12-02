@@ -1107,11 +1107,7 @@ HttpUrlConnection 和 okhttp关系
 
 Bitmap对象的理解
 
-ActivityThread，AMS，WMS的工作原理
-
 AstncTask+HttpClient 与 AsyncHttpClient有什么区别？
-
-自定义控件原理
 
 Android代码中实现WAP方式联网
 
@@ -1125,7 +1121,7 @@ LeakCanary 实现原理
 
 http://blog.csdn.net/cloud_huan/article/details/53081120
 
-内存泄露的本质
+**内存泄露的本质**
 
 无法回收无用的对象
 
