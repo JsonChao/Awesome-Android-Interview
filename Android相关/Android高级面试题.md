@@ -811,6 +811,69 @@ C++调用Java
     
 **八、Android Framework相关**
 
+**启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？** 
+
+    是因为启动程序（主界面也是一个app），发现了在这个程序中存在一个设置为
+    
+    <category android:name="android.intent.category.LAUNCHER" />
+    的activity,
+    所以这个launcher会把icon提出来，放在主界面上。当用户点击icon的时候，发出一个Intent：
+    
+    Intent intent = mActivity.getPackageManager().getLaunchIntentForPackage(packageName);
+    mActivity.startActivity(intent);   
+    跳过去可以跳到任意允许的页面，如一个程序可以下载，那么真正下载的页面可能不是首页（也有可能是首页），这时还是构造一个Intent，startActivity.
+    这个intent中的action可能有多种view,download都有可能。系统会根据第三方程序向系统注册的功能，为你的Intent选择可以打开的程序或者页面。所以唯一的一点
+    不同的是从icon的点击启动的intent的action是相对单一的，从程序中跳转或者启动可能样式更多一些。本质是相同的。
+
+**Android系统的架构**
+
+![image](https://upload-images.jianshu.io/upload_images/2893137-1047c70c15c1589b.png?imageMogr2/auto-orient)
+
+    android的系统架构和其操作系统一样，采用了分层的架构。从架构图看，android分为四个层，从高层到低层分别是应用程序层、应用程序框架层、系统运行库层和linux核心层。
+    　　1.应用程序 
+    　　Android会同一系列核心应用程序包一起发布，该应用程序包包括email客户端，SMS短消息程序，日历，地图，浏览器，联系人管理程序等。所有的应用程序都是使用JAVA语言编写的。
+    　　2.应用程序框架 
+    　　开发人员也可以完全访问核心应用程序所使用的API框架。该应用程序的架构设计简化了组件的重用;任何一个应用程序都可以发布它的功能块并且任何其它的应用程序都可以使用其所发布的功能块(不过得遵循框架的安全性限制)。同样，该应用程序重用机制也使用户可以方便的替换程序组件。
+    　　隐藏在每个应用后面的是一系列的服务和系统, 其中包括;
+    　　* 丰富而又可扩展的视图(Views)，可以用来构建应用程序， 它包括列表(lists)，网格(grids)，文本框(text boxes)，按钮(buttons)， 甚至可嵌入的web浏览器。
+    　　* 内容提供器(Content Providers)使得应用程序可以访问另一个应用程序的数据(如联系人数据库)， 或者共享它们自己的数据
+    　　* 资源管理器(Resource Manager)提供 非代码资源的访问，如本地字符串，图形，和布局文件( layout files )。
+    　　* 通知管理器 (Notification Manager) 使得应用程序可以在状态栏中显示自定义的提示信息。
+    　　* 活动管理器( Activity Manager) 用来管理应用程序生命周期并提供常用的导航回退功能。
+    　　有关更多的细节和怎样从头写一个应用程序，请参考 如何编写一个 Android 应用程序.
+    3.系统运行库 
+    　　1)程序库
+    　　Android 包含一些C/C++库，这些库能被Android系统中不同的组件使用。它们通过 Android 应用程序框架为开发者提供服务。以下是一些核心库：
+    　　系统 C 库 - 一个从 BSD 继承来的标准 C 系统函数库( libc )， 它是专门为基于 embedded linux 的设备定制的。
+    　　 媒体库 - 基于 PacketVideo OpenCORE;该库支持多种常用的音频、视频格式回放和录制，同时支持静态图像文件。编码格式包括MPEG4, H.264, MP3, AAC, AMR, JPG, PNG 。
+    　　 Surface Manager - 对显示子系统的管理，并且为多个应用程序提 供了2D和3D图层的无缝融合。
+    　　 LibWebCore - 一个最新的web浏览器引擎用，支持Android浏览器和一个可嵌入的web视图。
+    　　SGL- 底层的2D图形引擎
+    　　 3D libraries - 基于OpenGL ES 1.0 APIs实现;该库可以使用硬件 3D加速(如果可用)或者使用高度优化的3D软加速。
+    　　 FreeType -位图(bitmap)和矢量(vector)字体显示。
+    　　* SQLite - 一个对于所有应用程序可用，功能强劲的轻型关系型数据库引擎。
+    　　2)Android 运行库
+    　　Android 包括了一个核心库，该核心库提供了JAVA编程语言核心库的大多数功能。
+    　　每一个Android应用程序都在它自己的进程中运行，都拥有一个独立的Dalvik虚拟机实例。Dalvik被设计成一个设备可以同时高效地运行多个虚拟系统。 Dalvik虚拟机执行(.dex)的Dalvik可执行文件，该格式文件针对小内存使用做了优化。同时虚拟机是基于寄存器的，所有的类都经由JAVA编译器编译，然后通过SDK中 的 “dx” 工具转化成.dex格式由虚拟机执行。
+    　　Dalvik虚拟机依赖于linux内核的一些功能，比如线程机制和底层内存管理机制。
+    　　4.Linux 内核 
+    Android 的核心系统服务依赖于 Linux 2.6 内核，如安全性，内存管理，进程管理， 网络协议栈和驱动模型。 Linux 内核也同时作为硬件和软件栈之间的抽象层。
+    
+![image](https://raw.githubusercontent.com/BeesAndroid/BeesAndroid/master/art/android_system_structure.png)
+
+从上到下依次分为四层：
+
+Android应用框架层
+Java系统框架层
+C++系统框架层
+Linux内核层
+
+activty的加载过程 请详细介绍下
+
+安卓采用自动垃圾回收机制，请说下安卓内存管理的原理
+
+说下安卓虚拟机和java虚拟机的原理和不同点 
+
 **android重要术语解释**
 
 1.ActivityManagerServices，简称AMS，服务端对象，责系统中所有Activity的生命周期
@@ -1029,6 +1092,16 @@ APK的安装流程如下所示：
 将AndroidManifest文件解析出的四大组件信息注册到PackageManagerService中。
 安装完成后，发送广播。
 
+**进程间通信方式？Binder的构成有几部分？**
+
+**jni的算法提供都是主线程的？**
+
+**Android的签名机制，APK包含哪些东西**
+
+**如何加载NDK库？如何在jni中注册native函数，有几种注册方法？**
+
+**点击Launcher跟点击微信支付启动微信有什么区别**
+
 **adb install 和 pms scan 的区别有哪些？**
 
 **一个图片在app中调用R.id后是如何找到的？**
@@ -1213,8 +1286,6 @@ App中唤醒其他进程的实现方式
 
 **区别Animation和Animator的用法，概述其原理**
 
-**如何加载NDK库？如何在jni中注册native函数，有几种注册方法？**
-
 **操作系统中进程和线程有什么联系和区别？系统会在什么情况下会在用户态好内核态中切换。**
 
 **对于Android APP闪退，可能的原因有哪些？请针对每种情况简述分析过程。**
@@ -1261,10 +1332,6 @@ App中唤醒其他进程的实现方式
 
 **设计一个多线程，可以同时读，读的时候不能写，写的时候不能读(读写锁)**
 
-**Android的签名机制，APK包含哪些东西**
-
-**点击Launcher跟点击微信支付启动微信有什么区别**
-
 **没有给权限如何定位，特定机型定位失败，如何解决**
 
 **Gradle生命周期**
@@ -1274,8 +1341,6 @@ App中唤醒其他进程的实现方式
 **怎么处理嵌套View的滑动冲突问题**
 
 **热修复相关的原理，框架熟悉么**
-
-**gradle打包流程熟悉么**
 
 **任意提问环节：其实可以问之前面试中遇到的问题：比如，多模块开发的时候不同的负责人可能会引入重复资源，相同的字符串，相同的icon等但是文件名并不一样，怎样去重？**
 
@@ -1299,11 +1364,9 @@ App中唤醒其他进程的实现方式
 
 **对应用里的线程有做统一管理么？**
 
-**jni的算法提供都是主线程的？**
+**gradle打包流程熟悉么**
 
 **上线后的app性能分析检测有做么**
-
-**进程间通信方式？Binder的构成有几部分？**
 
 **想改变listview的高度，怎么做**
 
@@ -1442,70 +1505,6 @@ Java 引用类型分类：
     获取app crash的信息保存在本地然后在下一次打开app的时候发送到服务器。
 
 **动态权限适配方案，权限组的概念**
-
-
-**启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？** 
-
-    是因为启动程序（主界面也是一个app），发现了在这个程序中存在一个设置为
-    
-    <category android:name="android.intent.category.LAUNCHER" />
-    的activity,
-    所以这个launcher会把icon提出来，放在主界面上。当用户点击icon的时候，发出一个Intent：
-    
-    Intent intent = mActivity.getPackageManager().getLaunchIntentForPackage(packageName);
-    mActivity.startActivity(intent);   
-    跳过去可以跳到任意允许的页面，如一个程序可以下载，那么真正下载的页面可能不是首页（也有可能是首页），这时还是构造一个Intent，startActivity.
-    这个intent中的action可能有多种view,download都有可能。系统会根据第三方程序向系统注册的功能，为你的Intent选择可以打开的程序或者页面。所以唯一的一点
-    不同的是从icon的点击启动的intent的action是相对单一的，从程序中跳转或者启动可能样式更多一些。本质是相同的。
-
-**Android系统的架构**
-
-![image](https://upload-images.jianshu.io/upload_images/2893137-1047c70c15c1589b.png?imageMogr2/auto-orient)
-
-    android的系统架构和其操作系统一样，采用了分层的架构。从架构图看，android分为四个层，从高层到低层分别是应用程序层、应用程序框架层、系统运行库层和linux核心层。
-    　　1.应用程序 
-    　　Android会同一系列核心应用程序包一起发布，该应用程序包包括email客户端，SMS短消息程序，日历，地图，浏览器，联系人管理程序等。所有的应用程序都是使用JAVA语言编写的。
-    　　2.应用程序框架 
-    　　开发人员也可以完全访问核心应用程序所使用的API框架。该应用程序的架构设计简化了组件的重用;任何一个应用程序都可以发布它的功能块并且任何其它的应用程序都可以使用其所发布的功能块(不过得遵循框架的安全性限制)。同样，该应用程序重用机制也使用户可以方便的替换程序组件。
-    　　隐藏在每个应用后面的是一系列的服务和系统, 其中包括;
-    　　* 丰富而又可扩展的视图(Views)，可以用来构建应用程序， 它包括列表(lists)，网格(grids)，文本框(text boxes)，按钮(buttons)， 甚至可嵌入的web浏览器。
-    　　* 内容提供器(Content Providers)使得应用程序可以访问另一个应用程序的数据(如联系人数据库)， 或者共享它们自己的数据
-    　　* 资源管理器(Resource Manager)提供 非代码资源的访问，如本地字符串，图形，和布局文件( layout files )。
-    　　* 通知管理器 (Notification Manager) 使得应用程序可以在状态栏中显示自定义的提示信息。
-    　　* 活动管理器( Activity Manager) 用来管理应用程序生命周期并提供常用的导航回退功能。
-    　　有关更多的细节和怎样从头写一个应用程序，请参考 如何编写一个 Android 应用程序.
-    3.系统运行库 
-    　　1)程序库
-    　　Android 包含一些C/C++库，这些库能被Android系统中不同的组件使用。它们通过 Android 应用程序框架为开发者提供服务。以下是一些核心库：
-    　　系统 C 库 - 一个从 BSD 继承来的标准 C 系统函数库( libc )， 它是专门为基于 embedded linux 的设备定制的。
-    　　 媒体库 - 基于 PacketVideo OpenCORE;该库支持多种常用的音频、视频格式回放和录制，同时支持静态图像文件。编码格式包括MPEG4, H.264, MP3, AAC, AMR, JPG, PNG 。
-    　　 Surface Manager - 对显示子系统的管理，并且为多个应用程序提 供了2D和3D图层的无缝融合。
-    　　 LibWebCore - 一个最新的web浏览器引擎用，支持Android浏览器和一个可嵌入的web视图。
-    　　SGL- 底层的2D图形引擎
-    　　 3D libraries - 基于OpenGL ES 1.0 APIs实现;该库可以使用硬件 3D加速(如果可用)或者使用高度优化的3D软加速。
-    　　 FreeType -位图(bitmap)和矢量(vector)字体显示。
-    　　* SQLite - 一个对于所有应用程序可用，功能强劲的轻型关系型数据库引擎。
-    　　2)Android 运行库
-    　　Android 包括了一个核心库，该核心库提供了JAVA编程语言核心库的大多数功能。
-    　　每一个Android应用程序都在它自己的进程中运行，都拥有一个独立的Dalvik虚拟机实例。Dalvik被设计成一个设备可以同时高效地运行多个虚拟系统。 Dalvik虚拟机执行(.dex)的Dalvik可执行文件，该格式文件针对小内存使用做了优化。同时虚拟机是基于寄存器的，所有的类都经由JAVA编译器编译，然后通过SDK中 的 “dx” 工具转化成.dex格式由虚拟机执行。
-    　　Dalvik虚拟机依赖于linux内核的一些功能，比如线程机制和底层内存管理机制。
-    　　4.Linux 内核 
-    Android 的核心系统服务依赖于 Linux 2.6 内核，如安全性，内存管理，进程管理， 网络协议栈和驱动模型。 Linux 内核也同时作为硬件和软件栈之间的抽象层。
-    
-![image](https://raw.githubusercontent.com/BeesAndroid/BeesAndroid/master/art/android_system_structure.png)
-
-从上到下依次分为四层：
-
-Android应用框架层
-Java系统框架层
-C++系统框架层
-Linux内核层
-
-activty的加载过程 请详细介绍下
-
-安卓采用自动垃圾回收机制，请说下安卓内存管理的原理
-
-说下安卓虚拟机和java虚拟机的原理和不同点 
 
 **[RxJava中map和flatmap操作符的区别及底层实现](https://www.jianshu.com/p/af13a8278a05)**
 
