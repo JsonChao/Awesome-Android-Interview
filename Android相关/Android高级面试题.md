@@ -1720,8 +1720,6 @@ Gradle 打包；
 
 AOP IOC 的好处以及在 Android 开发中的应用；
 
-Kotlin 特性，和 Java 相比有什么不同的地方；
-
 Dagger2 框架中 @module 和 @component 的区别；
 
 MVP 架构中 Presenter 定义为接口有什么好处；
