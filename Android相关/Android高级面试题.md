@@ -11,11 +11,7 @@ http://www.trinea.cn/android/android-image-cache-compare/
 
 自己去实现图片库，怎么做？
 
-****Glide源码解析****
-
-http://www.lightskystreet.com/2015/10/12/glide_source_analysis/
-http://frodoking.github.io/2015/10/10/android-glide/
-http://ethanhua.cn/archives/243
+[Glide源码解析](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
 
 Glide使用什么缓存？
 
@@ -153,7 +149,9 @@ https://www.jianshu.com/p/050c6db5af5a
 
 自己去设计网络请求框架，怎么做？
 
-okhttp源码
+[OkHttp源码](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+[Retrofit源码](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
 
 Volley与OkHttp的对比：
 
@@ -297,9 +295,9 @@ MVC MVP MVVM原理和区别
 
 适配器模式，装饰者模式，外观模式的异同？
 
-RxJava的功能与原理实现
-
 RxJava的作用，与平时使用的异步操作来比的优缺点
+
+[RxJava原理实现](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
 
 说说EventBus作用，实现方式，代替EventBus的方式
 
@@ -1192,7 +1190,7 @@ AsyncTask原理及不足
 
 如何取消AsyncTask？
 
-LeakCanary 实现原理
+[LeakCanary 实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
 
 http://blog.csdn.net/cloud_huan/article/details/53081120
 
