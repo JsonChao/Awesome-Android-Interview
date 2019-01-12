@@ -553,11 +553,7 @@ Https请求慢的解决办法（提示：DNS，携带数据，直接访问IP）
 
 如何保持应用的稳定性
 
-RecyclerView和ListView的性能对比
-
-ListView的优化
-
-RecycleView优化
+RecyclerView和ListView的性能对比及其优化？
 
 Bitmap如何处理大图，如一张30M的大图，如何预防OOM
 
