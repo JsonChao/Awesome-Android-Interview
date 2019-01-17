@@ -4,16 +4,16 @@
 
 #### 1、基础
 
-**图片库对比**
+##### 图片库对比
 
 http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
 http://www.trinea.cn/android/android-image-cache-compare/
 
-图片加载原理
+##### 图片加载原理
 
-自己去实现图片库，怎么做？
+##### 自己去实现图片库，怎么做？
 
-**怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。**
+##### 怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。
 
     计算一张图片的大小
     
@@ -49,7 +49,7 @@ http://www.trinea.cn/android/android-image-cache-compare/
     
     decodeResource,setImageResource,setImageBitmap等方法
 
-**LRUCache算法是怎样实现的。**
+##### LRUCache算法是怎样实现的。
 
     内部存在一个LinkedHashMap和maxSize，把最近使用的对象用强引用存储在 LinkedHashMap中，给出来put和get方法，每次put图片时计算缓存中所有图片总大小，跟maxSize进行比较，大于maxSize，就将最久添加的图片移除；反之小于maxSize就添加进来。
     
@@ -58,7 +58,7 @@ http://www.trinea.cn/android/android-image-cache-compare/
     
 写个图片浏览器，说出你的思路
 
-**Bitmap 压缩策略**
+##### Bitmap 压缩策略
 
     加载 Bitmap 的方式：
     BitmapFactory 四类方法：
@@ -75,7 +75,7 @@ http://www.trinea.cn/android/android-image-cache-compare/
     根据采样率规则并结合目标 view 的大小计算出采样率 inSampleSize
     将 BitmapFactory.Options 的 inJustDecodeBounds 设置为 false 重新加载图片
 
-**Bitmap的处理：**
+##### Bitmap的处理：
 
 当使用ImageView的时候，可能图片的像素大于ImageView，此时就可以通过BitmapFactory.Option来对图片进行压缩，inSampleSize表示缩小2^(inSampleSize-1)倍。
 
@@ -91,18 +91,18 @@ BitMap的缓存：
     2.异步加载使用线程池，让存在的加载任务都处于不同线程
     3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
     
-**[如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)**
+##### [如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)
 
 
 #### 2、Glide
 
-[Glide源码解析](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
+##### [Glide源码解析](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-Glide使用什么缓存？
+##### Glide使用什么缓存？
 
-Glide内存缓存如何控制大小？
+##### Glide内存缓存如何控制大小？
 
-**Fresco与Glide的对比：**
+##### Fresco与Glide的对比：
 
 Glide：相对轻量级，用法简单优雅，支持Gif动态图，适合用在那些对图片依赖不大的App中。
 Fresco：采用匿名共享内存来保存图片，也就是Native堆，有效的的避免了OOM，功能强大，但是库体积过大，适合用在对图片依赖比较大的App中。
@@ -135,28 +135,29 @@ Consumer：用来接收Producer产生的结果，它与Producer组成了生产�
 注：Fresco源码里的类的名字都比较长，但是都是按照一定的命令规律来的，例如：以Supplier结尾的类都实现了Supplier接口，它可以提供某一个类型的对象（factory, generator, builder, closure等）。 以Builder结尾的当然就是以构造者模式创建对象的类。
 
 
-**二、网络和安全机制**
+#### 二、网络和安全机制
 
-**Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）**
+##### Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）
 
 https://www.jianshu.com/p/050c6db5af5a
 
-**怎么考虑数据传输的安全性**
+##### 怎么考虑数据传输的安全性
 
     如果应用对传输的数据没有任何安全措施，攻击者设置的钓鱼网络中更改DNS服务器。这台服务器可以获取用户信息，或充当中间人与原服务器交换数据。在SSL/TLS通信中，客户端通过数字证书判断服务器是否可信，并采用证书的公钥与服务器进行加密通信。
 
-访问网络如何加密
+##### 访问网络如何加密
+
 1：对称加密（ＤＥＳ，ＡＥＳ）和非对称（ＲＳＡ公钥与私钥）。（支付宝里的商户的公钥和私钥）
 2：MD5（算法）
 3：Base64
 
-自己去设计网络请求框架，怎么做？
+##### 自己去设计网络请求框架，怎么做？
 
-[OkHttp源码](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
+##### [OkHttp源码](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-[Retrofit源码](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
+##### [Retrofit源码](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-Volley与OkHttp的对比：
+##### Volley与OkHttp的对比：
 
 Volley：支持HTTPS。缓存、异步请求，不支持同步请求。协议类型是Http/1.0, Http/1.1，网络传输使用的是 HttpUrlConnection/HttpClient，数据读写使用的IO。
 OkHttp：支持HTTPS。缓存、异步请求、同步请求。协议类型是Http/1.0, Http/1.1, SPDY, Http/2.0, WebSocket，网络传输使用的是封装的Socket，数据读写使用的NIO（Okio）。
@@ -185,29 +186,29 @@ StreamAllocation：用来控制Connections与Streas的资源分配与释放。
 RouteSelector：选择路线与自动重连。
 RouteDatabase：记录连接失败的Route黑名单。
 
-网络请求缓存处理，okhttp如何处理网络缓存的
+##### 网络请求缓存处理，okhttp如何处理网络缓存的
 
-从网络加载一个10M的图片，说下注意事项
+##### 从网络加载一个10M的图片，说下注意事项
 
-如何验证证书的合法性?
+##### 如何验证证书的合法性?
 
-client如何确定自己发送的消息被server收到?
+##### client如何确定自己发送的消息被server收到?
 
-谈谈你对WebSocket的理解
+##### 谈谈你对WebSocket的理解
 
-WebSocket与socket的区别
+##### WebSocket与socket的区别
 
-谈谈你对安卓签名的理解。
+##### 谈谈你对安卓签名的理解。
 
-请解释安卓为啥要加签名机制?
+##### 请解释安卓为啥要加签名机制?
 
-视频加密传输
+##### 视频加密传输
 
-App 是如何沙箱化，为什么要这么做？
+##### App 是如何沙箱化，为什么要这么做？
 
-权限管理系统（底层的权限是如何进行 grant 的）？
+##### 权限管理系统（底层的权限是如何进行 grant 的）？
 
-提高app安全性的方法
+##### 提高app安全性的方法
 
 **三、数据库**
 
