@@ -25,7 +25,7 @@ A awesome  android expert interview questions and answers
 
 7、Android进阶：Binder、AIDL、进程间通信、AMS/WMS/PMS、事件分发、滑动冲突、View的绘制流程、性能优化、重要的Android源码和开源库分析。
 
-8、Android高新技术：模块化、插件化、组件化、热更新实现原理。
+8、Android高新技术：模块化、组件化、热更新、插件化实现原理。
 
 9、最后，如果你会其他的开发方式或语言也会加分不少。比如Kotlin、ReactNative、Flutter、Python、前后端开发。
 
