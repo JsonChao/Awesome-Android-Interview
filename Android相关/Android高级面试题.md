@@ -148,6 +148,8 @@ https://www.jianshu.com/p/050c6db5af5a
 
 ##### [OkHttp源码](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
 
+##### 网络请求缓存处理，okhttp如何处理网络缓存的
+
 ##### [Retrofit源码](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
 
 ##### Volley与OkHttp的对比：
@@ -178,8 +180,6 @@ Interceptor：Interceptor是请求拦截器，负责拦截并处理请求，它�
 StreamAllocation：用来控制Connections与Streas的资源分配与释放。
 RouteSelector：选择路线与自动重连。
 RouteDatabase：记录连接失败的Route黑名单。
-
-##### 网络请求缓存处理，okhttp如何处理网络缓存的
 
 ##### 从网络加载一个10M的图片，说下注意事项
 
@@ -230,7 +230,9 @@ RouteDatabase：记录连接失败的Route黑名单。
 ##### 数据库数据迁移问题
 
 
-### 四、插件化、模块化、组件化、热修复、增量更新、Gradle
+### 四、热修复、插件化、模块化、组件化、Gradle
+
+#### 1、热修复和插件化
 
 ##### 插件化相关技术，热修补技术是怎样实现的，和插件化有什么区别？
 
@@ -273,71 +275,79 @@ Tinker：修改dex数组元素。
     所以插件化比热修复简单，热修复是在插件化的基础上在进行替旧的Bug类
     
 
-为什么选用插件化，插件化框架的比较，梳理插件化的架构
+##### 热修复相关的原理，框架熟悉么
 
-插件化原理分析
 
-**模块化的好处**
+##### 为什么选用插件化，插件化框架的比较，梳理插件化的架构
+
+##### 插件化原理分析
+
+
+#### 2、模块化和组件化
+
+
+##### 模块化的好处
 
 https://www.jianshu.com/p/376ea8a19a17
 
-**组件化原理，组件化中路由（ARouter）的实现**
 
-**热修复相关的原理，框架熟悉么**
+##### 组件化原理，组件化中路由（ARouter）的实现
 
-Android 组件化的原理，还有一些组件化平时使用的问题；
 
-项目组件化的理解
 
-描述清点击 Android Studio 的 build 按钮后发生了什么
+##### Android 组件化的原理，还有一些组件化平时使用的问题。
 
-gradle熟悉么，自动打包知道么
 
-如何加快 Gradle 的编译速度
+##### 项目组件化的理解
 
-**五、架构设计和设计模式**
 
-架构设计
+#### 3、gradle
 
-![image](http://www.jackywang.tech/AndroidInterview-Q-A/picture/architucture.png)
 
-http://www.tianmaying.com/tutorial/AndroidMVC
+##### 描述清点击 Android Studio 的 build 按钮后发生了什么
 
-谈谈你对Android设计模式的理解
+##### gradle熟悉么，自动打包知道么
 
-MVC MVP MVVM原理和区别
+##### 如何加快 Gradle 的编译速度
 
-项目中常用的设计模式
 
-手写生产者/消费者模式
+### 五、设计模式与架构设计
 
-适配器模式，装饰者模式，外观模式的异同？
 
-RxJava的作用，与平时使用的异步操作来比的优缺点
+#### 1、设计模式
 
-[RxJava原理实现](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-说说EventBus作用，实现方式，代替EventBus的方式
+##### 谈谈你对Android设计模式的理解
 
-从0设计一款App整体架构，如何去做？
 
-说一款你认为当前比较火的应用并设计(比如：直播APP，P2P金融，小视频等)
+##### 项目中常用的设计模式
 
-谈谈对java状态机理解
 
-Fragment如果在Adapter中使用应该如何解耦？
+##### 手写生产者/消费者模式
 
-对于应用更新这块是如何做的？(解答：灰度，强制更新，分区域更新)？
 
-实现一个Json解析器(可以通过正则提高速度)
+##### 适配器模式，装饰者模式，外观模式的异同？
 
-统计启动时长,标准
 
-**六、性能优化**
+#### 2、架构设计
 
-**做过哪些性能优化？是怎么评测和具体优化的？**
 
-**Android优化**
+##### [MVC MVP MVVM原理和区别](http://www.tianmaying.com/tutorial/AndroidMVC)
+
+
+##### 从0设计一款App整体架构，如何去做？
+
+
+##### 说一款你认为当前比较火的应用并设计(比如：直播APP，P2P金融，小视频等)
+
+
+##### Fragment如果在Adapter中使用应该如何解耦？
+
+
+### 六、性能优化
+
+
+##### 做过哪些性能优化？是怎么评测和具体优化的？
 
 性能优化
 
@@ -448,9 +458,7 @@ Fragment如果在Adapter中使用应该如何解耦？
     
     但是编写代码还是要按照面向对象思维的，我们应该在能优化的地方进行优化，比如避免在内部调用getters/setters方法。
     
-**FC(Force Close)**
-
-什么时候会出现
+##### FC(Force Close)什么时候会出现
 
 Error
 OOM，内存溢出
@@ -461,7 +469,7 @@ Runtime,比如说空指针异常
 注意内存的使用和管理
 使用Thread.UncaughtExceptionHandler接口
 
-**界面优化** 
+##### 界面优化
 
     太多重叠的背景(overdraw)
     
@@ -479,7 +487,7 @@ Runtime,比如说空指针异常
     
     总结：可以考虑多使用merge和include，ViewStub。尽量使布局浅平，根布局尽量少使用RelactivityLayout,因为RelactivityLayout每次需要测量2次。
 
-**内存优化** 
+##### 内存优化
 
     核心思想：减少内存使用，能不new的不new，能少分配的少分配。因为分配更多的内存就意味着发生更多的GC，每次触发GC都会占用CPU时间，影响性能。
     
@@ -491,7 +499,7 @@ Runtime,比如说空指针异常
     重写onTrimMemory，根据传入的参数，进行内存释放。
     使用static final 优化成员变量。
     
-**移动端获取网络数据优化的几个点**
+##### 移动端获取网络数据优化的几个点
 
     连接复用：节省连接建立时间，如开启 keep-alive。
     对于Android来说默认情况下HttpURLConnection和HttpClient都开启了keep-alive。只是2.2之前HttpURLConnection存在影响连接池的Bug，具体可见：Android HttpURLConnection及HttpClient选择
@@ -502,10 +510,7 @@ Runtime,比如说空指针异常
     返回数据的body也可以做gzip压缩，body数据体积可以缩小到原来的30%左右。（也可以考虑压缩返回的json数据的key数据的体积，尤其是针对返回数据格式变化不大的情况，支付宝聊天返回的数据用到了）
     根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）
     
-**Android性能优化方法**
-
-http://www.trinea.cn/android/performance/
-
+##### [Android性能优化方法](http://www.trinea.cn/android/performance/)
 
 
     布局优化：尽量减少布局文件的层级
@@ -545,45 +550,45 @@ http://www.trinea.cn/android/performance/
     采用内存缓存和磁盘缓存。
     尽量采用静态内部类，可避免潜在由于内部类导致的内存泄漏。
 
-ddms 和 traceView
+##### ddms 和 traceView
 
-性能优化如何分析systrace
+##### 性能优化如何分析systrace
 
-用IDE如何分析内存泄漏
+##### 用IDE如何分析内存泄漏
 
-Java多线程引发的性能问题，怎么解决
+##### Java多线程引发的性能问题，怎么解决
 
-启动页白屏及黑屏解决？
+##### 启动页白屏及黑屏解决？
 
-启动太慢怎么解决
+##### 启动太慢怎么解决
 
-怎么保证应用启动不卡顿？
+##### 怎么保证应用启动不卡顿？
 
-App启动崩溃异常捕捉
+##### App启动崩溃异常捕捉
 
-自定义View注意事项
+##### 自定义View注意事项
 
-渲染帧率、内存
+##### 渲染帧率、内存
 
-现在下载速度很慢,试从网络协议的角度分析原因,并优化(提示：网络的5层都可以涉及)。
+##### 现在下载速度很慢,试从网络协议的角度分析原因,并优化(提示：网络的5层都可以涉及)。
 
-Https请求慢的解决办法（提示：DNS，携带数据，直接访问IP）
+##### Https请求慢的解决办法（提示：DNS，携带数据，直接访问IP）
 
-如何保持应用的稳定性
+##### 如何保持应用的稳定性
 
-RecyclerView和ListView的性能对比及其优化？
+##### RecyclerView和ListView的性能对比及其优化？
 
-Bitmap如何处理大图，如一张30M的大图，如何预防OOM
+##### Bitmap如何处理大图，如一张30M的大图，如何预防OOM
 
-java中的四种引用的区别以及使用场景
+##### java中的四种引用的区别以及使用场景
 
-强引用置为null，会不会被回收？
+##### 强引用置为null，会不会被回收？
 
-如何处理App启动流程优化
+##### 如何处理App启动流程优化
 
-**七、NDK、jni、Binder、AIDL、进程通信有关**
+### 七、NDK、jni、Binder、AIDL、进程通信有关
 
-**AIDL的全称是什么?如何工作?能处理哪些类型的数据?**
+##### AIDL的全称是什么?如何工作?能处理哪些类型的数据?
 
 http://blog.csdn.net/singwhatiwanna/article/details/17041691
 
@@ -1727,6 +1732,20 @@ Android Native 和 JS通信有几种方式，有没有用到什么框架之类�
 Fragment 在 ViewPager 里面的生命周期，滑动 ViewPager 的页面时 Fragment 的生命周期的变化；
 
 Gradle 打包；
+
+##### 谈谈对java状态机理解
+
+##### 对于应用更新这块是如何做的？(解答：灰度，强制更新，分区域更新)？
+
+##### 实现一个Json解析器(可以通过正则提高速度)
+
+##### 统计启动时长,标准
+
+##### RxJava的作用，与平时使用的异步操作来比的优缺点
+
+##### [RxJava原理实现](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+##### 说说EventBus作用，实现方式，代替EventBus的方式
 
 AOP IOC 的好处以及在 Android 开发中的应用；
 
