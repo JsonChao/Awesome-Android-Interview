@@ -630,13 +630,13 @@ AIDL (Android Interface Definition Language) 是一种IDL 语言，用于生成�
 
 说下binder序列化与反序列化的过程，与使用过程
 
-**Android 上的 Inter-Process-Communication 跨进程通信时如何工作的**
+##### Android 上的 Inter-Process-Communication 跨进程通信时如何工作的
 
 跨进程通信主要靠Binder
 
 https://blog.csdn.net/carson_ho/article/details/73560642
 
-**Android IPC:Binder原理。**
+##### Android IPC:Binder原理。
 
 IPC:
 
@@ -673,9 +673,6 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
 高性能：从数据拷贝次数来看Binder只需要进行一次内存拷贝，而管道、消息队列、Socket都需要两次，共享内存不需要拷贝，Binder的性能仅次于共享内存。
 稳定性：上面说到共享内存的性能优于Binder，那为什么不适用共享内存呢，因为共享内存需要处理并发同步问题，控制负责，容易出现死锁和资源竞争，稳定性较差。而Binder基于C/S架构，客户端与服务端彼此独立，稳定性较好。
 安全性：我们知道Android为每个应用分配了UID，用来作为鉴别进程的重要标志，Android内部也依赖这个UID进行权限管理，包括6.0以前的固定权限和6.0以后的动态权限，传荣IPC只能由用户在数据包里填入UID/PID，这个标记完全 是在用户空间控制的，没有放在内核空间，因此有被恶意篡改的可能，因此Binder的安全性更高。
-
-
-**Binder机制**
 
 https://www.zhihu.com/question/39440766
 http://gityuan.com/2016/09/04/binder-start-service/
@@ -764,18 +761,19 @@ Binder原理：
     5.如果一个AIDL就用一个Service太奢侈，所以可以使用Binder池的方式，建立一个AIDL其中的方法是返回IBinder，然后根据方法中传入的参数返回具体的AIDL。
     6.IPC的方式有：Bundle（在Intent启动的时候传入，不过是一次性的），文件共享(对于SharedPreference是特例，因为其在内存中会有缓存)，使用Messenger(其底层用的也是AIDL，同理要操作哪端，就在哪端定义Messenger)，AIDL，ContentProvider(在本进程中继承实现一个ContentProvider，在增删改查方法中调用本进程的SQLite，在其他进程中查询)，Socket
 
-请介绍一下NDK
+##### 请介绍一下NDK
 
-如何在jni中注册native函数，有几种注册方式
+##### 如何在jni中注册native函数，有几种注册方式
 
-**Java调用C++**
+##### Java调用C++
 
 在Java中声明Native方法（即需要调用的本地方法）
 编译上述 Java源文件javac（得到 .class文件） 3。 通过 javah 命令导出JNI的头文件（.h文件）
 使用 Java需要交互的本地代码 实现在 Java中声明的Native方法
 编译.so库文件
 通过Java命令执行 Java程序，最终实现Java调用本地代码
-C++调用Java
+
+##### C++调用Java
 
 从classpath路径下搜索ClassMethod这个类，并返回该类的Class对象。
 获取类的默认构造方法ID。
@@ -828,9 +826,9 @@ C++调用Java
         (*env)->DeleteLocalRef(env,str_arg);  
     }  
     
-**八、Android Framework相关**
+### 八、Android Framework相关
 
-**启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？** 
+##### 启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？
 
     是因为启动程序（主界面也是一个app），发现了在这个程序中存在一个设置为
     
@@ -844,7 +842,7 @@ C++调用Java
     这个intent中的action可能有多种view,download都有可能。系统会根据第三方程序向系统注册的功能，为你的Intent选择可以打开的程序或者页面。所以唯一的一点
     不同的是从icon的点击启动的intent的action是相对单一的，从程序中跳转或者启动可能样式更多一些。本质是相同的。
 
-**Android系统的架构**
+##### Android系统的架构
 
 ![image](https://upload-images.jianshu.io/upload_images/2893137-1047c70c15c1589b.png?imageMogr2/auto-orient)
 
@@ -887,13 +885,13 @@ Java系统框架层
 C++系统框架层
 Linux内核层
 
-activty的加载过程 请详细介绍下
+##### activty的加载过程 请详细介绍下
 
-安卓采用自动垃圾回收机制，请说下安卓内存管理的原理
+##### 安卓采用自动垃圾回收机制，请说下安卓内存管理的原理
 
-说下安卓虚拟机和java虚拟机的原理和不同点 
+##### 说下安卓虚拟机和java虚拟机的原理和不同点 
 
-**android重要术语解释**
+##### android重要术语解释
 
 1.ActivityManagerServices，简称AMS，服务端对象，责系统中所有Activity的生命周期
 
@@ -911,7 +909,7 @@ activty的加载过程 请详细介绍下
 
 8.TaskRecord，AMS抽象出来的一个“任务”的概念，是录ActivityRecord的栈，一个“Task”包含若干个ActivitRecord。AMS用TaskRecord确保Activity启动和退出的序。如果你清楚Activity的4种launchMode，那么对这概念应该不陌生。
     
-**理解Window和WindowManager**
+##### 理解Window和WindowManager
 
 1.Window用于显示View和接收各种事件，Window有三种型：应用Window(每个Activity对应一个Window)、子Widow(不能单独存在，附属于特定Window)、系统window(oast和状态栏)
 
@@ -925,15 +923,15 @@ activty的加载过程 请详细介绍下
 
 6.Activity创建Window：Activity会在attach()中创建Wndow并设置其回调(onAttachedToWindow()、dispatchTochEvent()),Activity的Window是由Policy类创建PhoneWndow实现的。然后通过Activity#setContentView()调用honeWindow的setContentView。
 
-**说下四大组件的启动过程，四大组件的启动与销毁的方式。**
+##### 说下四大组件的启动过程，四大组件的启动与销毁的方式。
 
-**Android Framework层有没有了解过，说说 Window 窗口添加的过程；**
+##### Android Framework层有没有了解过，说说 Window 窗口添加的过程；
 
-**ActivityThread工作原理** 
+##### ActivityThread工作原理
 
-**Android dalvik虚拟机和Art虚拟机的优化升级点**
+##### Android dalvik虚拟机和Art虚拟机的优化升级点
 
-**Android2个虚拟机的区别（一个5.0之前，一个5.0之后）**
+##### Android2个虚拟机的区别（一个5.0之前，一个5.0之后）
 
 art上应用启动快，运行快，但是耗费更多存储空间，安装时间长，总的来说ART的功效就是”空间换时间”。
 
@@ -959,13 +957,13 @@ https://blog.csdn.net/jason0539/article/details/50440669
 
 http://www.jackywang.tech/2017/08/21/%E5%85%B3%E4%BA%8EDalvik%EF%BC%8C%E6%88%91%E4%BB%AC%E8%AF%A5%E7%9F%A5%E9%81%93%E4%BA%9B%E4%BB%80%E4%B9%88%EF%BC%9F/
 
-**Android中App 是如何沙箱化的,为何要这么做**
+##### Android中App 是如何沙箱化的,为何要这么做
 
-**权限管理系统**
+##### 权限管理系统
 
 https://juejin.im/entry/57a99fba5bbb500064418fc0
 
-**说说 apk 打包流程，签名算法的原理？**
+##### 说说 apk 打包流程，签名算法的原理？
 
 Android的包文件APK分为两个部分：代码和资源，所以打包方面也分为资源打包和代码打包两个方面，这篇文章就来分析资源和代码的编译打包原理。
 
@@ -983,7 +981,7 @@ APK整体的的打包流程如下图所示：
 利用KeyStore对生成的APK文件进行签名。
 如果是正式版的APK，还会利用ZipAlign工具进行对齐处理，对齐的过程就是将APK文件中所有的资源文件举例文件的起始距离都偏移4字节的整数倍，这样通过内存映射访问APK文件 的速度会更快。
 
-**介绍下Android应用程序启动过程**
+##### 介绍下Android应用程序启动过程
 
 整个应用程序的启动过程要执行很多步骤，但是整体来看，主要分为以下五个阶段：
 
@@ -1031,11 +1029,11 @@ ActivityThread利用ClassLoader去加载Activity、创建Activity实例，并回
 
 http://www.sohu.com/a/130814934_675634
 
-**一个应用程序安装到手机上时发生了什么**
+##### 一个应用程序安装到手机上时发生了什么
 
 http://www.androidchina.net/6667.html
     
-**JVM 和Dalvik虚拟机的区别**
+##### JVM 和Dalvik虚拟机的区别
 
 JVM:.java -> javac -> .class -> jar -> .jar
     
@@ -1045,12 +1043,12 @@ DVM:.java -> javac -> .class -> dx.bat -> .dex
 
 架构: 寄存器(cpu上的一块高速缓存)
 
-**Zygote的启动过程**
+##### Zygote的启动过程
 
 在 Android 系统里面，zygote是一个进程的名字。Android 是基于 Linux System的，当你的手机开机的时候，Linux的内核加载完成之后就会启动一个叫 “init“ 的进程。在Linux System 里面，所有的进程都是由 init 进程 fork出来的，我们的zygote进程也不例外。
 
     
-**安卓view绘制机制和加载过程，请详细说下整个流程**
+##### 安卓view绘制机制和加载过程，请详细说下整个流程
 
 [全面的了解请点击此处](https://jsonchao.github.io/2018/10/28/Android%20View%E7%9A%84%E7%BB%98%E5%88%B6%E6%B5%81%E7%A8%8B/)
 
@@ -1070,7 +1068,7 @@ DVM:.java -> javac -> .class -> dx.bat -> .dex
 - view.post(Runnable)将获取的代码投递到消息队列尾部。
 - ViewTreeObservable.
     
-**activty的加载过程 请详细介绍下:**
+##### activty的加载过程 请详细介绍下
 
 1.Activity中最终到startActivityForResult()（mMainhread.getApplicationThread()传入了一个Applicationhread检查APT）
 ->Instrumentation#execStartActivity()和checkStartctivityResult()(这是在启动了Activity之后判断Activty是否启动成功，例如没有在AM中注册那么就会报错)
@@ -1094,11 +1092,9 @@ DVM:.java -> javac -> .class -> dx.bat -> .dex
 6.Instrumentation#callActivityOnCreate()->Activit#performCreate()->Activity#onCreate().onCreate()会通过Activity#setContentView()调用PhoneWindow的stContentView()
 更新界面。    
 
-**OSGI**
+##### 描述清点击 Android Studio 的 build 按钮后发生了什么
 
-**描述清点击 Android Studio 的 build 按钮后发生了什么**
-
-**大体说清一个应用程序安装到手机上时发生了什么；**
+##### 大体说清一个应用程序安装到手机上时发生了什么
 
 APK的安装流程如下所示：
 
@@ -1111,45 +1107,45 @@ APK的安装流程如下所示：
 将AndroidManifest文件解析出的四大组件信息注册到PackageManagerService中。
 安装完成后，发送广播。
 
-项目组件化的理解
+##### 项目组件化的理解
 
-**应用跟系统之间通信什么时候用Socket什么时候用Binder**
+##### 应用跟系统之间通信什么时候用Socket什么时候用Binder
 
-**进程间通信方式？Binder的构成有几部分？**
+##### 进程间通信方式？Binder的构成有几部分？
 
-**jni的算法提供都是主线程的？**
+##### jni的算法提供都是主线程的？
 
-**Android的签名机制，APK包含哪些东西**
+##### Android的签名机制，APK包含哪些东西
 
-**如何加载NDK库？如何在jni中注册native函数，有几种注册方法？**
+##### 如何加载NDK库？如何在jni中注册native函数，有几种注册方法？
 
-**点击Launcher跟点击微信支付启动微信有什么区别**
+##### 点击Launcher跟点击微信支付启动微信有什么区别
 
-**adb install 和 pms scan 的区别有哪些？**
+##### adb install 和 pms scan 的区别有哪些？
 
-**一个图片在app中调用R.id后是如何找到的？**
+##### 一个图片在app中调用R.id后是如何找到的？
 
-**Android权限管理的技术是什么？**
+##### Android权限管理的技术是什么？
 
-**开机流程和关机流程请描述下？**
+##### 开机流程和关机流程请描述下？
 
-**Android ++ 智能指针相关使用介绍？**
+##### Android ++ 智能指针相关使用介绍？
 
-**PowerManagerService主要做了哪些相关的操作？系统亮灭屏都有哪些流程？**
+##### PowerManagerService主要做了哪些相关的操作？系统亮灭屏都有哪些流程？
 
-**AMS是如何管理Activity的**
+##### AMS是如何管理Activity的
 
-**Hook以及插桩技术**
+##### Hook以及插桩技术
 
-**android api层的源码熟悉哪些？解释一下**
+##### android api层的源码熟悉哪些？解释一下
 
-**虚拟机原理，如何自己设计一个虚拟机(内存管理，类加载，双亲委派)**
+##### 虚拟机原理，如何自己设计一个虚拟机(内存管理，类加载，双亲委派)
 
-**系统启动流程是什么？（提示：Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程）**    
-    
-**九、其它高频面试题**
+##### 系统启动流程是什么？（提示：Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程）
+   
+### 九、其它高频面试题
 
-**事件传递机制**
+##### 事件传递机制
 
 [更全面的了解请移步到此处](https://jsonchao.github.io/2018/10/17/Android%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92%E6%9C%BA%E5%88%B6/)
 
@@ -1189,7 +1185,7 @@ DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理
 
 请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理   
 
-**广播发送和接收的原理了解吗？**
+##### 广播发送和接收的原理了解吗？
 
 - 继承BroadcastReceiver，重写onReceive()方法。
 - 通过Binder机制向ActivityManagerService注册广播。
