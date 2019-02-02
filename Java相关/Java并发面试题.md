@@ -256,9 +256,9 @@ synchronized(this)添加的是对象锁，synchronized(ClassName.class)添加的
 
 答：最大的不同是在等待时wait 会释放锁，而sleep一直持有锁。wait 通常被用于线程间交互，sleep通常被用于暂停执行。    
 
-#### 3.CopyOnWriteArrayList的了解。
+#### 3、CopyOnWriteArrayList的了解。
     
-#### 4.ConcurrentHashMap加锁机制是什么，详细说一下？
+#### 4、ConcurrentHashMap加锁机制是什么，详细说一下？
 
 ConcurrentHashMap作为一种线程安全且高效的哈希表的决方案，尤其其中的"分段锁"的方案，相比HashTable的表锁在性能上的提升非常之大.
 
