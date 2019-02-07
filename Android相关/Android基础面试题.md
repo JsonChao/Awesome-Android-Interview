@@ -1,6 +1,6 @@
-## Android基础面试题
+## Android基础面试题 （⭐⭐⭐）
 
-**1.什么是ANR 如何避免它？**
+#### 1、什么是ANR 如何避免它？
 
 答：在Android上，如果你的应用程序有一段时间响应不够灵敏，系统会向用户显示一个对话框，这个对话框称作应
 用程序无响应（ANR：Application NotResponding）对话框。
@@ -18,19 +18,19 @@
 后通过handler.sendMessage、runonUIThread、AsyncTask 等方式更新UI。无论如何都要确保用户界面作的流畅
 度。如果耗时操作需要让用户等待，那么可以在界面上显示度条。
     
-**2.Activity和Fragment生命周期有哪些？**
+#### 2、Activity和Fragment生命周期有哪些？
 
 ![image](https://upload-images.jianshu.io/upload_images/2893137-d63537703193a6d1.png?imageMogr2/auto-orient/)
 
 ![image](http://www.jackywang.tech/AndroidInterview-Q-A/picture/fragment-life.png)
     
-**3.横竖屏切换时候Activity的生命周期**
+#### 3、横竖屏切换时候Activity的生命周期
 
 不设置Activity的android:configChanges时，切屏会重新回调各个生命周期，切横屏时会执行一次，切竖屏时会执行两次。
 设置Activity的android:configChanges=”orientation”时，切屏还是会调用各个生命周期，切换横竖屏只会执行一次
 设置Activity的android:configChanges=”orientation |keyboardHidden”时，切屏不会重新调用各个生命周期，只会执行onConfigurationChanged方法
 
-**4.AsyncTask的缺陷和问题**
+#### 4、AsyncTask的缺陷和问题
     
 关于线程池：
 
@@ -60,12 +60,12 @@ AsyncTask在不同的SDK版本中的区别：
 
 在Android1.6之前的版本，AsyncTask是串行的，在1.6-2.3的版本，改成了并行的。在2.3之后的版本又做了修改，可以支持并行和串行，当想要串行执行时，直接行execute()方法，如果需要并行执行时，执行executeOnExecutor(Executor)。
 
-**5.onSaveInstanceState() 与onRestoreIntanceState()**
+#### 5、onSaveInstanceState() 与 onRestoreIntanceState()
 
 用户或者程序员主动去销毁一个Activity的时候不会调用
 ，其他情况都会调动，来保存界面信息。如代码中finish()或用户按下back，不会调用。
 
-**6.android中进程的优先级？**
+#### 6、android中进程的优先级？
 
 1. 前台进程：
 
@@ -87,7 +87,7 @@ AsyncTask在不同的SDK版本中的区别：
 
 不包含任何应用程序的程序组件的进程，这样的进程系统是一般不会让他存在的
     
-**7.Serializable和Parcelable**
+#### 7、Serializable和Parcelable
 
 序列化，表示将一个对象转换成可存储或可传输的状态，序列化后的对象可以在网络上进行传输，也可以存储到本地。
 
@@ -99,7 +99,7 @@ Parcelable（android专用）：
 
 除了Serializable之外，使用Parcelable也可以实现相同的效果，不过不同于将对象进行序列化，Parcelable方式的实现原理是将一个完整的对象进行分解，而分解后的每一部分都是Intent所支持的数据类型，这也就实现传递对象的功能了。
 
-**8.动画**
+#### 8、动画
 
 - tween 补间动画。通过指定View的初末状态和变化方式，对View的内容完成一系列的图形变换来实现动画效果。 Alpha, Scale ,Translate, Rotate。
 - frame 帧动画。Animation Drawable控制animation-list.xml布局
@@ -148,7 +148,7 @@ Property Animation 动画有两个步聚：
 
 2.估值器：在1的基础上由这个东西来计算出属性到底变化了多少数值的类
 
-**9.Context相关**
+#### 9、Context相关
 
 - Activity和Service以及Application的Context是不一的,Activity继承自ContextThemeWraper.其他的继承自ContextWrapper.
 
@@ -160,7 +160,7 @@ Property Animation 动画有两个步聚：
 
 - Context的数量等于Activity的个数 + Service的个数 +1，这个1为Application
 
-**10.Android各版本新特性**
+#### 10、Android各版本新特性
 
 Android5.0新特性
 
@@ -190,7 +190,7 @@ Android8.0新特性
 - 后台限制
 - 等等优化很多
     
-**11.Json**
+#### 11、Json
 
 JSON的全称是JavaScript Object Notation，也就是JavaScript 对象表示法
 JSON是存储和交换文本信息的语法，类似XML，但是比XML更小、更快，更易解析
@@ -225,7 +225,7 @@ json3的解析
     Gson gson = new Gson();
     List<Student> students = gson.fromJson(json3,     newTypeToke<List<Student>>(){}.getType);
 
-**12.android中有哪几种解析xml的类,官方推荐哪种？以及它们的原理和区别**
+#### 12、android中有哪几种解析xml的类,官方推荐哪种？以及它们的原理和区别
 
 DOM解析
 
@@ -265,15 +265,15 @@ Xmlpull解析
 
 android SDK提供了xmlpullapi,xmlpull和sax类似,是基于流（stream）操作文件,后者根据节点事件回调开发者编写的处理程序.因为是基流的处理,因此xmlpull和sax都比较节约内存资源,不会dom那样要把所有节点以对象树的形式展现在内存中.xmpull比sax更简明,而且不需要扫描完整个流.
 
-**13.Jar和Aar的区别**
+#### 13、Jar和Aar的区别
 
 Jar包里面只有代码，aar里面不光有代码还包括资源文件，比如 drawable 文件，xml资源文件。对于一些不常变动的 Android Library，我们可以直接引用 aar，加快编译速度
     
-**14.Android为每个应用程序分配的内存大小是多少**
+#### 14、Android为每个应用程序分配的内存大小是多少
 
 android程序内存一般限制在16M，也有的是24M。近几年手机发展较快，一般都会分配两百兆左右，和具体机型有关。
     
-**15.更新UI方式**
+#### 15、更新UI方式
 
 - Activity.runOnUiThread(Runnable)
 - View.post(Runnable)，View.postDelay(Runnable, long)
@@ -282,11 +282,11 @@ android程序内存一般限制在16M，也有的是24M。近几年手机发展�
 - Rxjava
 - LiveData
 
-**16.ContentProvider使用方法。**
+#### 16、ContentProvider使用方法。
 
 进行跨进程通信，实现进程间的数据交互和共享。通过Context 中 getContentResolver() 获得实例，通过 Uri匹配进行数据的增删改查。ContentProvider使用表的形式来组织数据，无论数据的来源是什么，ConentProvider 都会认为是一种表，然后把数据组织成表格
 
-**17.Thread、AsyncTask、IntentService的使用场景与特点。**
+#### 17、Thread、AsyncTask、IntentService的使用场景与特点。
 
 1. Thread线程，独立运行与于 Activity 的，当Activity 被 finish 后，如果没有主动停止 Thread或者 run 方法没有执行完，其会一直执行下去。
 
@@ -294,13 +294,13 @@ android程序内存一般限制在16M，也有的是24M。近几年手机发展�
 
 3. IntentService：处理异步请求，实现多线程，在onHandleIntent中处理耗时操作，多个耗时任务会依次执行，执行完毕自动结束。
 
-**18.Merge、ViewStub 的作用。**
+#### 18、Merge、ViewStub 的作用。
 
 Merge: 减少视图层级，可以删除多余的层级，优化 UI。
 
 ViewStub: 按需加载，减少内存使用量、加快渲染速度、不支持 merge 标签
     
-**19.Json有什么优劣势。**
+#### 19、Json有什么优劣势。
 
 优点
 
@@ -312,7 +312,7 @@ ViewStub: 按需加载，减少内存使用量、加快渲染速度、不支持 
 
 - 语义性较差，不如 xml 直观
     
-**20.动画有哪两类，各有什么特点？**
+#### 20、动画有哪两类，各有什么特点？
 
 传统动画：帧动画和补间动画。
 
@@ -325,7 +325,7 @@ ViewStub: 按需加载，减少内存使用量、加快渲染速度、不支持 
 xml 文件实现的补间动画，复用率极高。在 Activity切换，窗口弹出时等情景中有着很好的效果。
 使用帧动画时需要注意，不要使用过多特别大的图，容导致内存不足。
     
-**21.Asset目录与res目录的区别。**
+#### 21、Asset目录与res目录的区别。
 
 assets：不会在 R文件中生成相应标记，存放到这里的资源在打包时会打包到程序安装包中。（通过 AssetManager 类访问这些文件）
 
@@ -335,7 +335,7 @@ res/anim：存放动画资源
 
 res/raw：和 asset下文件一样，打包时直接打入程序安装包中（会映射到 R文件中）
     
-**22.Android怎么加速启动Activity。**
+#### 22、Android怎么加速启动Activity。
 
 - onCreate() 中不执行耗时操作
 把页面显示的 View 细分一下，放在 AsyncTask里逐步显示，用 Handler更好。这样用户的看到的就是有层次有步骤的一个个的View 的展示，不会是先看到一个黑屏，然后一下显示所有 View。最好做成动画，效果更自然。
@@ -344,7 +344,7 @@ res/raw：和 asset下文件一样，打包时直接打入程序安装包中（�
 - 提高 Adapter 和 AdapterView 的效率
 - 优化布局文件
     
-**23.Handler机制**
+#### 23、Handler机制
 
 Handler各个部分的作用：
 
@@ -398,13 +398,13 @@ http://droidyue.com/blog/2015/11/08/make-use-of-handlerthread
 http://blog.csdn.net/luoshengyang/article/deta6817933
 
 
-**24.程序A能否接收到程序B的广播？接入微信支付的时候，微信是如何跟当前程序进行通信？**
+#### 24、程序A能否接收到程序B的广播？接入微信支付的时候，微信是如何跟当前程序进行通信？
 
-**25.为什么复写equals方法的同时需要复写hashcode方法，前者相同后者是否相同，反过来呢？为什么？**
+#### 25、为什么复写equals方法的同时需要复写hashcode方法，前者相同后者是否相同，反过来呢？为什么？
 
-**26.Android4.0～8.0之间大的变化，如何处理？**
+#### 26、Android4.0～8.0之间大的变化，如何处理？
 
-**27. Android中进程的级别，以及各自的区别。**
+#### 27、 Android中进程的级别，以及各自的区别。
 
 1、前台进程
 
@@ -450,7 +450,7 @@ http://blog.csdn.net/luoshengyang/article/deta6817933
 
 保留这类进程的唯一理由是高速缓存，这样可以提高下次一个组件要运行它时的启动速度。系统经常为了平衡进程高速缓存和底层的内核高速缓存之间的整体系统资而杀死它们。
 
-**28.线程池的相关知识。**
+#### 28、线程池的相关知识。
 
 Android中的线程池都是之间或间接通过配置ThreadPoolxecutor来实现不同特性的线程池.Android中最常见的类具有不同特性的线程池分别为FixThreadPool、CachedhreadPool、SingleThreadPool、ScheduleThreadExecutr.
 
@@ -476,7 +476,7 @@ Android中的线程池都是之间或间接通过配置ThreadPoolxecutor来实�
 
 优点:执行定时任务以及有固定周期的重复任务
 
-**29.内存泄露，怎样查找，怎么产生的内存泄露。**
+#### 29、内存泄露，怎样查找，怎么产生的内存泄露。
 
 1).资源对象没关闭造成的内存泄漏
 
@@ -494,31 +494,31 @@ Android中的线程池都是之间或间接通过配置ThreadPoolxecutor来实�
 
 查找内存泄漏可以使用Android Studio 自带的AndroidProfiler工具,也可以使用Square产品的LeakCanary.
 
-**30.类的初始化顺序依次是（静态变量、静态代码块）>（变量、代码块）>构造方法**
+#### 30、类的初始化顺序依次是（静态变量、静态代码块）>（变量、代码块）>构造方法
 
-**31.如何实现Fragment的滑动**
+#### 31、如何实现Fragment的滑动
 
-**32.ViewPager使用细节，如何设置成每次只初始化当前的Fragment，其他的不初始化**
+#### 32、ViewPager使用细节，如何设置成每次只初始化当前的Fragment，其他的不初始化
 
-**33.ListView重用的是什么**
+#### 33、ListView重用的是什么
 
-**34.如何取消AsyncTask**
+#### 34、如何取消AsyncTask
 
-**35.Android为什么引入Parcelable**
+#### 35、Android为什么引入Parcelable
 
-**36.有没有尝试简化Parcelable的使用**
+#### 36、有没有尝试简化Parcelable的使用
 
-**37.Bitmap 使用时候注意什么？**
+#### 37、Bitmap 使用时候注意什么？
 
-**38.Oom 是否可以try catch ？**
+#### 38、Oom 是否可以try catch ？
 
-**39.多进程场景遇见过么？**
+#### 39、多进程场景遇见过么？
 
-**40.关于handler，在任何地方new handler 都是什么线程下**
+#### 40、关于handler，在任何地方new handler 都是什么线程下
 
-**41.sqlite升级，增加字段的语句**
+#### 41、sqlite升级，增加字段的语句
 
-**42.数据库升级增加表和删除表都不涉及数据迁移，但是修改表涉及到对原有数据进行迁移。升级的方法如下所示：**
+#### 42、数据库升级增加表和删除表都不涉及数据迁移，但是修改表涉及到对原有数据进行迁移。升级的方法如下所示：
 
 将现有表命名为临时表。
 创建新表。
@@ -531,23 +531,23 @@ Android中的线程池都是之间或间接通过配置ThreadPoolxecutor来实�
 逐级升级，确定相邻版本与现在版本的差别，V1升级到V2,V2升级到V3，依次类推。
 跨级升级，确定每个版本与现在数据库的差别，为每个case编写专门升级大代码。
 
-**43.bitmap recycler 相关**
+#### 43、bitmap recycler 相关
 
-**44.强引用置为null，会不会被回收？**
+#### 44、强引用置为null，会不会被回收？
 
-**45.glide 使用什么缓存？**
+#### 45、glide 使用什么缓存？
 
-**46.Glide 内存缓存如何控制大小？**
+#### 46、Glide 内存缓存如何控制大小？
 
-**47.请描述安卓四大组件之间的关系，并说下安卓MVC的设计模式。**
+#### 47、请描述安卓四大组件之间的关系，并说下安卓MVC的设计模式。
 
-**48.ContentProvider的权限管理(读写分离，权限控制-精确到表级，URL控制)；**
+#### 48、ContentProvider的权限管理(读写分离，权限控制-精确到表级，URL控制)；
 
-**49.Fragment状态保存**
+#### 49、Fragment状态保存
 
-**50.startActivityForResult是哪个类的方法，在什么情况下使用，如果在Adapter中使用应该如何解耦**
+#### 50、startActivityForResult是哪个类的方法，在什么情况下使用，如果在Adapter中使用应该如何解耦
 
-**51.如何计算一个Bitmap占用内存的大小，怎么保证加载Bitmap不产生内存溢出？**
+#### 51、如何计算一个Bitmap占用内存的大小，怎么保证加载Bitmap不产生内存溢出？
 
     Bitamp 占用内存大小 = 宽度像素 x （inTargetDensity / inDensity） x 高度像素 x （inTargetDensity / inDensity）x 一个像素所占的内存
 
@@ -565,91 +565,91 @@ BitmapFactory.Options.inPreferredConfig：将ARGB_8888改为RGB_565，改变编�
 BitmapFactory.Options.inSampleSize：缩放比例，可以参考Luban那个库，根据图片宽高计算出合适的缩放比例。
 BitmapFactory.Options.inPurgeable：让系统可以内存不足时回收内存。
 
-**52.对于应用更新这块是如何做的？(灰度，强制更新，分区域更新)**
+#### 52、对于应用更新这块是如何做的？(灰度，强制更新，分区域更新)
 
-**53.Handler机制，请写出一种更新UI的方法和代码**
+#### 53、Handler机制，请写出一种更新UI的方法和代码
 
-**54.请解释安卓为啥要加签名机制。**
+#### 54、请解释安卓为啥要加签名机制。
 
-**55.十六进制数据怎么和十进制和二进制之间转换**
+#### 55、十六进制数据怎么和十进制和二进制之间转换
 
-**56.activty和Fragmengt之间怎么通信，Fragmengt和Fragmengt怎么通信**
+#### 56、activty和Fragmengt之间怎么通信，Fragmengt和Fragmengt怎么通信
 
-**57.自定义view效率高于xml定义吗？说明理由。**
+#### 57、自定义view效率高于xml定义吗？说明理由。
 
-**58.广播注册一般有几种，各有什么优缺点**
+#### 58、广播注册一般有几种，各有什么优缺点
 
-**59.服务启动一般有几种，服务和activty之间怎么通信，服务和服务之间怎么通信**
+#### 59、服务启动一般有几种，服务和activty之间怎么通信，服务和服务之间怎么通信
 
-**60.数据库的知识，包括本地数据库优化点。**
+#### 60、数据库的知识，包括本地数据库优化点。
 
-**61.ddms 和 traceView的区别；**
+#### 61、ddms 和 traceView的区别；
 
-**62.Fragment生命周期；Fragment状态保存；**
+#### 62、Fragment生命周期；Fragment状态保存；
 
-**63..startActivityForResult是哪个类的方法，在什么情况下使用，如果在Adapter中使用应该如何解耦；**
+#### 63、startActivityForResult是哪个类的方法，在什么情况下使用，如果在Adapter中使用应该如何解耦；
 
-**64.AsyncTask原理及不足；**
+#### 64、AsyncTask原理及不足；
 
-**65.IntentService原理；**
+#### 65、IntentService原理；
 
-**66.Activity 怎么和Service 绑定，怎么在Activity 中启动自己对应的Service；**
+#### 66、Activity 怎么和Service 绑定，怎么在Activity 中启动自己对应的Service；
 
-**67.AstncTask + HttpClient与AsyncHttpClient有什么区别；**
+#### 67、AstncTask + HttpClient与AsyncHttpClient有什么区别；
 
-**68.如何保证一个后台服务不被杀死；比较省电的方式是什么；**
+#### 68、如何保证一个后台服务不被杀死；比较省电的方式是什么；
 
-**69.如何通过广播拦截和abort一条短信；广播是否可以请求网络；广播引起anr的时间限制；**
+#### 69、如何通过广播拦截和abort一条短信；广播是否可以请求网络；广播引起anr的时间限制；
 
-**70.BroadcastReceiver，LocalBroadcastReceiver 区别；**
+#### 70、BroadcastReceiver，LocalBroadcastReceiver 区别；
 
-**71.请介绍下ContentProvider 是如何实现数据共享的；**
+#### 71、请介绍下ContentProvider 是如何实现数据共享的；
 
-**72.ListView 中图片错位的问题是如何产生的；**
+#### 72、ListView 中图片错位的问题是如何产生的；
 
-**73.说说Activity、Intent、Service 是什么关系；**
+#### 73、说说Activity、Intent、Service 是什么关系；
 
-**74.ApplicationContext和ActivityContext的区别；**
+#### 74、ApplicationContext和ActivityContext的区别；
 
-**75.Serializable 和Parcelable 的区别；**
+#### 75、Serializable 和Parcelable 的区别；
 
-**76.AsyncTask 如何使用；**
+#### 76、AsyncTask 如何使用；
 
-**77.对于应用更新这块是如何做的？(灰度，强制更新，分区域更新)；**
+#### 77、对于应用更新这块是如何做的？(灰度，强制更新，分区域更新)；
 
-**78.两个Activity之间跳转时必然会执行的是哪几个方法？**
+#### 78、两个Activity之间跳转时必然会执行的是哪几个方法？
 
 答：一般情况下比如说有两个activity,分别叫A,B,当在A里面激活B 组件的时候, A 会调用onPause()方法,然后B调用onCreate() ,onStart(), onResume()。
 这个时候B 覆盖了窗体, A 会调用onStop()方法. 如果B是个透明的,或者是对话框的样式, 就不会调用A 的
 onStop()方法。
     
-**79.如何选择第三方，从那些方面考虑？**
+#### 79、如何选择第三方，从那些方面考虑？
 
-**80.简单说下接入支付的流程，是否自己接入过支付功能**
+#### 80、简单说下接入支付的流程，是否自己接入过支付功能
 
-**81.说下你对多进程的理解，什么情况下要使用多进程，为什么要使用多进程，在多进程的情况下为什么要使用进程通讯。**
+#### 81、说下你对多进程的理解，什么情况下要使用多进程，为什么要使用多进程，在多进程的情况下为什么要使用进程通讯。
 
-**82.说下handler为什么会出现内存泄漏，为什么继承Handle就不会出现内存泄漏**
+#### 82、说下handler为什么会出现内存泄漏，为什么继承Handle就不会出现内存泄漏？
 
-**83.说下你对广播的理解**
+#### 83、说下你对广播的理解
 
-**84.说下你对服务的理解，如何杀死一个服务。**
+#### 84、说下你对服务的理解，如何杀死一个服务。
 
-**85.如何查看模拟器中的SP与SQList文件。如何可视化查看布局嵌套层数与加载时间。**
+#### 85、如何查看模拟器中的SP与SQList文件。如何可视化查看布局嵌套层数与加载时间。
 
-**86.各大平台打包上线的流程与审核时间，常见问题(主流的应用市场说出3-4)**
+#### 86、各大平台打包上线的流程与审核时间，常见问题(主流的应用市场说出3-4)
 
-**87.如何收集anr信息**
+#### 87、如何收集anr信息
 
-**88.说说ContentProvider、ContentResolver、ContentObserver 之间的关系**
+#### 88、说说ContentProvider、ContentResolver、ContentObserver 之间的关系
 
 ContentProvider：管理数据，提供数据的增删改查操作，数据源可以是数据库、文件、XML、网络等，ContentProvider为这些数据的访问提供了统一的接口，可以用来做进程间数据共享。
 ContentResolver：ContentResolver可以不同URI操作不同的ContentProvider中的数据，外部进程可以通过ContentResolver与ContentProvider进行交互。
 ContentObserver：观察ContentProvider中的数据变化，并将变化通知给外界。
 
-**89.AlertDialog,popupWindow,Activity区别**
+#### 89、AlertDialog,popupWindow,Activity区别
 
-**90.Android属性动画特性**
+#### 90、Android属性动画特性
 
 如果你的需求中只需要对View进行移动、缩放、旋转和淡入淡出操作，那么补间动画确实已经足够健全了。但是很显然，这些功能是不足以覆盖所有的场景的，一旦我们的需求超出了移动、缩放、旋转和淡入淡出这四种对View的操作，那么补间动画就不能再帮我们忙了，也就是说它在功能和可扩展方面都有相当大的局限性，那么下面我们就来看看补间动画所不能胜任的场景。
 
@@ -659,60 +659,59 @@ ContentObserver：观察ContentProvider中的数据变化，并将变化通知�
 
 最后，补间动画还有一个致命的缺陷，就是它只是改变了View的显示效果而已，而不会真正去改变View的属性。什么意思呢？比如说，现在屏幕的左上角有一个按钮，然后我们通过补间动画将它移动到了屏幕的右下角，现在你可以去尝试点击一下这个按钮，点击事件是绝对不会触发的，因为实际上这个按钮还是停留在屏幕的左上角，只不过补间动画将这个按钮绘制到了屏幕的右下角而已。
 
-**91.如何导入外部数据库?**
+#### 91、如何导入外部数据库?
 
 把原数据库包括在项目源码的 res/raw
 
 android系统下数据库应该存放在 /data/data/com..（package name）/ 目录下，所以我们需要做的是把已有的数据库传入那个目录下.操作方法是用FileInputStream读取原数据库，再用FileOutputStream把读取到的东西写入到那个目录.
 
-**92.LinearLayout、RelativeLayout、FrameLayout的特性及对比，并介绍使用场景。**
+#### 92、LinearLayout、RelativeLayout、FrameLayout的特性及对比，并介绍使用场景。
 
-**93.谈谈对接口与回调的理解**
+#### 93、谈谈对接口与回调的理解
 
-**94.屏幕适配的处理技巧都有哪些?**
+#### 94、屏幕适配的处理技巧都有哪些?
 
-**95。服务器只提供数据接收接口，在多线程或多进程条件下，如何保证数据的有序到达？**
+#### 95、服务器只提供数据接收接口，在多线程或多进程条件下，如何保证数据的有序到达？
 
-**96.动态布局的理解**
+#### 96、动态布局的理解
 
-**97.怎么去除重复代码？**
+#### 97、怎么去除重复代码？
 
-**98.Recycleview和ListView的区别**
+#### 98、Recycleview和ListView的区别
 
-**99.ListView图片加载错乱的原理和解决方案**
+#### 99、ListView图片加载错乱的原理和解决方案
 
-**100.动态权限适配方案，权限组的概念**
+#### 100、动态权限适配方案，权限组的概念
 
-**101.Android系统为什么会设计ContentProvider？**
+#### 101、Android系统为什么会设计ContentProvider？
 
-**102.下拉状态栏是不是影响activity的生命周期**
+#### 102、下拉状态栏是不是影响activity的生命周期
 
-**103.如果在onStop的时候做了网络请求，onResume的时候怎么恢复？**
+#### 103、如果在onStop的时候做了网络请求，onResume的时候怎么恢复？
 
-**104.Bitmap使用时候注意什么？**
+#### 104、Bitmap使用时候注意什么？
 
-**105.Bitmap的recycler**()
+#### 105、Bitmap的recycler（）
 
-**106.Android中开启摄像头的主要步骤**
+#### 106、Android中开启摄像头的主要步骤
 
-**107.ViewPager使用细节，如何设置成每次只初始化当前的Fragment，其他的不初始化？**
+#### 107、ViewPager使用细节，如何设置成每次只初始化当前的Fragment，其他的不初始化？
 
+#### 108、Debug和Release状态的不同
 
-**108.Debug和Release状态的不同**
+#### 109、dp是什么，sp呢，有什么区别
 
-**109.dp是什么，sp呢，有什么区别**
+#### 110、自定义View，ViewGroup注意那些回调？
 
-**110.自定义View，ViewGroup注意那些回调？**
+#### 111、界面卡顿的原因以及解决方法
 
-**111.界面卡顿的原因以及解决方法**
+#### 112、android中的存储类型
 
-**112.android中的存储类型**
+#### 113、service用过么，基本调用方法
 
-**113.service用过么，基本调用方法**
+#### 114、Handler机制
 
-**114.Handler机制**
-
-**115.LinearLayout、FrameLayout、RelativeLayout性能对比，为什么**
+#### 115、LinearLayout、FrameLayout、RelativeLayout性能对比，为什么
 
 RelativeLayout会让子View调用2次onMeasure，LinearLayout 在有weight时，也会调用子View2次onMeasure
 
@@ -721,32 +720,29 @@ RelativeLayout的子View如果高度和RelativeLayout不同，则会引发效率
 在不影响层级深度的情况下,使用LinearLayout和FrameLayout而不是RelativeLayout。
 最后再思考一下文章开头那个矛盾的问题，为什么Google给开发者默认新建了个RelativeLayout，而自己却在DecorView中用了个LinearLayout。因为DecorView的层级深度是已知而且固定的，上面一个标题栏，下面一个内容栏。采用RelativeLayout并不会降低层级深度，所以此时在根节点上用LinearLayout是效率最高的。而之所以给开发者默认新建了个RelativeLayout是希望开发者能采用尽量少的View层级来表达布局以实现性能最优，因为复杂的View嵌套对性能的影响会更大一些。
 
-**116.Activity的生命周期，finish调用后其他生命周期还会走么？**
+#### 116、Activity的生命周期，finish调用后其他生命周期还会走么？
 
-**117.内存泄漏如何排查，MAT分析方法以及原理，各种泄漏的原因是什么比如Handler为什么会泄漏**
+#### 117、内存泄漏如何排查，MAT分析方法以及原理，各种泄漏的原因是什么比如Handler为什么会泄漏
 
+#### 118、view的绘制熟悉么，介绍下
 
-**118.view的绘制熟悉么，介绍下**
+#### 119、anr是因为什么产生的，怎么排查
 
-**119.anr是因为什么产生的，怎么排查**
+#### 120、界面上的话，有什么优化措施么？比如列表展示之类的，平时遇到过内存问题吗，怎么优化的？
 
-**120.界面上的话，有什么优化措施么？比如列表展示之类的，平时遇到过内存问题吗，怎么优化的？**
+#### 121、线程之间怎么通信的？
 
-**121.线程之间怎么通信的？**
+#### 122、有没有做过 apk 多渠道打包；
 
+#### 123、java线程，场景实现，多个线程如何同时请求，返回的结果如何等待所有线程数据完成后合成一个数据
 
-**122.有没有做过 apk 多渠道打包；**
+#### 124、Manifest.xml的里有什么和作用
 
+#### 125、什么是多进程，进程和线程的区别，如何给四大组件指定多进程。
 
-**123.java线程，场景实现，多个线程如何同时请求，返回的结果如何等待所有线程数据完成后合成一个数据**
+#### 126、如何选择第三方，从那些方面考虑
 
-**124.Manifest.xml的里有什么和作用**
-
-**125.什么是多进程，进程和线程的区别，如何给四大组件指定多进程。**
-
-**126.如何选择第三方，从那些方面考虑**
-
-**127.scheme跳转协议**
+#### 127、scheme跳转协议
 
 Android中的scheme是一种页面内跳转协议，通过定义自己的scheme协议，可以跳转到app中的各个页面
 
@@ -756,13 +752,13 @@ App可以通过跳转到另一个App页面
 
 可以通过H5页面跳转页面
 
-**128.Service和Thread的区别**
+#### 128、Service和Thread的区别
 
 Service是安卓中系统的组件，它运行在独立进程的主线程中，不可以执行耗时操作。Thread是程序执行的最小单元，分配CPU的基本单位，可以开启子线程执行耗时操作
 
 Service在不同Activity中可以获取自身实例，可以方便的对Service进行操作。Thread在不同的Activity中难以获取自身实例，如果Activity被销毁，Thread实例就很难再获取得到
 
-**129.Bitmap recycle**
+#### 129、Bitmap recycle
 
 在安卓3.0以前Bitmap是存放在堆中的，我们只要回收堆内存即可
     
@@ -773,72 +769,8 @@ Service在不同Activity中可以获取自身实例，可以方便的对Service�
 recycle方法会判断Bitmap在不可用的情况下，将发送指令到垃圾回收器，让其回收native层和Java层的内存，则Bitmap进入dead状态
     
 recycle方法是不可逆的，如果再次调用getPixels()等方法，则获取不到想要的结果
-
-**120.手写一个简易的结合Retrofit + okhttp的网络请求的代码**
-
-**121.JSON的结构？**
-
-json是一种轻量级的数据交换格式，
-json简单说就是对象和数组，所以这两种结构就是对象和数组两种结构，通过这两种结构可以表示各种复杂的结构
-
-1、对象：对象表示为“{}”扩起来的内容，数据结构为 {key：value,key：value,...}的键值对的结构，在面向对象的语言中，key为对象的属性，value为对应的属性值，所以很容易理解，取值方法为 对象.key 获取属性值，这个属性值的类型可以是 数字、字符串、数组、对象几种。
-
-2、数组：数组在json中是中括号“[]”扩起来的内容，数据结构为 ["java","javascript","vb",...]，取值方式和所有语言中一样，使用索引获取，字段值的类型可以是 数字、字符串、数组、对象几种。
-经过对象、数组2种结构就可以组合成复杂的数据结构了。
-
-**122.xml有几种解析方式、区别?**
-
-基本的解析方式有三种: DOM,SAX,Pull
-dom解析：解析器读入整个文档，然后构建一个驻留内存的树结构，然后就可以使用 DOM 接口来操作这个树结构。优点是对文档增删改查比较方便，缺点占用内存比较大。
-sax解析：基于事件驱动型,优点占用内存少，解析速度快，缺点是只适合做文档的读取，不适合做文档的增删改，不能中途停止。
-pull解析：同样基于事件驱动型,android 官方API提供,可随时终止,调用next() 方法提取它们（主动提取事件）
-
-**123.json解析方式的两种区别**
-
-1，SDK提供JSONArray，JSONObject
-
-2，google提供的 Gson
-通过fromJson()实现对象的反序列化（即将json串转换为对象类型）
-通过toJson()实现对象的序列化 （即将对象类型转换为json串）
-
-**124.通过google提供的Gson解析json时，定义JavaBean的规则是什么？**
-
-1). 实现序列化 Serializable
-
-2). 属性私有化，并提供get，set方法
-
-3). 提供无参构造
-
-4). 属性名必须与json串中属性名保持一致 （因为Gson解析json串底层用到了Java的反射原理）
-
-**125.了解 aar 文件没，有没有遇到什么坎；**
-
-**126.数据加载更多涉及到分页，你是怎么实现的；**
-
-**127.Java 静态变量在 new 的对象中会不会更改；**
-
-**128.equals 和 hashcode 的关系；**
-
-**129.activity的startActivity和context的startActivity区别**
-
-(1)从Activity中启动新的Activity时可以直接mContext.startActivity(intent)就好
-
-(2)如果从其他Context中启动Activity则必须给intent设置Flag:
-
-    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ; 
-    mContext.startActivity(intent);
-
-怎么在Service中创建Dialog对话框
-
-1.在我们取得Dialog对象后，需给它设置类型，即：
-
-    dialog.getWindow().setType(WindowManager.LayoutPaams.TYPE_SYSTEM_ALERT)
-
-2.在Manifest中加上权限:
-
-    <uses-permissionandroid:name="android.permission.SYSTEM_ALERT_WINOW" />
     
-**130.HandlerThread**
+#### 130、HandlerThread
 
 1、HandlerThread作用
 
@@ -1555,6 +1487,68 @@ class文件如何转化成dex**
 
 **248.Canvas.save()跟Canvas.restore()的调用时机**
 
+**249.手写一个简易的结合Retrofit + okhttp的网络请求的代码**
 
+**250、JSON的结构？**
+
+json是一种轻量级的数据交换格式，
+json简单说就是对象和数组，所以这两种结构就是对象和数组两种结构，通过这两种结构可以表示各种复杂的结构
+
+1、对象：对象表示为“{}”扩起来的内容，数据结构为 {key：value,key：value,...}的键值对的结构，在面向对象的语言中，key为对象的属性，value为对应的属性值，所以很容易理解，取值方法为 对象.key 获取属性值，这个属性值的类型可以是 数字、字符串、数组、对象几种。
+
+2、数组：数组在json中是中括号“[]”扩起来的内容，数据结构为 ["java","javascript","vb",...]，取值方式和所有语言中一样，使用索引获取，字段值的类型可以是 数字、字符串、数组、对象几种。
+经过对象、数组2种结构就可以组合成复杂的数据结构了。
+
+**251、xml有几种解析方式、区别?**
+
+基本的解析方式有三种: DOM,SAX,Pull
+dom解析：解析器读入整个文档，然后构建一个驻留内存的树结构，然后就可以使用 DOM 接口来操作这个树结构。优点是对文档增删改查比较方便，缺点占用内存比较大。
+sax解析：基于事件驱动型,优点占用内存少，解析速度快，缺点是只适合做文档的读取，不适合做文档的增删改，不能中途停止。
+pull解析：同样基于事件驱动型,android 官方API提供,可随时终止,调用next() 方法提取它们（主动提取事件）
+
+**252.json解析方式的两种区别**
+
+1，SDK提供JSONArray，JSONObject
+
+2，google提供的 Gson
+通过fromJson()实现对象的反序列化（即将json串转换为对象类型）
+通过toJson()实现对象的序列化 （即将对象类型转换为json串）
+
+**253.通过google提供的Gson解析json时，定义JavaBean的规则是什么？**
+
+1). 实现序列化 Serializable
+
+2). 属性私有化，并提供get，set方法
+
+3). 提供无参构造
+
+4). 属性名必须与json串中属性名保持一致 （因为Gson解析json串底层用到了Java的反射原理）
+
+**254.了解 aar 文件没，有没有遇到什么坎；**
+
+**255.数据加载更多涉及到分页，你是怎么实现的；**
+
+**256.Java 静态变量在 new 的对象中会不会更改；**
+
+**257.equals 和 hashcode 的关系；**
+
+**258.activity的startActivity和context的startActivity区别**
+
+(1)从Activity中启动新的Activity时可以直接mContext.startActivity(intent)就好
+
+(2)如果从其他Context中启动Activity则必须给intent设置Flag:
+
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ; 
+    mContext.startActivity(intent);
+
+怎么在Service中创建Dialog对话框
+
+1.在我们取得Dialog对象后，需给它设置类型，即：
+
+    dialog.getWindow().setType(WindowManager.LayoutPaams.TYPE_SYSTEM_ALERT)
+
+2.在Manifest中加上权限:
+
+    <uses-permissionandroid:name="android.permission.SYSTEM_ALERT_WINOW" />
 
 
