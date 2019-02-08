@@ -792,23 +792,23 @@ recycle方法是不可逆的，如果再次调用getPixels()等方法，则获�
 
 - HandlerThread与线程池不同，HandlerThread是一个串队列，背后只有一个线程。
 
-**131.IntentService**
+#### 131、IntentService
 
 https://link.juejin.im/?target=http%3A%2F%2Fblog.csdn.net%2Fjavazejian%2Farticle%2Fdetails%2F52426425
 
-**132.AsyncTask**
+#### 132、AsyncTask
 
 https://link.juejin.im/?target=http%3A%2F%2Fblog.csdn.net%2Fjavazejian%2Farticle%2Fdetails%2F52462830
 
-**133.有遇到过哪些屏幕和资源适配问题？**
+#### 133、有遇到过哪些屏幕和资源适配问题？
 
 https://www.jianshu.com/p/46ce37b8553c
 
-**134.项目中遇到哪些难题，最终你是如何解决的？**
+#### 134、项目中遇到哪些难题，最终你是如何解决的？
 
 https://www.jianshu.com/p/69d9444e2a9a
 
-**135.如何将一个Activity设置成窗口的样式。**
+#### 135、如何将一个Activity设置成窗口的样式。
 
 <activity>中配置：
 
@@ -820,15 +820,15 @@ https://www.jianshu.com/p/69d9444e2a9a
 是设置透明
 
 
-**136.Android Application对象必须掌握的七点**
+#### 136、Android Application对象必须掌握的七点
 
 https://blog.csdn.net/lilu_leo/article/details/8649941
 
-**137.listview图片加载错乱的原理和解决方案**
+#### 137、listview图片加载错乱的原理和解决方案
 
 https://blog.csdn.net/guolin_blog/article/details/45586553
 
-**138.数据库数据迁移，把大象装进新冰箱共分几步？**
+#### 138、数据库数据迁移，把大象装进新冰箱共分几步？
 
 - 将表名改成临时表ALTER TABLE Order RENAME TO _Order
 
@@ -839,48 +839,45 @@ https://blog.csdn.net/guolin_blog/article/details/45586553
 
 - 删除临时表DROPTABLE _Order
 
-**139.深入理解Java注解类型(@Annotation)**
+#### 139、深入理解Java注解类型(@Annotation)
 
 https://blog.csdn.net/javazejian/article/details/71860633
 
-**140.如何开启多进程?应用是否可以开启N个进程？**
+#### 140、如何开启多进程?应用是否可以开启N个进程？
 
-**141.final修饰一个对象，能否调用对象修改属性的方法**
+#### 141、final修饰一个对象，能否调用对象修改属性的方法
 
-**142.注解如何获取，反射为何耗性能？**
+#### 142、注解如何获取，反射为何耗性能？
 
-**143.int,long的取值范围以及BigDecimal，数值越界了如何处理？**
+#### 143、int,long的取值范围以及BigDecimal，数值越界了如何处理？
 
-**144.Android中如何查看一个对象的回收情况？**
+#### 144.Android中如何查看一个对象的回收情况？
 
-**145.ContentProvider、ContentResolver、ContentObserver 之间的关系。**
+#### 145、ContentProvider、ContentResolver、ContentObserver 之间的关系。
 
-**146.Android怎么加速启动Activity。**
+#### 146、Android怎么加速启动Activity
 
+#### 147、invalidate和requestLayout的区别及使用。
 
-**147.invalidate和requestLayout的区别及使用。**
+#### 148、如何反编译，对代码逆向分析；
 
-**148.如何反编译，对代码逆向分析；**
+#### 149、Intent传值有大小限制吗，为什么，如何处理；
 
+#### 151、广播中怎么进行网络请求
 
-
-**149.Intent传值有大小限制吗，为什么，如何处理；**
-
-**151.广播中怎么进行网络请求**
-
-**152.双线程通过线程同步的方式打印12121212.......**
+#### 152、双线程通过线程同步的方式打印12121212.......
 
 
 
-**153.RemoteViews实现和使用场景**
+#### 153、RemoteViews实现和使用场景
 
 
-**154.对服务器众多错误码的处理（错误码有好几万个）**
+#### 154、对服务器众多错误码的处理（错误码有好几万个）
 
 
-**155.adb常用命令行 **
+#### 155、adb常用命令行 
 
-**156.Android中跨进程通讯的几种方式**
+#### 156、Android中跨进程通讯的几种方式
 
 1：访问其他应用程序的Activity
 如调用系统通话应用
@@ -896,7 +893,7 @@ https://blog.csdn.net/javazejian/article/details/71860633
 
 4：AIDL服务
 
-**157.显示Intent与隐式Intent的区别**
+#### 157、显示Intent与隐式Intent的区别
 
 对明确指出了目标组件名称的Intent，我们称之为“显式Intent”。
 
@@ -918,7 +915,7 @@ https://blog.csdn.net/javazejian/article/details/71860633
                 </intent-filter>
     </activity>
 
-**158.什么是线程池，线程池的作用是什么**
+#### 158、什么是线程池，线程池的作用是什么
 
 线程池的基本思想还是一种对象池的思想，开辟一块内存空间，里面存放了众多(未死亡)的线程，池中线程执行调度由池管理器来处理。当有线程任务时，从池中取一个，执行完成后线程对象归池，这样可以避免反复创建线程对象所带来的性能开销，节省了系统的资源。就好比原来去食堂打饭是每个人看谁抢的赢，谁先抢到谁先吃，有了线程池之后，就是排好队形，今天我跟你关系好，你先来吃饭。比如：一个应用要和网络打交道，有很多步骤需要访问网络，为了不阻塞主线程，每个步骤都创建个线程，在线程中和网络交互，用线程池就变的简单，线程池是对线程的一种封装，让线程用起来更加简便，只需要创一个线程池，把这些步骤像任务一样放进线程池，在程序销毁时只要调用线程池的销毁函数即可。
 
@@ -962,7 +959,7 @@ https://juejin.im/post/5906b6e78d6d810058dab1bf
 
 http://www.infoq.com/cn/articles/java-se-16-synchronized
 
-**159.IntentService的用法**
+#### 159、IntentService的用法
 
 一、IntentService简介 
 
@@ -997,7 +994,7 @@ Intentservice若未执行完成上一次的任务，将不会新开一个线程�
 
 提供了一个onStartCommand()方法的默认实现，它将Intent先传送至工作队列，然后从工作队列中每次取出一个传送至onHandleIntent()方法，在该方法中对Intent对相应的处理。
 
-**160.Android Holo主题与MD主题的理念，以及你的看法**
+#### 160、Android Holo主题与MD主题的理念，以及你的看法
 
 Holo Theme
 
@@ -1015,7 +1012,7 @@ Material design其实是单纯一种设计语言，它包含了系统界面风�
 
 4.Material design的交互设计上采用的是响应式交互，这样的交互设计能把一个应用从简单展现用户所请求的信息，提升至能与用户产生更强烈、更具体化交互的工具。
 
-**161.String，StringBuffer，StringBuilder有哪些不同**
+#### 161、String，StringBuffer，StringBuilder有哪些不同
 
 三者在执行速度方面的比较：StringBuilder >  StringBuffer  >  String
 
@@ -1033,11 +1030,11 @@ StringBuffer：线程安全的
 
 3.多线程操作字符串缓冲区 下操作大量数据 = StringBuffer
 
-**162.浮点数的精准计算**
+#### 162、浮点数的精准计算
 
 BigDecimal类进行商业计算，Float和Double只能用来做科学计算或者是工程计算
 
-**163.Android系统提供了那些动画机制**
+#### 163、Android系统提供了那些动画机制
 
 1.逐帧动画
 
@@ -1061,39 +1058,39 @@ BigDecimal类进行商业计算，Float和Double只能用来做科学计算或�
 
   相比于ValueAnimator，ObjectAnimator可能才是我们最常接触到的类，因为ValueAnimator只不过是对值进行了一个平滑的动画过渡，但我们实际使用到这种功能的场景好像并不多。而ObjectAnimator则就不同了，它是可以直接对任意对象的任意属性进行动画操作的，比如说View的alpha属性
 
-**164.java为什么跨平台**
+#### 164、java为什么跨平台
 
 因为Java程序编译之后的代码不是能被硬件系统直接运行的代码，而是一种“中间码”——字节码。然后不同的硬件平台上安装有不同的Java虚拟机(JVM)，由JVM来把字节码再“翻译”成所对应的硬件平台能够执行的代码。因此对于Java编程者来说，不需要考虑硬件平台是什么。所以Java可以跨平台。
 
 
-**165.[Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)**
+#### 165、Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)
 
-**166.[IntentService比Service好在哪](https://link.zhihu.com/?target=http%3A//blog.qiji.tech/archives/2693)**
-
-
-
-**167.[Thread和HandlerThread区别](https://www.jianshu.com/p/5b6c71a7e8d7)**
-
-**168.[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)**
+#### 166、IntentService比Service好在哪](https://link.zhihu.com/?target=http%3A//blog.qiji.tech/archives/2693)
 
 
-**169.[对Android消息机制的理解](https://zhuanlan.zhihu.com/p/25222485)**
 
-**170.[哪些情况会导致OOM？](http://note.youdao.com/)**
+#### 167、Thread和HandlerThread区别](https://www.jianshu.com/p/5b6c71a7e8d7)
 
-**171.[用leak工具监测内存泄露的原理是什么？](https://www.jianshu.com/p/5ee6b471970e)**
+#### 168、[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)
 
-**172.[ThreadLocal原理，实现及如何保证Local属性]()**
 
-**173.[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)**
+#### 169、[对Android消息机制的理解](https://zhuanlan.zhihu.com/p/25222485)
 
-**174.[线程池的实现机制](http://www.cnblogs.com/dolphin0520/p/3932921.html)**
+#### 170、[哪些情况会导致OOM？](http://note.youdao.com/)
 
-**175.[Integer类对int的优化](http://denverj.iteye.com/blog/745422)**
+#### 171、[用leak工具监测内存泄露的原理是什么？](https://www.jianshu.com/p/5ee6b471970e)
 
-**176.[通过静态内部类实现单例模式有哪些优点](http://blog.csdn.net/yingpaixiaochuan/article/details/63260514)**
+#### 172、[ThreadLocal原理，实现及如何保证Local属性]()
 
-**177.单例实现线程的同步的要求：**
+#### 173、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
+
+#### 174、[线程池的实现机制](http://www.cnblogs.com/dolphin0520/p/3932921.html)
+
+#### 175、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
+
+#### 176、[通过静态内部类实现单例模式有哪些优点](http://blog.csdn.net/yingpaixiaochuan/article/details/63260514)
+
+#### 177、单例实现线程的同步的要求：
 
 1.单例类确保自己只有一个实例(构造函数私有:不被外部实例化,也不被继承)。
 
@@ -1101,15 +1098,15 @@ BigDecimal类进行商业计算，Float和Double只能用来做科学计算或�
 
 3.单例类必须为其他对象提供唯一的实例。
 
-**178.[界面卡顿的原因有哪些？](https://www.jianshu.com/p/1fb065c806e6)**
+#### 178、[界面卡顿的原因有哪些？](https://www.jianshu.com/p/1fb065c806e6)
 
-**179.[造成OOM/ANR 的原因？](http://www.cnblogs.com/purediy/p/3276545.html)**
+#### 179、[造成OOM/ANR 的原因？](http://www.cnblogs.com/purediy/p/3276545.html)
 
-**180.[Activity与Fragment之间如何进行通信？](http://blog.csdn.net/u012702547/article/details/49786417)**
+#### 180、[Activity与Fragment之间如何进行通信？](http://blog.csdn.net/u012702547/article/details/49786417)
 
-**181.[操作系统进程间通信有哪些方法](http://blog.csdn.net/shinehoo/article/details/5818843/)**
+#### 181、[操作系统进程间通信有哪些方法](http://blog.csdn.net/shinehoo/article/details/5818843/)
 
-**182.如何保证Service不被杀死**
+#### 182、如何保证Service不被杀死
 
 Android 进程不死从3个层面入手：
 
@@ -1137,7 +1134,7 @@ C. 依靠第三方
 
 根据终端不同，在小米手机（包括 MIUI）接入小米推送、华为手机接入华为推送；其他手机可以考虑接入腾讯信鸽或极光推送与小米推送做 A/B Test。
 
-**183.引起内存泄漏的情况**
+#### 183、引起内存泄漏的情况
 
 - 对于使用了BraodcastReceiver，ContentObserver，File，游标 Cursor，Stream，Bitmap等资源的使用，应该在Activity销毁时及时关闭或者注销。
 - 静态内部类持有外部成员变量（或context）:可以使用弱引用或使用ApplicationContext。
@@ -1153,7 +1150,7 @@ C. 依靠第三方
 - 优化Dalvik虚拟机的堆内存分配
 - 自定义堆内存大小
 
-**184.Handler机制** 
+#### 184、Handler机制
 
 andriod提供了Handler 和 Looper 来满足线程间的通信。Handler先进先出原则。Looper类用来管理特定线程内对象之间的消息交换(MessageExchange)。
 
@@ -1165,7 +1162,7 @@ Message Queue(消息队列):用来存放线程放入的消息。
 
 线程：UIthread 通常就是main thread，而Android启动程序时会替它建立一个MessageQueue。
     
-**185.ListView卡顿原因** 
+#### 185、ListView卡顿原因
 
 Adapter的getView方法里面convertView没有使用setTag和getTag方式；
 
@@ -1177,7 +1174,7 @@ Adapter多余或者不合理的notifySetDataChanged；
 
 listview 被多层嵌套，多次的onMessure导致卡顿，如果多层嵌套无法避免，建议把listview的高和宽设置为fill_parent. 如果是代码继承的listview，那么也请你别忘记为你的继承类添加上LayoutPrams，注意高和宽都是fill_parent的；
 
-**186.Json有什么优劣势**
+#### 186、Json有什么优劣势
 
 1.JSON的速度要远远快于XML
 
@@ -1185,13 +1182,13 @@ listview 被多层嵌套，多次的onMessure导致卡顿，如果多层嵌套�
 
 3.JSON对数据的描述性比XML较差
 
-**187.AndroidManifest的作用与理解**
+#### 187、AndroidManifest的作用与理解
 
-**188.Android中开启摄像头的主要步骤**
+#### 188、Android中开启摄像头的主要步骤
 
-**189.AlertDialog,popupWindow,Activity区别**
+#### 189、AlertDialog,popupWindow,Activity区别
 
-**190.LaunchMode应用场景**
+#### 190、LaunchMode应用场景
 
 standard，创建一个新的Activity。
 
@@ -1221,39 +1218,39 @@ singleInstance应用场景：
 
 闹铃的响铃界面。 你以前设置了一个闹铃：上午6点。在上午5点58分，你启动了闹铃设置界面，并按 Home 键回桌面；在上午5点59分时，你在微信和朋友聊天；在6点时，闹铃响了，并且弹出了一个对话框形式的 Activity(名为 AlarmAlertActivity) 提示你到6点了(这个 Activity 就是以 SingleInstance 加载模式打开的)，你按返回键，回到的是微信的聊天界面，这是因为 AlarmAlertActivity 所在的 Task 的栈只有他一个元素， 因此退出之后这个 Task 的栈空了。如果是以 SingleTask 打开 AlarmAlertActivity，那么当闹铃响了的时候，按返回键应该进入闹铃设置界面。
 
-**191.AsyncTask 如何使用?**
+#### 191、AsyncTask 如何使用？
 
-**192.SpareArray原理**
+#### 192、SpareArray原理
 
-**193.请介绍下ContentProvider 是如何实现数据共享的？**
+#### 193、请介绍下ContentProvider 是如何实现数据共享的？
 
-**194.Android Service 与 Activity 之间通信的几种方式**
+#### 194、Android Service 与 Activity 之间通信的几种方式
 
 - 通过Binder对象
 
 - 通过broadcast(广播)的形式
 
-**195.IntentService原理及作用是什么？**
+#### 195、IntentService原理及作用是什么？
 
-**196.说说Activity、Intent、Service 是什么关系**
+#### 196、说说Activity、Intent、Service 是什么关系
 
-**197.ApplicationContext和ActivityContext的区别**
+#### 197、ApplicationContext和ActivityContext的区别
 
-**198.SP是进程同步的吗?有什么方法做到同步？**
+#### 198、SP是进程同步的吗?有什么方法做到同步？
 
-**199.进程和 Application 的生命周期**
+#### 199、进程和 Application 的生命周期
 
-**200.封装View的时候怎么知道view的大小**
+#### 200、封装View的时候怎么知道view的大小
 
-**201.AndroidManifest的作用与理解**
+#### 201、AndroidManifest的作用与理解
 
-**202.Handler、Thread和HandlerThread的差别**
+#### 202、Handler、Thread和HandlerThread的差别
 
-**203.handler发消息给子线程，looper怎么启动？**
+#### 203、handler发消息给子线程，looper怎么启动？
 
-**204.关于Handler，在任何地方new Handler 都是什么线程下?**
+#### 204、关于Handler，在任何地方new Handler 都是什么线程下?
 
-**205.ThreadLocal的原理**
+#### 205、ThreadLocal的原理
 
 ThreadLocal是一个关于创建线程局部变量的类。使用场景如下所示：
 
@@ -1262,9 +1259,9 @@ ThreadLocal是一个关于创建线程局部变量的类。使用场景如下所
 实现线程安全，非线程安全的对象使用ThreadLocal之后就会变得线程安全，因为每个线程都会有一个对应的实例。
 承载一些线程相关的数据，避免在方法中来回传递参数。
 
-**206.请解释下在单线程模型中Message、Handler、Message Queue、Looper之间的关系**
+#### 206、请解释下在单线程模型中Message、Handler、Message Queue、Looper之间的关系
 
-**207.ANR定位和修正**
+#### 207、ANR定位和修正
 
 如果开发机器上出现问题，我们可以通过查看/data/anr/traces.txt即可，最新的ANR信息在最开始部分。
 
@@ -1284,7 +1281,7 @@ Service在特定的时间内无法处理完成 20秒
 Activity的onCreate和onResume回调中尽量避免耗时的代码
 BroadcastReceiver中onReceive代码也要尽量减少耗时，建议使用IntentService处理。
 
-**208.oom是什么？什么情况导致oom？**
+#### 208、oom是什么？什么情况导致oom？
 
 http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0920/3478.html
 
@@ -1300,11 +1297,11 @@ http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0920/3478.html
 
 6）StringBuilder
 
-**209.有什么解决方法可以避免OOM？**
+#### 209、有什么解决方法可以避免OOM？
 
-**210.Oom 是否可以try catch？为什么？**
+#### 210、Oom 是否可以try catch？为什么？
 
-**211.什么情况导致内存泄漏？**
+#### 211、什么情况导致内存泄漏？
 
 1.资源对象没关闭造成的内存泄漏
 
@@ -1355,30 +1352,30 @@ http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0920/3478.html
 
 我们通常把一些对象的引用加入到了集合中，当我们不需要该对象时，并没有把它的引用从集合中清理掉，这样这个集合就会越来越大。如果这个集合是static的话，那情况就更严重了。
 
-**212.ContentProvider的权限管理(解答：读写分离，权限控制-精确到表级，URL控制)**
+#### 212、ContentProvider的权限管理（解答：读写分离，权限控制-精确到表级，URL控制）
 
-**213.如何通过广播拦截和abort一条短信？**
+#### 213、如何通过广播拦截和abort一条短信？
 
-**214.广播是否可以请求网络？**
+#### 214、广播是否可以请求网络
 
-**215.计算一个view的嵌套层级**
+#### 215、计算一个view的嵌套层级
 
-**216.Android线程有没有上限？**
+#### 216、Android线程有没有上限？
 
-**217.线程池有没有上限？**
+#### 217、线程池有没有上限？
 
-**218.ListView重用的是什么？**
+#### 218、ListView重用的是什么？
 
-**219.Android为什么引入Parcelable？**
+#### 219、Android为什么引入Parcelable
 
 所谓序列化就是将对象变成二进制流，便于存储和传输。
 
 Serializable是java实现的一套序列化方式，可能会触发频繁的IO操作，效率比较低，适合将对象存储到磁盘上的情况。
 Parcelable是Android提供一套序列化机制，它将序列化后的字节流写入到一个共性内存中，其他对象可以从这块共享内存中读出字节流，并反序列化成对象。因此效率比较高，适合在对象间或者进程间传递信息。
 
-**220.有没有尝试简化Parcelable的使用？**
+#### 220、有没有尝试简化Parcelable的使用？
 
-**221.Android进程分类？**
+#### 221、Android进程分类？
 
 Android的进程主要分为以下几种：
 
@@ -1432,64 +1429,63 @@ SharePreference性能优化，可以做进程同步吗？
 尽量不要存放JSON和HTML，这种场景请直接使用JSON。
 SharedPreference无法进行跨进程通信，MODE_MULTI_PROCESS只是保证了在API 11以前的系统上，如果sp已经被读取进内存，再次获取这个SharedPreference的时候，如果有这个flag，会重新读一遍文件，仅此而已。
 
-**222.Fragment的replace和add的区别？**
+#### 222、Fragment的replace和add的区别？
 
-**223.MVP，MVVM，MVC解释和实践**
+#### 223、MVP，MVVM，MVC解释和实践
 
-**224.项目之外的，对技术的见解，拓展知识**
+#### 224、项目之外的，对技术的见解，拓展知识
 
-**225.SharedPrefrences的apply和commit有什么区别**
+#### 225、SharedPrefrences的apply和commit有什么区别
 
-**226.MD5是加密方法么，Base64呢**
+#### 226、MD5是加密方法么，Base64
 
-**227.有博客和github，主要是写的什么？有哪些关注**
+#### 227、有博客和github，主要是写的什么？有哪些关注
 
-**228.HttpClient和HttpConnection的区别**
+#### 228、HttpClient和HttpConnection的区别
 
-**229.除了日常开发，其他有做过什么工作？比如持续化集成，自动化测试等等**
+#### 229、除了日常开发，其他有做过什么工作？比如持续化集成，自动化测试等等
 
-**230.ActivityA跳转ActivityB然后B按back返回A，各自的生命周期顺序，A与B均不透明。**
+#### 230、ActivityA跳转ActivityB然后B按back返回A，各自的生命周期顺序，A与B均不透明。
 
-**231.Android中main方法入口在哪里**
+#### 231、Android中main方法入口在哪里
 
-**232.写出你认为最优的懒汉式单例模式**
+#### 232、写出你认为最优的懒汉式单例模式
 
-**233.activity意外退出时信息的储存与恢复，onCreate正常进入时的判断。**
+#### 233、activity意外退出时信息的储存与恢复，onCreate正常进入时的判断。
 
-**234.抽象类能否实例化，理论依据是什么？**
+#### 234、抽象类能否实例化，理论依据是什么？
 
-**235.如何通过Gradle配置差异较大(20%差异)的多渠道包
-class文件如何转化成dex**
+#### 235、如何通过Gradle配置差异较大(20%差异)的多渠道包
 
-**236.Service先start再bind如何关闭service，为什么bindService可以跟Activity生命周期联动？**
+#### 236、Service先start再bind如何关闭service，为什么bindService可以跟Activity生命周期联动？
 
-**237.直接在Activity中创建一个thread跟在service中创建一个thread之间恩区别**
+#### 237、直接在Activity中创建一个thread跟在service中创建一个thread之间恩区别
 
-**238.ListView针对多种item的缓存是如何实现的**
+#### 238、ListView针对多种item的缓存是如何实现的
 
-**239.Android绘制二维跟三维的View的区别**
+#### 239、Android绘制二维跟三维的View的区
 
-**240.是否了解硬件加速**
+#### 240、是否了解硬件加速
 
-**241.ListView是如何实现对不同type的item的管理的**
+#### 241、ListView是如何实现对不同type的item的管理的
 
-**242.Android为什么要设计两种classloader，为什么不用一种，通过type来区分**
+#### 242、Android为什么要设计两种classloader，为什么不用一种，通过type来区分
 
-**243.Bundle传递数据为什么需要序列化**
+#### 243、Bundle传递数据为什么需要序列化
 
-**244.广播传输的数据是否有限制，是多少，为什么要限制？**
+#### 244、广播传输的数据是否有限制，是多少，为什么要限制？
 
-**245.关于反射混淆，耗性能的解决方式**
+#### 245、关于反射混淆，耗性能的解决方式
 
-**246.RecyclerView的itemdecoration如何处理点击事件**
+#### 246、RecyclerView的itemdecoration如何处理点击事件
 
-**247.编译期注解跟运行时注解**
+#### 247、编译期注解跟运行时注解
 
-**248.Canvas.save()跟Canvas.restore()的调用时机**
+#### 248、Canvas.save()跟Canvas.restore()的调用时机
 
-**249.手写一个简易的结合Retrofit + okhttp的网络请求的代码**
+#### 249、手写一个简易的结合Retrofit + okhttp的网络请求的代码
 
-**250、JSON的结构？**
+#### 250、JSON的结构？
 
 json是一种轻量级的数据交换格式，
 json简单说就是对象和数组，所以这两种结构就是对象和数组两种结构，通过这两种结构可以表示各种复杂的结构
@@ -1499,14 +1495,14 @@ json简单说就是对象和数组，所以这两种结构就是对象和数组�
 2、数组：数组在json中是中括号“[]”扩起来的内容，数据结构为 ["java","javascript","vb",...]，取值方式和所有语言中一样，使用索引获取，字段值的类型可以是 数字、字符串、数组、对象几种。
 经过对象、数组2种结构就可以组合成复杂的数据结构了。
 
-**251、xml有几种解析方式、区别?**
+#### 251、xml有几种解析方式、区别？
 
 基本的解析方式有三种: DOM,SAX,Pull
 dom解析：解析器读入整个文档，然后构建一个驻留内存的树结构，然后就可以使用 DOM 接口来操作这个树结构。优点是对文档增删改查比较方便，缺点占用内存比较大。
 sax解析：基于事件驱动型,优点占用内存少，解析速度快，缺点是只适合做文档的读取，不适合做文档的增删改，不能中途停止。
 pull解析：同样基于事件驱动型,android 官方API提供,可随时终止,调用next() 方法提取它们（主动提取事件）
 
-**252.json解析方式的两种区别**
+#### 252、json解析方式的两种区别
 
 1，SDK提供JSONArray，JSONObject
 
@@ -1514,7 +1510,7 @@ pull解析：同样基于事件驱动型,android 官方API提供,可随时终止
 通过fromJson()实现对象的反序列化（即将json串转换为对象类型）
 通过toJson()实现对象的序列化 （即将对象类型转换为json串）
 
-**253.通过google提供的Gson解析json时，定义JavaBean的规则是什么？**
+#### 253、通过google提供的Gson解析json时，定义JavaBean的规则是什么
 
 1). 实现序列化 Serializable
 
@@ -1524,15 +1520,15 @@ pull解析：同样基于事件驱动型,android 官方API提供,可随时终止
 
 4). 属性名必须与json串中属性名保持一致 （因为Gson解析json串底层用到了Java的反射原理）
 
-**254.了解 aar 文件没，有没有遇到什么坎；**
+#### 254、了解 aar 文件没，有没有遇到什么坎；
 
-**255.数据加载更多涉及到分页，你是怎么实现的；**
+#### 255、数据加载更多涉及到分页，你是怎么实现的；
 
-**256.Java 静态变量在 new 的对象中会不会更改；**
+#### 256、Java 静态变量在 new 的对象中会不会更改；
 
-**257.equals 和 hashcode 的关系；**
+#### 257、equals 和 hashcode 的关系；
 
-**258.activity的startActivity和context的startActivity区别**
+#### 258、activity的startActivity和context的startActivity区别
 
 (1)从Activity中启动新的Activity时可以直接mContext.startActivity(intent)就好
 
