@@ -1287,103 +1287,103 @@ drawChild()去重新回调每个子视图的draw()方法
 
 ##### Gradle的Flavor能否配置sourceset？
 
-线程池核心线程数一般定义多少，为什么？
+##### 线程池核心线程数一般定义多少，为什么？
 
-View在屏幕中的移动底层是如何实现的
+##### View在屏幕中的移动底层是如何实现的
 
-Bitmap在decode的时候申请的内存如何复用，释放时机
+##### Bitmap在decode的时候申请的内存如何复用，释放时机
 
-注解如何实现一个findViewById
+##### 注解如何实现一个findViewById
 
-说说你对Context的理解
+##### 说说你对Context的理解
 
-由A启动BActivity，A为栈内复用模式，B为标准模式，然后再次启动A或者杀死B，说说A，B的生命周期变化，为什么
+##### 由A启动BActivity，A为栈内复用模式，B为标准模式，然后再次启动A或者杀死B，说说A，B的生命周期变化，为什么
 
-区别Animation和Animator的用法，概述其原理
+##### 区别Animation和Animator的用法，概述其原理
 
-操作系统中进程和线程有什么联系和区别？系统会在什么情况下会在用户态好内核态中切换。
+##### 操作系统中进程和线程有什么联系和区别？系统会在什么情况下会在用户态好内核态中切换。
 
-对于Android APP闪退，可能的原因有哪些？请针对每种情况简述分析过程。
+##### 对于Android APP闪退，可能的原因有哪些？请针对每种情况简述分析过程。
 
-listview跟recyclerview上拉加载的时候分别应该如何处理
+##### listview跟recyclerview上拉加载的时候分别应该如何处理
 
-不用锁如何保证int自增安全
+##### 不用锁如何保证int自增安全
 
-如何自动化部署打包发包流程
+##### 如何自动化部署打包发包流程
 
-微信支付宝支付调用时上层是如何封装AIDL的
+##### 微信支付宝支付调用时上层是如何封装AIDL的
 
-如何实现一个推送，极光推送原理
+##### 如何实现一个推送，极光推送原理
 
-统计启动时长
+##### 统计启动时长
 
-如何保持应用的稳定性
+##### 如何保持应用的稳定性
 
-Runtime permission,如何把一个预置的app默认给它权限，不要授权。
+##### Runtime permission,如何把一个预置的app默认给它权限，不要授权。
 
-MVC的情况下怎么把Activity的C和V抽离
+##### MVC的情况下怎么把Activity的C和V抽离
 
-各个网络框架之间的差异和优缺点，网络框架代替进化的原因
+##### 各个网络框架之间的差异和优缺点，网络框架代替进化的原因
 
-项目框架里有没有Base类，BaseActivity和BaseFragment这种封装导致的问题，以及解决方法
+##### 项目框架里有没有Base类，BaseActivity和BaseFragment这种封装导致的问题，以及解决方法
 
-为什么不推荐软引用，软引用在dvm上的垃圾回收机制和jvm上一样吗？
+##### 为什么不推荐软引用，软引用在dvm上的垃圾回收机制和jvm上一样吗？
 
-启动页缓存设计 白屏问题
+##### 启动页缓存设计 白屏问题
 
-网络图片怎么加载？Glide如何确定图片加载完毕
+##### 网络图片怎么加载？Glide如何确定图片加载完毕
 
-项目框架中对多View的支持
+##### 项目框架中对多View的支持
 
-Debug跟Release的APK的区别
+##### Debug跟Release的APK的区别
 
-对谷歌新推出的Room架构
+##### 对谷歌新推出的Room架构
 
-SplashActivity中进行初始化MainActivity的参数，Splash没有初始化，AMS直接启动了MainActivity怎么办
+##### SplashActivity中进行初始化MainActivity的参数，Splash没有初始化，AMS直接启动了MainActivity怎么办
 
-设计一个多线程，可以同时读，读的时候不能写，写的时候不能读(读写锁)
+##### 设计一个多线程，可以同时读，读的时候不能写，写的时候不能读(读写锁)
 
-没有给权限如何定位，特定机型定位失败，如何解决
+##### 没有给权限如何定位，特定机型定位失败，如何解决
 
-Gradle生命周期
+##### Gradle生命周期
 
-ACTION_CANCEL什么时候触发，触摸button然后滑动到外部抬起会触发点击事件吗，在+ + 滑动回去抬起会么
+##### ACTION_CANCEL什么时候触发，触摸button然后滑动到外部抬起会触发点击事件吗，在+ + 滑动回去抬起会么
 
-怎么处理嵌套View的滑动冲突问题
+##### 怎么处理嵌套View的滑动冲突问题
 
-任意提问环节：其实可以问之前面试中遇到的问题：比如，多模块开发的时候不同的负责人可能会引入重复资源，相同的字符串，相同的icon等但是文件名并不一样，怎样去重？
+##### 任意提问环节：其实可以问之前面试中遇到的问题：比如，多模块开发的时候不同的负责人可能会引入重复资源，相同的字符串，相同的icon等但是文件名并不一样，怎样去重？
 
-Canvas的底层机制，绘制框架，硬件加速是什么原理，canvas lock的缓冲区是怎么回事
+##### Canvas的底层机制，绘制框架，硬件加速是什么原理，canvas lock的缓冲区是怎么回事
 
-surfaceview， suface，surfacetexture等相关的，以及底层原理
+##### surfaceview， suface，surfacetexture等相关的，以及底层原理
 
-android文件存储，各版本存储位置的权限控制的演进，外部存储，内部存储
+##### android文件存储，各版本存储位置的权限控制的演进，外部存储，内部存储
 
-上层业务activity和fragment的遇到什么坑？？页面展示上的一些坑和优化经验
+##### 上层业务activity和fragment的遇到什么坑？？页面展示上的一些坑和优化经验
 
-网络请求的开源框架：OKHttp介绍，写过拦截器么
+##### 网络请求的开源框架：OKHttp介绍，写过拦截器么
 
-数据层有统一的管理么，数据缓存是怎么做的，http请求等有提供统一管理么？
+##### 数据层有统一的管理么，数据缓存是怎么做的，http请求等有提供统一管理么？
 
-有用什么模式么，逻辑什么的都在Activity层？怎么分离的
+##### 有用什么模式么，逻辑什么的都在Activity层？怎么分离的
 
-如果用了一些解耦的策略，怎么管理生命周期的？
+##### 如果用了一些解耦的策略，怎么管理生命周期的？
 
-有什么提高编译速度的方法？
+##### 有什么提高编译速度的方法？
 
-对应用里的线程有做统一管理么？
+##### 对应用里的线程有做统一管理么？
 
-gradle打包流程熟悉么
+##### gradle打包流程熟悉么
 
-上线后的app性能分析检测有做么
+##### 上线后的app性能分析检测有做么
 
-想改变listview的高度，怎么做
+##### 想改变listview的高度，怎么做
 
-Fragment的懒加载实现，参数传递与保存
+##### Fragment的懒加载实现，参数传递与保存
 
-ViewPager的缓存实现
+##### ViewPager的缓存实现
 
-Android里的内存缓存和磁盘缓存是怎么实现的。
+##### Android里的内存缓存和磁盘缓存是怎么实现的。
 
 内存缓存基于LruCache实现，磁盘缓存基于DiskLruCache实现。这两个类都基于Lru算法和LinkedHashMap来实现。
 
@@ -1431,27 +1431,27 @@ DIRTY 表示一个entry正在被写入。写入分两种情况，如果成功会
 READ就是说明有一次读取的记录。
 CLEAN的后面还记录了文件的长度，注意可能会一个key对应多个文件，那么就会有多个数字。
 
-RecyclerView和ListView有什么区别？局部刷新？前者使用时多重type场景下怎么避免滑动卡顿。懒加载怎么实现，怎么优化滑动体验。
+##### RecyclerView和ListView有什么区别？局部刷新？前者使用时多重type场景下怎么避免滑动卡顿。懒加载怎么实现，怎么优化滑动体验。
 
-开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题。
+##### 开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题。
 
-Scroller有什么方法，怎么使用的。
+##### Scroller有什么方法，怎么使用的。
 
-webwiew了解？怎么实现和javascript的通信？相互双方的通信。@JavascriptInterface在？版本有bug，除了这个还有其他调用android方法的方案吗？
+##### webwiew了解？怎么实现和javascript的通信？相互双方的通信。@JavascriptInterface在？版本有bug，除了这个还有其他调用android方法的方案吗？
 
-线程sleep对消息的影响
+##### 线程sleep对消息的影响
 
-如果在当前线程内使用Handler postdelayed 两个消息，一个延迟5s，一个延迟10s，然后使当前线程sleep 5秒，以上消息的执行时间会如何变化？
+##### 如果在当前线程内使用Handler postdelayed 两个消息，一个延迟5s，一个延迟10s，然后使当前线程sleep 5秒，以上消息的执行时间会如何变化？
 
 答：照常执行
 
 扩展：sleep时间<=5 对两个消息无影响，5< sleep时间 <=10 对第一个消息有影响，第一个消息会延迟到sleep后执行，sleep时间>10 对两个时间都有影响，都会延迟到sleep后执行。
 
-逻辑地址与物理地址，为什么使用逻辑地址？
+##### 逻辑地址与物理地址，为什么使用逻辑地址？
 
-Android中进程内存的分配，能不能自己分配定额内存？
+##### Android中进程内存的分配，能不能自己分配定额内存？
 
-如何保证一个后台服务不被杀死？（相同问题：如何保证service在后台不被kill？）比较省电的方式是什么？
+##### 如何保证一个后台服务不被杀死？（相同问题：如何保证service在后台不被kill？）比较省电的方式是什么？
 
 一、onStartCommand方法，返回START_STICKY
 
@@ -1484,13 +1484,13 @@ service +broadcast 方式，就是当service走ondestory的时候，发送一个
 通过系统的一些广播，比如：手机重启、界面唤醒、应用状态改变等等监听并捕获到，然后判断我们的Service是否还存活，别忘记加权限啊。
 
 
-Activity的启动模式有哪些？栈里是A-B-C，先想直接到A，BC都清理掉，有几种方法可以做到？这几种方法产生的结果是有几个A的实例？
+##### Activity的启动模式有哪些？栈里是A-B-C，先想直接到A，BC都清理掉，有几种方法可以做到？这几种方法产生的结果是有几个A的实例？
 
-有什么工具可以看到Activity栈信息么？多个栈话，有方法分别得到各个栈的Activity列表么
+##### 有什么工具可以看到Activity栈信息么？多个栈话，有方法分别得到各个栈的Activity列表么
 
-都熟悉哪些命令？知道怎么用命令启动一个Activity么?
+##### 都熟悉哪些命令？知道怎么用命令启动一个Activity么?
 
-Android中软引用与弱引用的应用场景。
+##### Android中软引用与弱引用的应用场景。
 
 Java 引用类型分类：
 
@@ -1503,27 +1503,27 @@ Java 引用类型分类：
 
 
     
-Android长连接，怎么处理心跳机制。
+##### Android长连接，怎么处理心跳机制。
 
     长连接：长连接是建立连接之后, 不主动断开. 双方互相发送数据, 发完了也不主动断开连接, 之后有需要发送的数据就继续通过这个连接发送.
     心跳包：其实主要是为了防止NAT超时，客户端隔一段时间就主动发一个数据，探测连接是否断开
     服务器处理心跳包：假如客户端心跳间隔是固定的, 那么服务器在连接闲置超过这个时间还没收到心跳时, 可以认为对方掉线, 关闭连接. 如果客户端心跳会动态改变,  应当设置一个最大值, 超过这个最大值才认为对方掉线. 还有一种情况就是服务器通过TCP连接主动给客户端发消息出现写超时, 可以直接认为对方掉线.
 
-CrashHandler实现原理
+##### CrashHandler实现原理
 
     获取app crash的信息保存在本地然后在下一次打开app的时候发送到服务器。
 
-动态权限适配方案，权限组的概念
+##### 动态权限适配方案，权限组的概念
 
-[RxJava中map和flatmap操作符的区别及底层实现](https://www.jianshu.com/p/af13a8278a05)
+##### [RxJava中map和flatmap操作符的区别及底层实现](https://www.jianshu.com/p/af13a8278a05)
 
-[RecyclerView与ListView缓存机制的不同](https://segmentfault.com/a/1190000007331249)
+##### [RecyclerView与ListView缓存机制的不同](https://segmentfault.com/a/1190000007331249)
 
-ButterKnife原理
+##### ButterKnife原理
 
 ButterKnife对性能的影响很小，因为没有使用使用反射，而是使用的Annotation Processing Tool(APT),注解处理器，javac中用于编译时扫描和解析Java注解的工具。在编译阶段执行的，它的原理就是读入Java源代码，解析注解，然后生成新的Java代码。新生成的Java代码最后被编译成Java字节码，注解解析器不能改变读入的Java 类，比如不能加入或删除Java方法。
 
-Activity/Window/View三者的差别,fragment的特点
+##### Activity/Window/View三者的差别,fragment的特点
 
     Activity像一个工匠（控制单元），Window像窗户（承载模型），View像窗花（显示视图） LayoutInflater像剪刀，Xml配置像窗花图纸。
     
@@ -1540,7 +1540,7 @@ Activity/Window/View三者的差别,fragment的特点
     调用ViewGroup的removeAllView()，先将所有的view移除掉
     添加新的view：addView()
 
-Scroller原理
+##### Scroller原理
 
     Scroller执行流程里面的三个核心方法
     
@@ -1551,7 +1551,7 @@ Scroller原理
     
     2、mScroller.computeScrollOffset()方法主要是根据当前已经消逝的时间来计算当前的坐标点。因为在mScroller.startScroll()中设置了动画时间，那么在computeScrollOffset()方法中依据已经消逝的时间就很容易得到当前时刻应该所处的位置并将其保存在变量mCurrX和mCurrY中。除此之外该方法还可判断动画是否已经结束。
 
-Android中Java和JavaScript交互
+##### Android中Java和JavaScript交互
 
     webView.addJavaScriptInterface(new Object(){xxx}, "xxx");
     1
@@ -1584,13 +1584,13 @@ Android中Java和JavaScript交互
             result.innerHTML = "<font color='red'>" + window.demo.process('data') + "</font>";
         }
 
-SurfaceView和View的最本质的区别
+##### SurfaceView和View的最本质的区别
 
     SurfaceView是在一个新起的单独线程中可以重新绘制画面，而view必须在UI的主线程中更新画面。
     
     在UI的主线程中更新画面可能会引发问题，比如你更新的时间过长，那么你的主UI线程就会被你正在画的函数阻塞。那么将无法响应按键、触屏等消息。当使用SurfaceView由于是在新的线程中更新画面所以不会阻塞你的UI主线程。但这也带来了另外一个问题，就是事件同步。比如你触屏了一下，你需要SurfaceView中thread处理，一般就需要有一个event queue的设计来保存touchevent，这会稍稍复杂一点，因为涉及到线程安全。
 
-Android程序运行时权限与文件系统权限
+##### Android程序运行时权限与文件系统权限
 
 1,Linux 文件系统权限。不同的用户对文件有不同的读写执行权限。在android系统中，system和应用程序是分开的，system里的数据是不可更改的。
 
@@ -1600,59 +1600,59 @@ Android提供了如下的一种机制，可以使两个apk打破前面讲的这�
 
 在AndroidManifest.xml中利用sharedUserId属性给不同的package分配相同的userID，通过这样做，两个package可以被当做同一个程序，系统会分配给两个程序相同的UserID。当然，基于安全考虑，两个package需要有相同的签名，否则没有验证也就没有意义了。
     
-如何让程序自动启动
+##### 如何让程序自动启动
 
 定义一个Braodcastreceiver，action为BOOT——COMPLETE，接受到广播后启动程序。
 
-[app如何保证后台服务不被杀死](https://segmentfault.com/a/1190000006251859#articleHeader1)
+##### [app如何保证后台服务不被杀死](https://segmentfault.com/a/1190000006251859#articleHeader1)
 
-[深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)
+##### [深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)
 
-[clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)
+##### [clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)
 
-如何实现圆形ImageView；
+##### 如何实现圆形ImageView；
 
-如何自己实现RecyclerView的侧滑删除；
+##### 如何自己实现RecyclerView的侧滑删除；
 
-TabLayout中如何让当前标签永远位于屏幕中间；
+##### TabLayout中如何让当前标签永远位于屏幕中间；
 
-TextView调用setText方法的内部执行流程；
+##### TextView调用setText方法的内部执行流程；
 
-Activity启动模式，allowReparent的特点和栈亲和性
+##### Activity启动模式，allowReparent的特点和栈亲和性
 
-怎么控制另外一个进程的View显示
+##### 怎么控制另外一个进程的View显示
 
-双指缩放拖动大图
+##### 双指缩放拖动大图
 
-客户端网络安全实现
+##### 客户端网络安全实现
 
-曲面屏的适配
+##### 曲面屏的适配
 
-能不能动态add同一个布局
+##### 能不能动态add同一个布局
 
-手写rxjava遍历数组
+##### 手写rxjava遍历数组
 
-aop思想
+##### aop思想
 
-实现一个库，完成日志的实时上报和延迟上报两种功能，该从哪些方面考虑
+##### 实现一个库，完成日志的实时上报和延迟上报两种功能，该从哪些方面考虑
 
-RecyclerView的ItemTouchHelper的实现原理
+##### RecyclerView的ItemTouchHelper的实现原理
 
-7.0 8.0 p特性及兼容
+##### 7.0 8.0 p特性及兼容
 
-Bitmap的四种属性，如何加载大图（inJustDecodeBounds）。
+##### Bitmap的四种属性，如何加载大图（inJustDecodeBounds）。
 
-如何检测一段代码的执行时间
+##### 如何检测一段代码的执行时间
 
-TabLayout如何设置指示器的宽度包裹内容？
+##### TabLayout如何设置指示器的宽度包裹内容？
 
-最大一次线上Bug处理措施
+##### 最大一次线上Bug处理措施
 
-MVP如何管理Presenter的生命周期，何时取消网络请求
+##### MVP如何管理Presenter的生命周期，何时取消网络请求
 
-Webview性能优化
+##### Webview性能优化
 
-为什么WebView加载会慢呢？
+##### 为什么WebView加载会慢呢？
 
 这是因为在客户端中，加载H5页面之前，需要先初始化WebView，在WebView完全初始化完成之前，后续的界面加载过程都是被阻塞的。
 
@@ -1671,21 +1671,19 @@ asset存放离线包。
 DNS与链接慢，可以让客户端复用使用的域名与链接。
 React框架代码执行慢，可以将这部分代码拆分出来，提前进行解析。
 
-界面卡顿如何修复
+##### 界面卡顿如何修复
 
-滑动不流畅怎么处理
+##### 滑动不流畅怎么处理
 
-50fps 有什么办法可以提高到 60fps
+##### 50fps 有什么办法可以提高到 60fps
 
-如何实现右滑finish activity
+##### 如何实现右滑finish activity
 
-如何在整个系统层面实现界面的圆角效果（即所有的APP打开界面都会是圆角，我承认，当时我懵逼了）
+##### 如何在整个系统层面实现界面的圆角效果（即所有的APP打开界面都会是圆角，我承认，当时我懵逼了）
 
-宽高为20dp的view，不同手机，用尺子量尺寸一样不一样；不一样的话差别是 %20， %30 还是2，3倍。
+##### Android 界面刷新原理
 
-Android 界面刷新原理
-
-非UI线程可以更新UI吗?
+##### 非UI线程可以更新UI吗?
 
     可以
     当访问UI时，ViewRootImpl会调用checkThread方法去检查当前访问UI的线程是哪个，如果不是UI线程则会抛出异常
@@ -1698,34 +1696,34 @@ Android 界面刷新原理
     }
     非UI线程是可以刷新UI的，前提是它要拥有自己的ViewRoot,即更新UI的线程和创建ViewRoot是同一个,或者在执行checkThread()前更新UI.
 
-解决ScrollView嵌套ListView和GridView冲突的方法
+##### 解决ScrollView嵌套ListView和GridView冲突的方法
 
 https://blog.csdn.net/btt2013/article/details/53447649
 
-自定义View优化策略
+##### 自定义View优化策略
 
     为了加速你的view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里做内存分配的事情，因为它会导致GC，从而导致卡顿。在初始化或者动画间隙期间做分配内存的动作。不要在动画正在执行的时候做内存分配的事情。
     你还需要尽可能的减少onDraw被调用的次数，大多数时候导致onDraw都是因为调用了invalidate().因此请尽量减少调用invaildate()的次数。如果可能的话，尽量调用含有4个参数的invalidate()方法而不是没有参数的invalidate()。没有参数的invalidate会强制重绘整个view。
     另外一个非常耗时的操作是请求layout。任何时候执行requestLayout()，会使得Android UI系统去遍历整个View的层级来计算出每一个view的大小。如果找到有冲突的值，它会需要重新计算好几次。另外需要尽量保持View的层级是扁平化的，这样对提高效率很有帮助。
     如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置的view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。这个PieChart 例子展示了如何继承ViewGroup作为自定义view的一部分。PieChart 有子views，但是它从来不测量它们。而是根据他自身的layout法则，直接设置它们的大小。
 
-Android Studio 3.0 中 Gradle 的 api 和 implementation 有什么区别；
+##### Android Studio 3.0 中 Gradle 的 api 和 implementation 有什么区别；
 
-消息推送有没有做过，推送到达率的问题；
+##### 消息推送有没有做过，推送到达率的问题；
 
-如何解决git冲突
+##### 如何解决git冲突
 
-设计一个音乐播放界面，你会如何实现，用到那些类，如何设计，如何定义接口，如何与后台交互，如何缓存与下载，如何优化(15分钟时间)
+##### 设计一个音乐播放界面，你会如何实现，用到那些类，如何设计，如何定义接口，如何与后台交互，如何缓存与下载，如何优化(15分钟时间)
 
-Android Native 和 JS通信有几种方式，有没有用到什么框架之类的；
+##### Android Native 和 JS通信有几种方式，有没有用到什么框架之类的；
 
-单元测试有没有做过，说说熟悉的单元测试框架；
+##### 单元测试有没有做过，说说熟悉的单元测试框架；
 
-嵌套滑动实现原理 
+##### 嵌套滑动实现原理 
 
-Fragment 在 ViewPager 里面的生命周期，滑动 ViewPager 的页面时 Fragment 的生命周期的变化；
+##### Fragment 在 ViewPager 里面的生命周期，滑动 ViewPager 的页面时 Fragment 的生命周期的变化；
 
-Gradle 打包；
+##### Gradle 打包；
 
 ##### 谈谈对java状态机理解
 
@@ -1741,41 +1739,41 @@ Gradle 打包；
 
 ##### 说说EventBus作用，实现方式，代替EventBus的方式
 
-AOP IOC 的好处以及在 Android 开发中的应用；
+##### AOP IOC 的好处以及在 Android 开发中的应用；
 
-Dagger2 框架中 @module 和 @component 的区别；
+##### Dagger2 框架中 @module 和 @component 的区别；
 
-MVP 架构中 Presenter 定义为接口有什么好处；
+##### MVP 架构中 Presenter 定义为接口有什么好处；
 
-Jenkins持续集成；
+##### Jenkins持续集成；
 
-Java动态代理的使用，InvocationHandler 有什么用；
+##### Java动态代理的使用，InvocationHandler 有什么用；
 
-为什么 Google 会推出Fragment ，有什么好处和用途？ 直接用 View 代替不行么？
+##### 为什么 Google 会推出Fragment ，有什么好处和用途？ 直接用 View 代替不行么？
 
-安卓安全方面了解过吗，反编译、加壳之类的；
+##### 安卓安全方面了解过吗，反编译、加壳之类的；
 
-点击事件被拦截，但是想传到下面的View，如何操作？
+##### 点击事件被拦截，但是想传到下面的View，如何操作？
 
-微信主页面的实现方式
+##### 微信主页面的实现方式
 
-微信上消息小红点的原理
+##### 微信上消息小红点的原理
 
-介绍下先前的app架构和通信
+##### 介绍下先前的app架构和通信
 
-推送消息有富文本么？
+##### 推送消息有富文本么？
 
-apk包大小有限制么？怎么减少包大小？
+##### apk包大小有限制么？怎么减少包大小？
 
-工作中有没有用过或者写过什么工具？脚本，插件等等；比如：多人协同开发可能对一些相同资源都各自放了一份，有没有方法自动检测这种重复之类的
+##### 工作中有没有用过或者写过什么工具？脚本，插件等等；比如：多人协同开发可能对一些相同资源都各自放了一份，有没有方法自动检测这种重复之类的
 
-自定义View如何考虑机型适配；
+##### 自定义View如何考虑机型适配；
 
-自定义View如何提供获取View属性的接口；
+##### 自定义View如何提供获取View属性的接口；
 
-注解的作用与原理
+##### 注解的作用与原理
 
-说下冷启动与热启动是什么，区别，如何优化，使用场景等。
+##### 说下冷启动与热启动是什么，区别，如何优化，使用场景等。
 
 
 
