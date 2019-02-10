@@ -1525,7 +1525,7 @@ Java 引用类型分类：
 
 ButterKnife对性能的影响很小，因为没有使用使用反射，而是使用的Annotation Processing Tool(APT),注解处理器，javac中用于编译时扫描和解析Java注解的工具。在编译阶段执行的，它的原理就是读入Java源代码，解析注解，然后生成新的Java代码。新生成的Java代码最后被编译成Java字节码，注解解析器不能改变读入的Java 类，比如不能加入或删除Java方法。
 
-##### Activity/Window/View三者的差别,fragment的特点
+##### Activity/Window/View三者的差别
 
     Activity像一个工匠（控制单元），Window像窗户（承载模型），View像窗花（显示视图） LayoutInflater像剪刀，Xml配置像窗花图纸。
     
@@ -1541,6 +1541,8 @@ ButterKnife对性能的影响很小，因为没有使用使用反射，而是使
     调用到ViewGroup
     调用ViewGroup的removeAllView()，先将所有的view移除掉
     添加新的view：addView()
+    
+[深入解析](https://mp.weixin.qq.com/s/oFVBrIAUwD0wnlSfm-95bQ)
 
 ##### Scroller原理
 
