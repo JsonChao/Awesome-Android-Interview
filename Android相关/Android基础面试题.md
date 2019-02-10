@@ -17,6 +17,8 @@
 量SQL 语句，复杂逻辑计算等都放在子线程中去，然
 后通过handler.sendMessage、runonUIThread、AsyncTask 等方式更新UI。无论如何都要确保用户界面作的流畅
 度。如果耗时操作需要让用户等待，那么可以在界面上显示度条。
+
+[深入回答](http://mp.weixin.qq.com/s?__biz=MzIwMTAzMTMxMg==&mid=2649493643&idx=1&sn=34b51d1f61bd2ecaa8fd0a2d39c4d1d1&chksm=8eec9b74b99b126246acc4547597dfe55c836b8f689b2d1a65bdf1ee2054ced2fc070bfa2678&mpshare=1&scene=24&srcid=0116vzNfMMv2dLizhAT8mEYq#rd)
     
 #### 2、Activity和Fragment生命周期有哪些？
 
