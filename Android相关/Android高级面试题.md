@@ -139,6 +139,8 @@ Consumer：用来接收Producer产生的结果，它与Producer组成了生产�
 
 #### 1、网络
 
+##### http怎么知道文件过大是否传输完毕的响应
+
 ##### Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）
 
 https://www.jianshu.com/p/050c6db5af5a
