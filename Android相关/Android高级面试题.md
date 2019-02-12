@@ -1201,8 +1201,6 @@ DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理
 
 ##### [LeakCanary 实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-http://blog.csdn.net/cloud_huan/article/details/53081120
-
 ##### 内存泄露的本质
 
 无法回收无用的对象
