@@ -1,12 +1,13 @@
 ## Android基础面试题 （⭐⭐⭐）
 
+
 #### 1、什么是ANR 如何避免它？
 
 答：在Android上，如果你的应用程序有一段时间响应不够灵敏，系统会向用户显示一个对话框，这个对话框称作应
 用程序无响应（ANR：Application NotResponding）对话框。
 用户可以选择让程序继续运行，但是，他们在使用你的
 应用程序时，并不希望每次都要处理这个对话框。因此
-，在程序里对响应性能的设计很重要这样，系统不会显
+，在程序里对响应性能的设计很重要这样，这样系统就不会显
 示ANR给用户。
 
 不同的组件发生ANR的时间不一样，Activity是5秒，BroadCastReceiver是10秒，Service是20秒（均为前台）。
@@ -15,16 +16,16 @@
 
 将所有耗时操作，比如访问网络，Socket通信，查询大
 量SQL 语句，复杂逻辑计算等都放在子线程中去，然
-后通过handler.sendMessage、runonUIThread、AsyncTask 等方式更新UI。无论如何都要确保用户界面作的流畅
+后通过handler.sendMessage、runonUIThread、AsyncTask、RxJava等方式更新UI。无论如何都要确保用户界面的流畅
 度。如果耗时操作需要让用户等待，那么可以在界面上显示度条。
 
 [深入回答](http://mp.weixin.qq.com/s?__biz=MzIwMTAzMTMxMg==&mid=2649493643&idx=1&sn=34b51d1f61bd2ecaa8fd0a2d39c4d1d1&chksm=8eec9b74b99b126246acc4547597dfe55c836b8f689b2d1a65bdf1ee2054ced2fc070bfa2678&mpshare=1&scene=24&srcid=0116vzNfMMv2dLizhAT8mEYq#rd)
+
     
 #### 2、Activity和Fragment生命周期有哪些？
 
 ![image](https://upload-images.jianshu.io/upload_images/2893137-d63537703193a6d1.png?imageMogr2/auto-orient/)
 
-![image](http://www.jackywang.tech/AndroidInterview-Q-A/picture/fragment-life.png)
     
 #### 3、横竖屏切换时候Activity的生命周期
 
@@ -32,23 +33,24 @@
 设置Activity的android:configChanges=”orientation”时，切屏还是会调用各个生命周期，切换横竖屏只会执行一次
 设置Activity的android:configChanges=”orientation |keyboardHidden”时，切屏不会重新调用各个生命周期，只会执行onConfigurationChanged方法
 
+
 #### 4、AsyncTask的缺陷和问题
     
 关于线程池：
 
-Asynctask对应的线程池ThreadPoolExecutr都是进程范围内共享的，都是static的，所以是Asynctask控制着进程范围内所有的子类实例。由于这个限制的存在，当使用默认线程池时，如果线程数超过线程池的最大容量，线程池就会爆掉(3.0后默认串行执行，不会出现个问题)。针对这种情况，可以尝试自定义线程池，配合Asynctask使用。
+AsyncTask对应的线程池ThreadPoolExecutor都是进程范围内共享的，且都是static的，所以是Asynctask控制着进程范围内所有的子类实例。由于这个限制的存在，当使用默认线程池时，如果线程数超过线程池的最大容量，线程池就会爆掉(3.0后默认串行执行，不会出现个问题)。针对这种情况，可以尝试自定义线程池，配合Asynctask使用。
 
 关于默认线程池：
 
-AsyncTask里面线程池是一个核心线程数为CPU + 1，最大线程数为CPU * 2 + 1，工作队列长度为128的线程池，线程等待队列的最大等待数为28，但是可以自定义线程池。线程池是由AsyncTask来处理的，线程池允许tasks并行运行，需要注意的是并发情况下数据的一致性问题，新数据可能会被老数据覆盖掉类似volatile变量。所以希望tasks能够串行运行的话，使用SERIAL_EXECUTOR。
+AsyncTask里面线程池是一个核心线程数为CPU + 1，最大线程数为CPU * 2 + 1，工作队列长度为128的线程池，线程等待队列的最大等待数为28，但是可以自定义线程池。线程池是由AsyncTask来处理的，线程池允许tasks并行运行，需要注意的是并发情况下数据的一致性问题，新数据可能会被老数据覆盖掉。所以希望tasks能够串行运行的话，使用SERIAL_EXECUTOR。
     
 AsyncTask在不同的SDK版本中的区别：
 
-调用AsyncTask的execute方法不能立即执行程序的原因析及改善方案通过查阅官方文档发现，AsyncTask首次引入时，异步任务是在一个独立的线程中顺序的执行，也就是说一次只执行一个任务，不能并行的执行，从1.6开始，AsyncTask引入了线程池，支持同时执行5个异步任务，也就是说时只能有5个线程运行，超过的线程只能等待，等待前的线程某个执行完了才被调度和运行。换句话说，如果个进程中的AsyncTask实例个数超过5个，那么假如前5都运行很长时间的话，那么第6个只能等待机会了。这是AsyncTask的一个限制，而且对于2.3以前的版本无法解决。如果你的应用需要大量的后台线程去执行任务，那么只能放弃使用AsyncTask，自己创建线程池来管理Thread。不得不说，虽然AsyncTask较Thread使用起来方便，但是它最多只能同时运行5个线程，这也大大局限了它的作用，你必须要小心设计你的应用，错开使用AsyncTask时间，尽力做到分时，或者保证数量不会大于5个，否就会遇到上次提到的问题。可能是Google意识到了AsynTask的局限性了，从Android 3.0开始对AsyncTask的API做出了一些调整：每次只启动一个线程执行一个任务，完了之后再执行第二个任务，也就是相当于只有一个后台线在执行所提交的任务。
+调用AsyncTask的execute方法不能立即执行程序的原因及改善方案通过查阅官方文档发现，AsyncTask首次引入时，异步任务是在一个独立的线程中顺序的执行，也就是说一次只执行一个任务，不能并行的执行，从1.6开始，AsyncTask引入了线程池，支持同时执行5个异步任务，也就是说时只能有5个线程运行，超过的线程只能等待，等待前的线程直到某个执行完了才被调度和运行。换句话说，如果进程中的AsyncTask实例个数超过5个，那么假如前5都运行很长时间的话，那么第6个只能等待机会了。这是AsyncTask的一个限制，而且对于2.3以前的版本无法解决。如果你的应用需要大量的后台线程去执行任务，那么只能放弃使用AsyncTask，自己创建线程池来管理Thread。不得不说，虽然AsyncTask较Thread使用起来方便，但是它最多只能同时运行5个线程，这也大大局限了它的作用，你必须要小心设计你的应用，错开使用AsyncTask时间，尽力做到分时，或者保证数量不会大于5个，否就会遇到上面提到的问题。可能是Google意识到了AsynTask的局限性了，从Android 3.0开始对AsyncTask的API做出了一些调整：每次只启动一个线程执行一个任务，完了之后再执行第二个任务，也就是相当于只有一个后台线程在执行所提交的任务。
 
 1.生命周期
 
-很多开发者会认为一个在Activity中创建的AsyncTask随着Activity的销毁而销毁。然而事实并非如此。AsynTask会一直执行，直到doInBackground()方法执行完毕，然后，如果cancel(boolean)被调用,那么onCancelled(Result result)方法会被执行；否则，执行onPostExecuteResult result)方法。如果我们的Activity销毁之前，没有取消AsyncTask，这有可能让我们的应用崩溃(crash)。因为它想要处理的view已经不存在了。所以，我们是必须确保在销毁活动之前取消任务。总之，我们使用AsyncTask需要确保AsyncTask正确的取消。
+很多开发者会认为一个在Activity中创建的AsyncTask会随着Activity的销毁而销毁。然而事实并非如此。AsynTask会一直执行，直到doInBackground()方法执行完毕，然后，如果cancel(boolean)被调用,那么onCancelled(Result result)方法会被执行；否则，执行onPostExecuteResult result)方法。如果我们的Activity销毁之前，没有取消AsyncTask，这有可能让我们的应用崩溃(crash)。因为它想要处理的view已经不存在了。所以，我们是必须确保在销毁活动之前取消任务。总之，我们使用AsyncTask需要确保AsyncTask正确的取消。
 
 2.内存泄漏
 
@@ -56,16 +58,21 @@ AsyncTask在不同的SDK版本中的区别：
 
 3.结果丢失
 
-屏幕旋转或Activity在后台被系统杀掉等情况会导致Actvity的重新创建，之前运行的AsyncTask会持有一个之前Activity的引用，这个引用已经无效，这时调用onPostExecute()再去更新界面将不再生效。
+屏幕旋转或Activity在后台被系统杀掉等情况会导致Activity的重新创建，之前运行的AsyncTask会持有一个之前Activity的引用，这个引用已经无效，这时调用onPostExecute()再去更新界面将不再生效。
 
 4.并行还是串行
 
-在Android1.6之前的版本，AsyncTask是串行的，在1.6-2.3的版本，改成了并行的。在2.3之后的版本又做了修改，可以支持并行和串行，当想要串行执行时，直接行execute()方法，如果需要并行执行时，执行executeOnExecutor(Executor)。
+在Android1.6之前的版本，AsyncTask是串行的，在1.6-2.3的版本，改成了并行的。在2.3之后的版本又做了修改，可以支持并行和串行，当想要串行执行时，直接执行execute()方法，如果需要并行执行时，执行executeOnExecutor(Executor)。
+
 
 #### 5、onSaveInstanceState() 与 onRestoreIntanceState()
 
-用户或者程序员主动去销毁一个Activity的时候不会调用
-，其他情况都会调动，来保存界面信息。如代码中finish()或用户按下back，不会调用。
+Activity的 onSaveInstanceState() 和 onRestoreInstanceState()并不是生命周期方法，它们不同于 onCreate()、onPause()等生命周期方法，它们并不一定会被触发。当应用遇到意外情况（如：内存不足、用户直接按Home键）由系统销毁一个Activity时，onSaveInstanceState() 会被调用。但是当用户主动去销毁一个Activity时，例如在应用中按返回键，onSaveInstanceState()就不会被调用。因为在这种情况下，用户的行为决定了不需要保存Activity的状态。通常onSaveInstanceState()只适合用于保存一些临时性的状态，而onPause()适合用于数据的持久化保存。
+在activity被杀掉之前调用保存每个实例的状态,以保证该状态可以在onCreate(Bundle)或者onRestoreInstanceState(Bundle) (传入的Bundle参数是由onSaveInstanceState封装好的)中恢复。这个方法在一个activity被杀死前调用，当该activity在将来某个时刻回来时可以恢复其先前状态。
+例如，如果activity B启用后位于activity A的前端，在某个时刻activity A因为系统回收资源的问题要被杀掉，A通过onSaveInstanceState将有机会保存其用户界面状态，使得将来用户返回到activity A时能通过onCreate(Bundle)或者onRestoreInstanceState(Bundle)恢复界面的状态
+
+[深入理解](https://www.jianshu.com/p/89e0a7533dbe)
+
 
 #### 6、android中进程的优先级？
 
@@ -87,24 +94,24 @@ AsyncTask在不同的SDK版本中的区别：
 
 5. 空进程：
 
-不包含任何应用程序的程序组件的进程，这样的进程系统是一般不会让他存在的
+不包含任何应用程序的进程，这样的进程系统是一般不会让他存在的
+    
     
 #### 7、Serializable和Parcelable
 
-序列化，表示将一个对象转换成可存储或可传输的状态，序列化后的对象可以在网络上进行传输，也可以存储到本地。
-
 Serializable（Java自带）：
 
-Serializable是序列化的意思，表示将一个对象转换成存储或可传输的状态。序列化后的对象可以在网络上进传输，也可以存储到本地。
+Serializable 是序列化的意思，表示将一个对象转换成存储或可传输的状态。序列化后的对象可以在网络上进传输，也可以存储到本地。
 
 Parcelable（android专用）：
 
 除了Serializable之外，使用Parcelable也可以实现相同的效果，不过不同于将对象进行序列化，Parcelable方式的实现原理是将一个完整的对象进行分解，而分解后的每一部分都是Intent所支持的数据类型，这也就实现传递对象的功能了。
 
+
 #### 8、动画
 
 - tween 补间动画。通过指定View的初末状态和变化方式，对View的内容完成一系列的图形变换来实现动画效果。 Alpha, Scale ,Translate, Rotate。
-- frame 帧动画。Animation Drawable控制animation-list.xml布局
+- frame 帧动画。AnimationDrawable控制animation-list.xml布局
 - PropertyAnimation 属性动画3.0引入，属性动画核心思想是对值的变化。
 
 Property Animation 动画有两个步聚：
@@ -123,16 +130,20 @@ Property Animation 动画有两个步聚：
 
 过程二：
 
-计算插值（动画变化率）interpolated fraction 。当 ValueAnimator计算完已完成动画分数后，它会调用当前设置的TimeInterpolator，去计算得到一个interpolated（插值）分数，在计算过程中，已完成动百分比会被加入到新的插值计算中。
+计算插值（动画变化率）interpolated fraction 。当 ValueAnimator计算完已完成的动画分数后，它会调用当前设置的TimeInterpolator，去计算得到一个interpolated（插值）分数，在计算过程中，已完成动画百分比会被加入到新的插值计算中。
 
 过程三：
 
 计算属性值当插值分数计算完成后，ValueAnimator会根据插值分数调用合适的 TypeEvaluator去计算运动中的属性值。
 以上分析引入了两个概念：已完成动画分数（elapsed fraction）、插值分数( interpolated fraction )。
 
-原理及特点：
+动画原理及特点：
 
-1.动画的基本原理：
+1.属性动画：
+
+插值器：作用是根据时间流逝的百分比来计算属性变化的百分比
+
+估值器：在1的基础上由这个东西来计算出属性到底变化了多少数值的类
 
 其实就是利用插值器和估值器，来计出各个时刻View的属性，然后通过改变View的属性来实现View的动画效果。
 
@@ -144,54 +155,76 @@ Property Animation 动画有两个步聚：
 
 是在xml中定义好一系列图片之后，使用AnimatonDrawable来播放的动画。
 
-4.View的属性动画：
-
-1.插值器：作用是根据时间流逝的百分比来计算属性变化的百分比
-
-2.估值器：在1的基础上由这个东西来计算出属性到底变化了多少数值的类
 
 #### 9、Context相关
 
-- Activity和Service以及Application的Context是不一的,Activity继承自ContextThemeWraper.其他的继承自ContextWrapper.
+- 1、Activity和Service以及Application的Context是不一样的,Activity继承自ContextThemeWraper.其他的继承自ContextWrapper。
 
-- 每一个Activity和Service以及Application的Context是一个新的ContextImpl对象
+- 2、每一个Activity和Service以及Application的Context是一个新的ContextImpl对象。
 
-- getApplication()用来获取Application实例的，但是个方法只有在Activity和Service中才能调用的到。那也许在绝大多数情况下我们都是在Activity或者Servic中使用Application的，但是如果在一些其它的场景，比如BroadcastReceiver中也想获得Application的实例，这时就可以借助getApplicationContext()方法，getApplicationContext()比getApplication()方法的作用域会更广一些，任何一个Context的实例，只要调用getApplicationContext()方法都可以拿到我们的Application对象。
+- 3、getApplication()用来获取Application实例的，但是这个方法只有在Activity和Service中才能调用的到。那也许在绝大多数情况下我们都是在Activity或者Servic中使用Application的，但是如果在一些其它的场景，比如BroadcastReceiver中也想获得Application的实例，这时就可以借助getApplicationContext()方法，getApplicationContext()比getApplication()方法的作用域会更广一些，任何一个Context的实例，只要调用getApplicationContext()方法都可以拿到我们的Application对象。
 
-- 创建对话框时不可以用Application的context，只能用Activity的context。
+- 4、创建对话框时不可以用Application的context，只能用Activity的context。
 
-- Context的数量等于Activity的个数 + Service的个数 +1，这个1为Application
+- 5、Context的数量等于Activity的个数 + Service的个数 +1，这个1为Application。
+
 
 #### 10、Android各版本新特性
 
 Android5.0新特性
 
 - MaterialDesign设计风格
-- 支持多种设备
-- 支持64位ART虚拟机
+- 支持64位ART虚拟机（5.0推出的ART虚拟机，在5.0之前都是Dalvik。他们的区别是：
+Dalvik,每次运行,字节码都需要通过即时编译器转换成机器码(JIT)。
+ART,第一次安装应用的时候,字节码就会预先编译成机器码(AOT)）
+
+- 通知详情可以用户自己设计
 
 Android6.0新特性
 
 - 动态权限管理
+
 - 支持快速充电的切换
 - 支持文件夹拖拽应用
 - 相机新增专业模式
 
 Android7.0新特性
 
-- 分屏多任务
+- 多窗口支持
+- V2签名
+
 - 增强的Java8语言模式
 - 夜间模式
 
 Android8.0新特性
 
-- 画中画
-- 通知标志
+- 优化通知
+
+
+    通知渠道 (Notification Channel)
+    通知标志
+    休眠
+    通知超时
+    通知设置
+    通知清除
+    
+    
+- 画中画模式：清单中Activity设置android:supportsPictureInPicture
+- 后台限制
+
 - 自动填充框架
 - 系统优化
-- 后台限制
 - 等等优化很多
-    
+
+Android9.0新特性
+
+- 室内WIFI定位
+- “刘海”屏幕支持
+
+- 安全增强
+- 等等优化很多
+
+
 #### 11、Json
 
 JSON的全称是JavaScript Object Notation，也就是JavaScript 对象表示法
