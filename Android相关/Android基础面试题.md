@@ -12,7 +12,7 @@
 
 不同的组件发生ANR的时间不一样，Activity是5秒，BroadCastReceiver是10秒，Service是20秒（均为前台）。
 
-解决方案：
+##### 解决方案：
 
 将所有耗时操作，比如访问网络，Socket通信，查询大
 量SQL 语句，复杂逻辑计算等都放在子线程中去，然
@@ -36,15 +36,15 @@
 
 #### 4、AsyncTask的缺陷和问题
     
-关于线程池：
+##### 关于线程池：
 
 AsyncTask对应的线程池ThreadPoolExecutor都是进程范围内共享的，且都是static的，所以是Asynctask控制着进程范围内所有的子类实例。由于这个限制的存在，当使用默认线程池时，如果线程数超过线程池的最大容量，线程池就会爆掉(3.0后默认串行执行，不会出现个问题)。针对这种情况，可以尝试自定义线程池，配合Asynctask使用。
 
-关于默认线程池：
+##### 关于默认线程池：
 
 AsyncTask里面线程池是一个核心线程数为CPU + 1，最大线程数为CPU * 2 + 1，工作队列长度为128的线程池，线程等待队列的最大等待数为28，但是可以自定义线程池。线程池是由AsyncTask来处理的，线程池允许tasks并行运行，需要注意的是并发情况下数据的一致性问题，新数据可能会被老数据覆盖掉。所以希望tasks能够串行运行的话，使用SERIAL_EXECUTOR。
     
-AsyncTask在不同的SDK版本中的区别：
+##### AsyncTask在不同的SDK版本中的区别：
 
 调用AsyncTask的execute方法不能立即执行程序的原因及改善方案通过查阅官方文档发现，AsyncTask首次引入时，异步任务是在一个独立的线程中顺序的执行，也就是说一次只执行一个任务，不能并行的执行，从1.6开始，AsyncTask引入了线程池，支持同时执行5个异步任务，也就是说时只能有5个线程运行，超过的线程只能等待，等待前的线程直到某个执行完了才被调度和运行。换句话说，如果进程中的AsyncTask实例个数超过5个，那么假如前5都运行很长时间的话，那么第6个只能等待机会了。这是AsyncTask的一个限制，而且对于2.3以前的版本无法解决。如果你的应用需要大量的后台线程去执行任务，那么只能放弃使用AsyncTask，自己创建线程池来管理Thread。不得不说，虽然AsyncTask较Thread使用起来方便，但是它最多只能同时运行5个线程，这也大大局限了它的作用，你必须要小心设计你的应用，错开使用AsyncTask时间，尽力做到分时，或者保证数量不会大于5个，否就会遇到上面提到的问题。可能是Google意识到了AsynTask的局限性了，从Android 3.0开始对AsyncTask的API做出了一些调整：每次只启动一个线程执行一个任务，完了之后再执行第二个任务，也就是相当于只有一个后台线程在执行所提交的任务。
 
@@ -76,34 +76,34 @@ Activity的 onSaveInstanceState() 和 onRestoreInstanceState()并不是生命周
 
 #### 6、android中进程的优先级？
 
-1. 前台进程：
+##### 1. 前台进程：
 
 即与用户正在交互的Activity或者Activity用到的Service等，如果系统内存不足时前台进程是最晚被杀死的
 
-2. 可见进程：
+##### 2. 可见进程：
 
 可以是处于暂停状态(onPause)的Activity或者绑定在其上的Service，即被用户可见，但由于失了焦点而不能与用户交互
 
-3. 服务进程：
+##### 3. 服务进程：
 
 其中运行着使用startService方法启动的Service，虽然不被用户可见，但是却是用户关心的，例如用户正在非音乐界面听的音乐或者正在非下载页面下载的文件等；当系统要空间运行，前两者进程才会被终止
 
-4. 后台进程：
+##### 4. 后台进程：
 
 其中运行着执行onStop方法而停止的程序，但是却不是用户当前关心的，例如后台挂着的QQ，这时的进程系统一旦没了有内存就首先被杀死
 
-5. 空进程：
+##### 5. 空进程：
 
 不包含任何应用程序的进程，这样的进程系统是一般不会让他存在的
     
     
 #### 7、Serializable和Parcelable
 
-Serializable（Java自带）：
+##### Serializable（Java自带）：
 
 Serializable 是序列化的意思，表示将一个对象转换成存储或可传输的状态。序列化后的对象可以在网络上进传输，也可以存储到本地。
 
-Parcelable（android专用）：
+##### Parcelable（android专用）：
 
 除了Serializable之外，使用Parcelable也可以实现相同的效果，不过不同于将对象进行序列化，Parcelable方式的实现原理是将一个完整的对象进行分解，而分解后的每一部分都是Intent所支持的数据类型，这也就实现传递对象的功能了。
 
@@ -178,34 +178,34 @@ xml 文件实现的补间动画，复用率极高。在 Activity切换，窗口�
 
 #### 10、Android各版本新特性
 
-Android5.0新特性
+##### Android5.0新特性
 
-- MaterialDesign设计风格
-- 支持64位ART虚拟机（5.0推出的ART虚拟机，在5.0之前都是Dalvik。他们的区别是：
+- **MaterialDesign设计风格**
+- **支持64位ART虚拟机**（5.0推出的ART虚拟机，在5.0之前都是Dalvik。他们的区别是：
 Dalvik,每次运行,字节码都需要通过即时编译器转换成机器码(JIT)。
 ART,第一次安装应用的时候,字节码就会预先编译成机器码(AOT)）
 
 - 通知详情可以用户自己设计
 
-Android6.0新特性
+##### Android6.0新特性
 
-- 动态权限管理
+- **动态权限管理**
 
 - 支持快速充电的切换
 - 支持文件夹拖拽应用
 - 相机新增专业模式
 
-Android7.0新特性
+##### Android7.0新特性
 
-- 多窗口支持
-- V2签名
+- **多窗口支持**
+- **V2签名**
 
 - 增强的Java8语言模式
 - 夜间模式
 
-Android8.0新特性
+##### Android8.0新特性
 
-- 优化通知
+- **优化通知**
 
 
     通知渠道 (Notification Channel)
@@ -216,17 +216,17 @@ Android8.0新特性
     通知清除
     
     
-- 画中画模式：清单中Activity设置android:supportsPictureInPicture
-- 后台限制
+- **画中画模式**：清单中Activity设置android:supportsPictureInPicture
+- **后台限制**
 
 - 自动填充框架
 - 系统优化
 - 等等优化很多
 
-Android9.0新特性
+##### Android9.0新特性
 
-- 室内WIFI定位
-- “刘海”屏幕支持
+- **室内WIFI定位**
+- **“刘海”屏幕支持**
 
 - 安全增强
 - 等等优化很多
@@ -243,6 +243,8 @@ JSON是轻量级的文本数据交换格式，独立于语言，具有可描述�
 
     compile 'com.google.code.gson:gson:2.7'
 值得注意的是实体类中变量名称必须和json中的值名字相同。
+
+##### 使用示例：
 
 1、解析成实体类：
 
@@ -264,13 +266,13 @@ JSON是轻量级的文本数据交换格式，独立于语言，具有可描述�
     Gson gson = new Gson();
     List<Student> students = gson.fromJson(json3, newTypeToke<List<Student>>(){}.getType);
 
-优点
+##### 优点：
 
 - 轻量级的数据交换格式
 - 读写更加容易
 - 易于机器的解析和生成
 
-缺点
+##### 缺点：
 
 - 语义性较差，不如 xml 直观
 
@@ -360,9 +362,9 @@ ViewStub: 按需加载，减少内存使用量、加快渲染速度、不支持 
 
 #### 19、activity的startActivity和context的startActivity区别？
 
-(1)从Activity中启动新的Activity时可以直接mContext.startActivity(intent)就好
+(1)、从Activity中启动新的Activity时可以直接mContext.startActivity(intent)就好
 
-(2)如果从其他Context中启动Activity则必须给intent设置Flag:
+(2)、如果从其他Context中启动Activity则必须给intent设置Flag:
 
     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ; 
     mContext.startActivity(intent);
@@ -378,45 +380,29 @@ ViewStub: 按需加载，减少内存使用量、加快渲染速度、不支持 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINOW" />
 
 
-#### 21、Asset目录与res目录的区别。
+#### 21、Asset目录与res目录的区别？
 
-assets：不会在 R文件中生成相应标记，存放到这里的资源在打包时会打包到程序安装包中。（通过 AssetManager 类访问这些文件）
+assets：不会在 R 文件中生成相应标记，存放到这里的资源在打包时会打包到程序安装包中。（通过 AssetManager 类访问这些文件）
 
-res：会在 R 文件中生成 id标记，资源在打包时如果使用到则打包到安装包中，未用到不会打入安装包中。
+res：会在 R 文件中生成 id 标记，资源在打包时如果使用到则打包到安装包中，未用到不会打入安装包中。
 
-res/anim：存放动画资源
+res/anim：存放动画资源。
 
-res/raw：和 asset下文件一样，打包时直接打入程序安装包中（会映射到 R文件中）
+res/raw：和 asset 下文件一样，打包时直接打入程序安装包中（会映射到 R 文件中）。
+
     
-#### 22、Android怎么加速启动Activity。
+#### 22、Android怎么加速启动Activity？
 
 - onCreate() 中不执行耗时操作
-把页面显示的 View 细分一下，放在 AsyncTask里逐步显示，用 Handler更好。这样用户的看到的就是有层次有步骤的一个个的View 的展示，不会是先看到一个黑屏，然后一下显示所有 View。最好做成动画，效果更自然。
-- 利用多线程的目的就是尽可能的减少 onCreate()和onReume()的时间，使得用户能尽快看到页面，操作页面。
-- 减少主线程阻塞时间
-- 提高 Adapter 和 AdapterView 的效率
-- 优化布局文件
-    
+把页面显示的 View 细分一下，放在 AsyncTask 里逐步显示，用 Handler 更好。这样用户的看到的就是有层次有步骤的一个个的 View 的展示，不会是先看到一个黑屏，然后一下显示所有 View。最好做成动画，效果更自然。
+- 利用多线程的目的就是尽可能的减少 onCreate() 和 onReume() 的时间，使得用户能尽快看到页面，操作页面。
+- 减少主线程阻塞时间。
+- 提高 Adapter 和 AdapterView 的效率。
+- 优化布局文件。
+     
+     
 #### 23、Handler机制
 
-Handler各个部分的作用：
-
-1.MessageQueue：读取会自动删除消息，单链表维护，插入和删除上有优势。在其next()中会无限循环，不断断是否有消息，有就返回这条消息并移除。
-
-2.Looper：Looper创建的时候会创建一个MessageQueue调用loop()方法的时候消息循环开始，loop()也是一个循环，会不断调用messageQueue的next()，当有消息就理，否则阻塞在messageQueue的next()中。当Looper的qit()被调用的时候会调用messageQueue的quit(),此时nxt()会返回null，然后loop()方法也跟着退出。
-
-3.Handler：在主线程构造一个Handler，然后在其他线调用sendMessage(),此时主线程的MessageQueue中会插一条message，然后被Looper使用。
-
-4.系统的主线程在ActivityThread的main()为入口开启线程，其中定义了内部类Activity.H定义了一系列消息型，包含四大组件的启动停止。
-
-Android 的消息机制也就是 handler 机制,创建 handler的时候会创建一个 looper ( 通过 looper.prepare()来创建 ),looper 一般为主线程 looper.
-handler 通过 send 发送消息 (sendMessage) ,当然post 一系列方法最终也是通过 send 来实现的,在 send方法中handler 会通过 enqueueMessage() 方法中的enqueueMessage(msg,millis )向消息队列 MessageQueue插入一条消息,同时会把本身的 handler 通过msg.target = this 传入.
-
-Looper 是一个死循环,不断的读取MessageQueue中的消,loop 方法会调用 MessageQueue 的 next方法来获取新的消息,next操作是一个阻塞操作,当没有消息的时候 next方法会一直阻塞,进而导致 loop一直阻塞,当有消息的时候,Looper 就会处理消息 Looper收到消息之后就开始处理消息:msg.target.dispatchMessage(msg),当然这里的msg.target 就是上面传过来的发送这条消息的 handler对象,这样 handler发送的消息最终又交给他的dispatchMessage方法来处理了,这里不同的是,handler 的 dispatchMessage方法是在创建 Handler时所使用的 Looper中执行的,这样就成功的将代码逻辑切换到了主线程了.
-
-
-Handler 处理消息的过程是:首先,检查Message 的callback 是否为 null,不为 null 就通过handleCallBack 来处理消息,Message 的 callback是一个 Runnable 对象,实际上是 handler 的 post方法所传递的 Runnable 参数.其次是检查 mCallback 是否为 null,不为 null 就调用 mCallback的handleMessage 方法来处理消息.
-    
 Android消息循环流程图如下所示：
 
 ![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/native/process/android_handler_structure.png)
@@ -442,66 +428,53 @@ target handler调用自身的handleMessage()方法来处理Message。
 
 注：虚线表示关联关系，实线表示调用关系。
 
-在这些类中MessageQueue是Java层与C++层维系的桥梁，MessageQueue与Looper相关功能都通过MessageQueue的Native方法来完成，而其他虚线连接的类只有关联关系，并没有 直接调用的关系，它们发生关联的桥梁是MessageQueue。
-    
-https://www.zhihu.com/question/34652589
-https://github.com/xitu/gold-miner/blob/master/TODO/android-handler-internals.md
-http://blog.csdn.net/guolin_blog/article/details/9991569
-http://droidyue.com/blog/2015/11/08/make-use-of-handlerthread
-http://blog.csdn.net/luoshengyang/article/deta6817933
+在这些类中MessageQueue是Java层与C++层维系的桥梁，MessageQueue与Looper相关功能都通过MessageQueue的Native方法来完成，而其他虚线连接的类只有关联关系，并没有直接调用的关系，它们发生关联的桥梁是MessageQueue。
+
+这里在总结下Handler各个部分的作用：
+
+1.MessageQueue：读取会自动删除消息，单链表维护，插入和删除上有优势。在其next()中会无限循环，不断判断是否有消息，有就返回这条消息并移除。
+
+2.Looper：Looper创建的时候会创建一个MessageQueue，调用loop()方法的时候消息循环开始，loop()也是一个循环，会不断调用messageQueue的next()，当有消息就处理，否则阻塞在messageQueue的next()中。当Looper的quit()被调用的时候会调用messageQueue的quit()，此时next()会返回null，然后loop()方法也跟着退出。
+
+3.Handler：在主线程构造一个Handler，然后在其他线调用sendMessage(),此时主线程的MessageQueue中会插入一条message，然后被Looper使用。
+
+4.系统的主线程在ActivityThread的main()方法入口中开启线程，其中定义了内部类Activity.H，里面定义了一系列消息类型，包含四大组件的启动和停止。
+Android 的消息机制也就是 handler 机制,创建 handler 的时候会创建一个 looper ( 通过 looper.prepare()来创建 )，looper 一般为主线程 looper。
+handler 通过 send 发送消息 (sendMessage) ,当然post 一系列方法最终也是通过 send 来实现的,在 send方法中handler 会通过 enqueueMessage() 方法中的 enqueueMessage(msg, millis) 向消息队列 MessageQueue 插入一条消息,同时会把本身的 handler 通过 msg.target = this 传入。
+
+Looper 是一个死循环,不断的读取MessageQueue中的消息，loop 方法会调用 MessageQueue 的 next 方法来获取新的消息，next操作是一个阻塞操作,当没有消息的时候 next 方法会一直阻塞，进而导致 loop一直阻塞，当有消息的时候，Looper 就会处理消息。Looper收到消息之后就开始处理消息:msg.target.dispatchMessage(msg)，当然这里的 msg.target 就是上面传过来的发送这条消息的 handler 对象,这样 handler 发送的消息最终又交给他的dispatchMessage 方法来处理了，这里不同的是handler 的 dispatchMessage 方法是在创建 Handler时所使用的 Looper 中执行的，这样就成功的将代码逻辑切换到了主线程了。
+
+Handler 处理消息的过程是:首先,检查 Message 的 callback 是否为 null，不为 null 就通过 handleCallBack 来处理消息，Message 的 callback 是一个 Runnable 对象，实际上是 handler 的 post方法所传递的 Runnable 参数.其次是检查 mCallback 是否为 null,不为 null 就调用 mCallback 的handleMessage 方法来处理消息。
+
+#### 24、程序A能否接收到程序B的广播？
+
+能，使用全局的BroadCastRecevier能进行跨进程通信，但是注意它只能被动接收广播。此外，LocalBroadCastRecevier只限于本进程的广播间通信。
 
 
-#### 24、程序A能否接收到程序B的广播？接入微信支付的时候，微信是如何跟当前程序进行通信？
+#### 25、数据加载更多涉及到分页，你是怎么实现的？
 
-#### 25、为什么复写equals方法的同时需要复写hashcode方法，前者相同后者是否相同，反过来呢？为什么？
+分页加载就是一页一页加载数据，当滑动到底部、没有更多数据加载的时候，我们可以手动调用接口，重新刷新RecyclerView。
 
-#### 26、Android4.0～8.0之间大的变化，如何处理？
 
-#### 27、 Android中进程的级别，以及各自的区别。
+#### 26、通过google提供的Gson解析json时，定义JavaBean的规则是什么？
 
-1、前台进程
+1). 实现序列化 Serializable
 
-用户当前正在做的事情需要这个进程。如果满足下面的件之一，一个进程就被认为是前台进程：
+2). 属性私有化，并提供get，set方法
 
-1).这个进程拥有一个正在与用户交互的Activity(这个Ativity的onResume()方法被调用)。
+3). 提供无参构造
 
-2).这个进程拥有一个绑定到正在与用户交互的activit上的Service。
+4). 属性名必须与json串中属性名保持一致 （因为Gson解析json串底层用到了Java的反射原理）
 
-3).这个进程拥有一个前台运行的Service（service调了方法startForeground()）.
 
-4).这个进程拥有一个正在执行其任何一个生命周期回方法（onCreate(),onStart(),或onDestroy()）的Servie。
+#### 27、json解析方式的两种区别？
 
-5).这个进程拥有正在执行其onReceive()方法的BroadcatReceiver。
+1，SDK提供JSONArray，JSONObject
 
-通常，在任何时间点，只有很少的前台进程存在。它们有在达到无法调合的矛盾时才会被杀－－如内存太小而能继续运行时。通常，到了这时，设备就达到了一个内分页调度状态，所以需要杀一些前台进程来保证用户界的反应.
+2，google提供的 Gson
+通过fromJson()实现对象的反序列化（即将json串转换为对象类型）
+通过toJson()实现对象的序列化 （即将对象类型转换为json串）
 
-2、可见进程
-
-一个进程不拥有运行于前台的组件，但是依然能影响用所见。满足下列条件时，进程即为可见：
-
-这个进程拥有一个不在前台但仍可见的Activity(它的onause()方法被调用)。当一个前台activity启动一个对框时，就出了这种情况。
-
-3、服务进程
-
-一个可见进程被认为是极其重要的。并且，除非只有杀它才可以保证所有前台进程的运行，否则是不能动它的。
-
-这个进程拥有一个绑定到可见activity的Service。
-
-一个进程不在上述两种之内，但它运行着一个被startSevice()所启动的service。
-
-尽管一个服务进程不直接影响用户所见，但是它们通常一些用户关心的事情（比如播放音乐或下载数据），所系统不到前台进程和可见进程活不下去时不会杀它。
-
-4、后台进程
-
-一个进程拥有一个当前不可见的activity(activity的ontop()方法被调用)。
-
-这样的进程们不会直接影响到用户体验，所以系统可以任意时刻杀了它们从而为前台、可见、以及服务进程们供存储空间。通常有很多后台进程在运行。它们被保存一个LRU(最近最少使用)列表中来确保拥有最近刚被看到的activity的进程最后被杀。如果一个activity正确的实现了它的生命周期方法，并保存了它的当前状态，那么杀死它的进程将不会对用户的可视化体验造成影响。因为当用户返回到这个activity时，这个activity会恢复它所有的可见状态。
-    
-5、空进程
-
-一个进程不拥有入何active组件。
-
-保留这类进程的唯一理由是高速缓存，这样可以提高下次一个组件要运行它时的启动速度。系统经常为了平衡进程高速缓存和底层的内核高速缓存之间的整体系统资而杀死它们。
 
 #### 28、线程池的相关知识。
 
@@ -1555,31 +1528,11 @@ dom解析：解析器读入整个文档，然后构建一个驻留内存的树�
 sax解析：基于事件驱动型,优点占用内存少，解析速度快，缺点是只适合做文档的读取，不适合做文档的增删改，不能中途停止。
 pull解析：同样基于事件驱动型,android 官方API提供,可随时终止,调用next() 方法提取它们（主动提取事件）
 
-#### 252、json解析方式的两种区别
 
-1，SDK提供JSONArray，JSONObject
 
-2，google提供的 Gson
-通过fromJson()实现对象的反序列化（即将json串转换为对象类型）
-通过toJson()实现对象的序列化 （即将对象类型转换为json串）
 
-#### 253、通过google提供的Gson解析json时，定义JavaBean的规则是什么
 
-1). 实现序列化 Serializable
 
-2). 属性私有化，并提供get，set方法
-
-3). 提供无参构造
-
-4). 属性名必须与json串中属性名保持一致 （因为Gson解析json串底层用到了Java的反射原理）
-
-#### 254、了解 aar 文件没，有没有遇到什么坎；
-
-#### 255、数据加载更多涉及到分页，你是怎么实现的；
-
-#### 256、Java 静态变量在 new 的对象中会不会更改；
-
-#### 257、equals 和 hashcode 的关系；
 
 
 
