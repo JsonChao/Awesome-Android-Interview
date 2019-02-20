@@ -137,7 +137,7 @@ Property Animation 动画有两个步聚：
 计算属性值当插值分数计算完成后，ValueAnimator会根据插值分数调用合适的 TypeEvaluator去计算运动中的属性值。
 以上分析引入了两个概念：已完成动画分数（elapsed fraction）、插值分数( interpolated fraction )。
 
-动画原理及特点：
+##### 原理及特点：
 
 1.属性动画：
 
@@ -154,6 +154,13 @@ Property Animation 动画有两个步聚：
 3.帧动画：
 
 是在xml中定义好一系列图片之后，使用AnimatonDrawable来播放的动画。
+
+##### 它们的区别：
+
+属性动画才是真正的实现了 view 的移动，补间动画对view 的移动更像是在不同地方绘制了一个影子，实际对象还是处于原来的地方。
+当动画的 repeatCount 设置为无限循环时，如果在Activity退出时没有及时将动画停止，属性动画会导致Activity无法释放而导致内存泄漏，而补间动画却没问题。
+xml 文件实现的补间动画，复用率极高。在 Activity切换，窗口弹出时等情景中有着很好的效果。
+使用帧动画时需要注意，不要使用过多特别大的图，容导致内存不足。
 
 
 #### 9、Context相关
@@ -235,34 +242,42 @@ JSON是轻量级的文本数据交换格式，独立于语言，具有可描述�
 使用谷歌的GSON包进行解析，在 Android Studio 里引入依赖：
 
     compile 'com.google.code.gson:gson:2.7'
-值得注意的是实体类中变量名称必须和json中的值名相。
-json1的解析
-我们这里的实体类是Student.class
+值得注意的是实体类中变量名称必须和json中的值名字相同。
+
+1、解析成实体类：
 
     Gson gson = new Gson();
-    Student student = gson.fromJson(json1,Student.class);
+    Student student = gson.fromJson(json1, Student.class);
     
-json2的解析
-我们可以解析成int数组，也可以解析成Integer的List。
-解析成数组：
+
+2、解析成int数组：
 
     Gson gson = new Gson();
     int[] ages = gson.fromJson(json2, int[].class);
     
-解析成List：
+        
+3、直接解析成List.
 
     Gson gson = new Gson();
     List<Integer> ages = gson.fromJson(json2,  newTypeToken<List<Integer>>(){}.getType);
-    
-json3的解析
-同样可以解析成List或者数组，我们就直接解析成List.
 
     Gson gson = new Gson();
-    List<Student> students = gson.fromJson(json3,     newTypeToke<List<Student>>(){}.getType);
+    List<Student> students = gson.fromJson(json3, newTypeToke<List<Student>>(){}.getType);
 
-#### 12、android中有哪几种解析xml的类,官方推荐哪种？以及它们的原理和区别
+优点
 
-DOM解析
+- 轻量级的数据交换格式
+- 读写更加容易
+- 易于机器的解析和生成
+
+缺点
+
+- 语义性较差，不如 xml 直观
+
+
+#### 12、android中有哪几种解析xml的类,官方推荐哪种？以及它们的原理和区别？
+
+##### DOM解析
 
 优点:
 
@@ -278,15 +293,15 @@ DOM解析
 
 使用场景:
 
-- DOM 是用与平台和语言无关的方式表示 XML文档的官方 W3C 标准.
-- DOM是以层次结构组织的节点的集合.这个层次结构允许开人员在树中寻找特定信息.分析该结构通常需要加载整文档和构造层次结构,然后才能进行任何工作.
-- DOM是基于对象层次结构的.
+- DOM 是与平台和语言无关的方式表示 XML文档的官方 W3C 标准.
+- DOM 是以层次结构组织的节点的集合.这个层次结构允许开人员在树中寻找特定信息.分析该结构通常需要加载整个文档和构造层次结构,然后才能进行任何工作.
+- DOM 是基于对象层次结构的.
 
-SAX解析
+##### SAX解析
 
 优点:
 
-SAX 对内存的要求比较低,因为它让开发人员自己来决所要处理的标签.特别是当开发人员只需要处理文档中包含的部分数据时,SAX 这种扩展能力得到了更好的体现.
+SAX 对内存的要求比较低,因为它让开发人员自己来决定所要处理的标签.特别是当开发人员只需要处理文档中包含的部分数据时,SAX 这种扩展能力得到了更好的体现.
 
 缺点:
 
@@ -294,72 +309,75 @@ SAX 对内存的要求比较低,因为它让开发人员自己来决所要处理
 
 使用场景:
 
-对于含有数据量十分巨大,而又不用对文档的所有数据行遍历或者分析的时候,使用该方法十分有效.该方法不将整个文档读入内存,而只需读取到程序所需的文档标处即可.
+对于含有数据量十分巨大,而又不用对文档的所有数据行遍历或者分析的时候,使用该方法十分有效.该方法不将整个文档读入内存,而只需读取到程序所需的文档标记处即可.
 
-Xmlpull解析
 
-android SDK提供了xmlpullapi,xmlpull和sax类似,是基于流（stream）操作文件,后者根据节点事件回调开发者编写的处理程序.因为是基流的处理,因此xmlpull和sax都比较节约内存资源,不会dom那样要把所有节点以对象树的形式展现在内存中.xmpull比sax更简明,而且不需要扫描完整个流.
+##### Xmlpull解析
+
+android SDK提供了xmlpullapi,xmlpull和sax类似,是基于流（stream）操作文件,后者根据节点事件回调开发者编写的处理程序.因为是基于流的处理,因此xmlpull和sax都比较节约内存资源,不会像dom那样要把所有节点以对象树的形式展现在内存中.xmpull比sax更简明,而且不需要扫描完整个流.
+
 
 #### 13、Jar和Aar的区别
 
-Jar包里面只有代码，aar里面不光有代码还包括资源文件，比如 drawable 文件，xml资源文件。对于一些不常变动的 Android Library，我们可以直接引用 aar，加快编译速度
+Jar包里面只有代码，aar里面不光有代码还包括资源文件，比如 drawable 文件，xml资源文件。对于一些不常变动的 Android Library，我们可以直接引用 aar，加快编译速度。
+    
     
 #### 14、Android为每个应用程序分配的内存大小是多少
 
 android程序内存一般限制在16M，也有的是24M。近几年手机发展较快，一般都会分配两百兆左右，和具体机型有关。
     
+    
 #### 15、更新UI方式
 
 - Activity.runOnUiThread(Runnable)
-- View.post(Runnable)，View.postDelay(Runnable, long)
+- View.post(Runnable)，View.postDelay(Runnable, long)（可以理解为在当前操作视图UI线程添加队列）
 - Handler
 - AsyncTask
 - Rxjava
 - LiveData
 
+
 #### 16、ContentProvider使用方法。
 
-进行跨进程通信，实现进程间的数据交互和共享。通过Context 中 getContentResolver() 获得实例，通过 Uri匹配进行数据的增删改查。ContentProvider使用表的形式来组织数据，无论数据的来源是什么，ConentProvider 都会认为是一种表，然后把数据组织成表格
+进行跨进程通信，实现进程间的数据交互和共享。通过Context 中 getContentResolver() 获得实例，通过 Uri匹配进行数据的增删改查。ContentProvider使用表的形式来组织数据，无论数据的来源是什么，ConentProvider 都会认为是一种表，然后把数据组织成表格。
+
 
 #### 17、Thread、AsyncTask、IntentService的使用场景与特点。
 
 1. Thread线程，独立运行与于 Activity 的，当Activity 被 finish 后，如果没有主动停止 Thread或者 run 方法没有执行完，其会一直执行下去。
 
-2. AsyncTask 封装了两个线程池和一个Handler，（SerialExecutor用于排队，THREAD_POOL_EXECUTOR为真正的执行任务，Handler将工作线程切换到主线程），其必须在 UI线程中创建，execute 方法必须在 UI线程中执行，一个任务实例只允许执行一次，执行多次抛出异常，用于网络请求或者简单数据处理。
+2. AsyncTask 封装了两个线程池和一个Handler（SerialExecutor用于排队，THREAD_POOL_EXECUTOR为真正的执行任务，Handler将工作线程切换到主线程），其必须在 UI线程中创建，execute 方法必须在 UI线程中执行，一个任务实例只允许执行一次，执行多次抛出异常，用于网络请求或者简单数据处理。
 
 3. IntentService：处理异步请求，实现多线程，在onHandleIntent中处理耗时操作，多个耗时任务会依次执行，执行完毕自动结束。
 
+
 #### 18、Merge、ViewStub 的作用。
 
-Merge: 减少视图层级，可以删除多余的层级，优化 UI。
+Merge: 减少视图层级，可以删除多余的层级。
 
-ViewStub: 按需加载，减少内存使用量、加快渲染速度、不支持 merge 标签
-    
-#### 19、Json有什么优劣势。
+ViewStub: 按需加载，减少内存使用量、加快渲染速度、不支持 merge 标签。
 
-优点
 
-- 轻量级的数据交换格式
-- 读写更加容易
-- 易于机器的解析和生成
+#### 19、activity的startActivity和context的startActivity区别？
 
-缺点
+(1)从Activity中启动新的Activity时可以直接mContext.startActivity(intent)就好
 
-- 语义性较差，不如 xml 直观
-    
-#### 20、动画有哪两类，各有什么特点？
+(2)如果从其他Context中启动Activity则必须给intent设置Flag:
 
-传统动画：帧动画和补间动画。
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ; 
+    mContext.startActivity(intent);
 
-属性动画。
+##### 20、怎么在Service中创建Dialog对话框？
 
-区别
+1.在我们取得Dialog对象后，需给它设置类型，即：
 
-属性动画才是真正的实现了 view 的移动，补间动画对view 的移动更像是在不同地方绘制了一个影子，实际对象还是处于原来的地方。
-当动画的 repeatCount 设置为无限循环时，如果在Activity 退出时没有及时将动画停止，属性动画会导致Activity 无法释放而导致内存泄漏，而补间动画却没问题。
-xml 文件实现的补间动画，复用率极高。在 Activity切换，窗口弹出时等情景中有着很好的效果。
-使用帧动画时需要注意，不要使用过多特别大的图，容导致内存不足。
-    
+    dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+
+2.在Manifest中加上权限:
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINOW" />
+
+
 #### 21、Asset目录与res目录的区别。
 
 assets：不会在 R文件中生成相应标记，存放到这里的资源在打包时会打包到程序安装包中。（通过 AssetManager 类访问这些文件）
@@ -1563,23 +1581,5 @@ pull解析：同样基于事件驱动型,android 官方API提供,可随时终止
 
 #### 257、equals 和 hashcode 的关系；
 
-#### 258、activity的startActivity和context的startActivity区别
-
-(1)从Activity中启动新的Activity时可以直接mContext.startActivity(intent)就好
-
-(2)如果从其他Context中启动Activity则必须给intent设置Flag:
-
-    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK) ; 
-    mContext.startActivity(intent);
-
-怎么在Service中创建Dialog对话框
-
-1.在我们取得Dialog对象后，需给它设置类型，即：
-
-    dialog.getWindow().setType(WindowManager.LayoutPaams.TYPE_SYSTEM_ALERT)
-
-2.在Manifest中加上权限:
-
-    <uses-permissionandroid:name="android.permission.SYSTEM_ALERT_WINOW" />
 
 
