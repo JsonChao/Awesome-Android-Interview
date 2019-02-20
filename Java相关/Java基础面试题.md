@@ -694,9 +694,19 @@ Reader 类是 Java 的 I/O 中读字符的父类，而InputStream 类是读字�
 
 #### 50、Java中String的了解
 
-#### 51、Object类的equal和hashCode方法重写，为什么？
+#### 51、为什么复写equals方法的同时需要复写hashcode方法，前者相同后者是否相同，反过来呢？为什么？
 
-#### 52、Java 中的 Error、 Exception 的区别；  
+要考虑到类似HashMap、HashTable、HashSet的这种散列的数据类型的运用，当我们重写equals时，是为了用自身的方式去判断两个自定义对象是否相等，然而如果此时刚好需要我们用自定义的对象去充当hashmap的键值使用时，就会出现我们认为的同一对象，却因为hash值不同而导致hashmap中存了两个对象，从而才需要进行hashcode方法的覆盖。
+
+
+#### 52、equals 和 hashcode 的关系？
+
+hashcode和equals的约定关系如下：
+
+- 1、如果两个对象相等，那么他们一定有相同的哈希值（hash code）。
+
+- 2、如果两个对象的哈希值相等，那么这两个对象有可能相等也有可能不相等。（需要再通过equals来判断）
+
 
 #### 53、Java 中内部类为什么可以访问外部类
 
@@ -742,5 +752,5 @@ val log = { str: String, printLog: (String) -> Unit ->
 
 #### 61、为什么java 7中不能用lambda
 
-
+#### 62、Java 中的 Error、 Exception 的区别；  
 
