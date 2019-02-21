@@ -699,69 +699,258 @@ save和restore要配对使用（restore可以比save少，但不能多），如�
     }
 
 
+#### 42、编译期注解跟运行时注解
+
+运行期注解(RunTime)利用反射去获取信息还是比较损耗性能的，对应@Retention（RetentionPolicy.RUNTIME）。
+
+编译期(Compile time)注解，以及处理编译期注解的手段APT和Javapoet，对应@Retention(RetentionPolicy.CLASS)。
+其中apt+javaPoet目前也是应用比较广泛，在一些大的开源库，如EventBus3.0+,页面路由 ARout、Dagger、Retrofit等均有使用的身影，注解不仅仅是通过反射一种方式来使用，也可以使用APT在编译期处理
+
+
 #### 43、bitmap recycler 相关
 
+在Android中，Bitmap的存储分为两部分，一部分是Bitmap的数据，一部分是Bitmap的引用。
+在Android2.3时代，Bitmap的引用是放在堆中的，而Bitmap的数据部分是放在栈中的，需要用户调用recycle方法手动进行内存回收，而在Android2.3之后，整个Bitmap，包括数据和引用，都放在了堆中，这样，整个Bitmap的回收就全部交给GC了，这个recycle方法就再也不需要使用了。
+
+bitmap recycler引发的问题：当图像的旋转角度小余两个像素点之间的夹角时，图像即使旋转也无法显示，因此，系统完全可以认为图像没有发生变化。这时系统就直接引用同一个对象来进行操作，避免内存浪费。
 
 
 #### 44、强引用置为null，会不会被回收？
 
-#### 45、glide 使用什么缓存？
+不会立即释放对象占用的内存。 如果对象的引用被置为null，只是断开了当前线程栈帧中对该对象的引用关系，而 垃圾收集器是运行在后台的线程，只有当用户线程运行到安全点(safe point)或者安全区域才会扫描对象引用关系，扫描到对象没有被引用则会标记对象，这时候仍然不会立即释放该对象内存，因为有些对象是可恢复的（在 finalize方法中恢复引用 ）。只有确定了对象无法恢复引用的时候才会清除对象内存。
 
-#### 46、Glide 内存缓存如何控制大小？
 
-#### 47、请描述安卓四大组件之间的关系，并说下安卓MVC的设计模式。
+#### 45、Bundle传递数据为什么需要序列化？
 
-#### 48、ContentProvider的权限管理(读写分离，权限控制-精确到表级，URL控制)；
+序列化，表示将一个对象转换成可存储或可传输的状态。序列化的原因基本三种情况： 
+
+1.永久性保存对象，保存对象的字节序列到本地文件中；
+
+2.对象在网络中传递； 
+
+3.对象在IPC间传递。
+
+
+#### 46、广播传输的数据是否有限制，是多少，为什么要限制？
+
+Intent在传递数据时是有大小限制的，大约限制在1MB之内，你用Intent传递数据，实际上走的是跨进程通信（IPC），跨进程通信需要把数据从内核copy到进程中，每一个进程有一个接收内核数据的缓冲区，默认是1M；如果一次传递的数据超过限制，就会出现异常。
+
+不同厂商表现不一样有可能是厂商修改了此限制的大小，也可能同样的对象在不同的机器上大小不一样。
+
+传递大数据，不应该用Intent；考虑使用ContentProvider或者直接匿名共享内存。简单情况下可以考虑分段传输。
+
+
+#### 47、是否了解硬件加速？
+
+硬件加速就是运用GPU优秀的运算能力来加快渲染的速度，而通常的基于软件的绘制渲染模式是完全利用CPU来完成渲染。
+
+1.硬件加速是从API 11引入，API 14之后才默认开启。对于标准的绘制操作和控件都是支持的，但是对于自定义View的时候或者一些特殊的绘制函数就需要考虑是否需要关闭硬件加速。
+
+2.我们面对不支持硬件加速的情况，就需要限制硬件加速，这个兼容性的问题是因为硬件加速是把View的绘制函数转化为使用OpenGL的函数来进完成实际的绘制的，那么必然会存在OpenGL中不支持原始回执函数的情况，对于这些绘制函数，就会失效。
+
+3.硬件加速的消耗问题，因为是使用OpenGL，需要把系统中OpenGL加载到内存中，OpenGL API调用就会占用8MB，而实际上会占用更多内存，并且使用了硬件必然增加耗电量了。
+
+4.硬件加速的优势还有display list的设计，使用这个我们不需要每次重绘都执行大量的代码，基于软件的绘制模式会重绘脏区域内的所有控件，而display只会更新列表，然后绘制列表内的控件。
+
+5. CPU更擅长复杂逻辑控制，而GPU得益于大量ALU和并行结构设计，更擅长数学运算。
+
+
+#### 48、ContentProvider的权限管理(读写分离，权限控制-精确到表级，URL控制)。
+
+　对于ContentProvider暴露出来的数据，应该是存储在自己应用内存中的数据，对于一些存储在外部存储器上的数据，并不能限制访问权限，使用ContentProvider就没有意义了。对于ContentProvider而言，有很多权限控制，可以在AndroidManifest.xml文件中对<provider>节点的属性进行配置，一般使用如下一些属性设置：
+
+- android:grantUriPermssions:临时许可标志。
+- android:permission:Provider读写权限。
+- android:readPermission:Provider的读权限。
+- android:writePermission:Provider的写权限。
+- android:enabled:标记允许系统启动Provider。
+- android:exported:标记允许其他应用程序使用这个Provider。
+- android:multiProcess:标记允许系统启动Provider相同的进程中调用客户端。
+
 
 #### 49、Fragment状态保存
 
-#### 50、startActivityForResult是哪个类的方法，在什么情况下使用，如果在Adapter中使用应该如何解耦
+Fragment状态保存入口:
+
+1、Activity的状态保存, 在Activity的onSaveInstanceState()里, 调用了FragmentManger的saveAllState()方法, 其中会对mActive中各个Fragment的实例状态和View状态分别进行保存.
+
+2、FragmentManager还提供了public方法: saveFragmentInstanceState(), 可以对单个Fragment进行状态保存, 这是提供给我们用的。
+
+3、FragmentManager的moveToState()方法中, 当状态回退到ACTIVITY_CREATED, 会调用saveFragmentViewState()方法, 保存View的状态.
+
+
+#### 50、直接在Activity中创建一个thread跟在service中创建一个thread之间的区别？
+
+在Activity中被创建：该Thread的就是为这个Activity服务的，完成这个特定的Activity交代的任务，主动通知该Activity一些消息和事件，Activity销毁后，该Thread也没有存活的意义了。
+
+在Service中被创建：这是保证最长生命周期的Thread的唯一方式，只要整个Service不退出，Thread就可以一直在后台执行，一般在Service的onCreate()中创建，在onDestroy()中销毁。所以，在Service中创建的Thread，适合长期执行一些独立于APP的后台任务，比较常见的就是：在Service中保持与服务器端的长连接。
+
 
 #### 51、如何计算一个Bitmap占用内存的大小，怎么保证加载Bitmap不产生内存溢出？
 
     Bitamp 占用内存大小 = 宽度像素 x （inTargetDensity / inDensity） x 高度像素 x （inTargetDensity / inDensity）x 一个像素所占的内存
 
-注：这里inDensity表示目标图片的dpi（放在哪个资源文件夹下），inTargetDensity表示目标屏幕的dpi，所以你可以发现inDensity和inTargetDensity会对Bitmap的宽高 进行拉伸，进而改变Bitmap占用内存的大小。
+注：这里inDensity表示目标图片的dpi（放在哪个资源文件夹下），inTargetDensity表示目标屏幕的dpi，所以你可以发现inDensity和inTargetDensity会对Bitmap的宽高进行拉伸，进而改变Bitmap占用内存的大小。
 
 在Bitmap里有两个获取内存占用大小的方法。
 
 getByteCount()：API12 加入，代表存储 Bitmap 的像素需要的最少内存。
 getAllocationByteCount()：API19 加入，代表在内存中为 Bitmap 分配的内存大小，代替了 getByteCount() 方法。
-在不复用 Bitmap 时，getByteCount() 和 getAllocationByteCount 返回的结果是一样的。在通过复用 Bitmap 来解码图片时，那么 getByteCount() 表示新解码图片占用内存的大 小，getAllocationByteCount() 表示被复用 Bitmap真实占用的内存大小（即 mBuffer 的长度）。
+在不复用 Bitmap 时，getByteCount() 和 getAllocationByteCount 返回的结果是一样的。在通过复用 Bitmap 来解码图片时，那么 getByteCount() 表示新解码图片占用内存的大 小，getAllocationByteCount() 表示被复用 Bitmap 真实占用的内存大小（即 mBuffer 的长度）。
 
-为了保证在加载Bitmap的时候不产生内存溢出，可以受用BitmapFactory进行图片压缩，主要有以下几个参数：
+为了保证在加载Bitmap的时候不产生内存溢出，可以使用BitmapFactory进行图片压缩，主要有以下几个参数：
 
 BitmapFactory.Options.inPreferredConfig：将ARGB_8888改为RGB_565，改变编码方式，节约内存。
 BitmapFactory.Options.inSampleSize：缩放比例，可以参考Luban那个库，根据图片宽高计算出合适的缩放比例。
 BitmapFactory.Options.inPurgeable：让系统可以内存不足时回收内存。
 
+
 #### 52、对于应用更新这块是如何做的？(灰度，强制更新，分区域更新)
 
-#### 53、Handler机制，请写出一种更新UI的方法和代码
+1、通过接口获取线上版本号，versionCode
+2、比较线上的versionCode 和本地的versionCode，弹出更新窗口
+3、下载APK文件（文件下载）
+4、安装APK
 
-#### 54、请解释安卓为啥要加签名机制。
+灰度：
+(1)找单一渠道投放特别版本。
+(2)做升级平台的改造，允许针对部分用户推送升级通知甚至版本强制升级。
+(3)开放单独的下载入口。
+(4)是两个版本的代码都打到app包里，然后在app端植入测试框架，用来控制显示哪个版本。测试框架负责与服务器端api通信，由服务器端控制app上A/B版本的分布，可以实现指定的一组用户看到A版本，其它用户看到B版本。服务端会有相应的报表来显示A/B版本的数量和效果对比。最后可以由服务端的后台来控制，全部用户在线切换到A或者B版本~
 
-#### 55、十六进制数据怎么和十进制和二进制之间转换
+无论哪种方法都需要做好版本管理工作，分配特别的版本号以示区别。
+当然，既然是做灰度，数据监控（常规数据、新特性数据、主要业务数据）还是要做到位，该打的数据桩要打。
+还有，灰度版最好有收回的能力，一般就是强制升级下一个正式版。
 
-#### 56、activty和Fragmengt之间怎么通信，Fragmengt和Fragmengt怎么通信
+强制更新:一般的处理就是进入应用就弹窗通知用户有版本更新，弹窗可以没有取消按钮并不能取消。这样用户就只能选择更新或者关闭应用了，当然也可以添加取消按钮，但是如果用户选择取消则直接退出应用。
+
+增量更新：bsdiff：二进制差分工具bsdiff是相应的补丁合成工具,根据两个不同版本的二进制文件，生成补丁文件.patch文件。通过bspatch使旧的apk文件与不定文件合成新的apk。 注意通过apk文件的md5值进行区分版本。
+
+
+#### 53、请解释安卓为啥要加签名机制。
+
+1、发送者的身份认证
+由于开发商可能通过使用相同的 Package Name 来混淆替换已经安装的程序，以此保证签名不同的包不被替换。
+
+2、保证信息传输的完整性
+签名对于包中的每个文件进行处理，以此确保包中内容不被替换。
+
+3、防止交易中的抵赖发生， Market 对软件的要求。
+
+
+#### 54、为什么bindService可以跟Activity生命周期联动？
+
+1、bindService 方法执行时，LoadedApk 会记录 ServiceConnection 信息。
+
+2、Activity 执行 finish 方法时，会通过 LoadedApk 检查 Activity 是否存在未注销/解绑的 BroadcastReceiver 和 ServiceConnection，如果有，那么会通知 AMS 注销/解绑对应的 BroadcastReceiver 和 Service，并打印异常信息，告诉用户应该主动执行注销/解绑的操作。
+
+
+#### 55、如何通过Gradle配置多渠道包？
+
+用于生成不同渠道的包
+
+    android {  
+        productFlavors {
+            xiaomi {}
+            baidu {}
+            wandoujia {}
+            _360 {}        // 或“"360"{}”，数字需下划线开头或加上双引号
+        }
+    }
+    
+执行./gradlew assembleRelease ，将会打出所有渠道的release包；
+
+执行./gradlew assembleWandoujia，将会打出豌豆荚渠道的release和debug版的包；
+
+执行./gradlew assembleWandoujiaRelease将生成豌豆荚的release包。
+
+因此，可以结合buildType和productFlavor生成不同的Build Variants，即类型与渠道不同的组合。
+
+
+#### 56、activty和Fragmengt之间怎么通信，Fragmengt和Fragmengt怎么通信？
+
+（一）Handler
+
+（二）广播
+
+（三）事件总线：EventBus、RxBus、Otto
+
+（四）接口回调
+
+（五）Bundle和setArguments(bundle)
+
 
 #### 57、自定义view效率高于xml定义吗？说明理由。
 
-#### 58、广播注册一般有几种，各有什么优缺点
+自定义view效率高于xml定义：
+
+1、少了解析xml。
+
+2.、自定义View 减少了ViewGroup与View之间的测量,包括父量子,子量自身,子在父中位置摆放,当子view变化时,父的某些属性都会跟着变化。
+
+
+#### 58、广播注册一般有几种，各有什么优缺点？
+
+第一种是常驻型(静态注册)：当应用程序关闭后如果有信息广播来，程序也会被系统调用，自己运行。
+
+第二种不常驻(动态注册)：广播会跟随程序的生命周期。
+
+动态注册 
+
+优点： 
+在android的广播机制中，动态注册优先级高于静态注册优先级，因此在必要情况下，是需要动态注册广播接收者的。
+
+缺点： 
+当用来注册的 Activity 关掉后，广播也就失效了。
+
+静态注册 
+
+优点： 
+无需担忧广播接收器是否被关闭，只要设备是开启状态，广播接收器就是打开着的。
+
 
 #### 59、服务启动一般有几种，服务和activty之间怎么通信，服务和服务之间怎么通信
 
-#### 60、数据库的知识，包括本地数据库优化点。
+方式：
 
-#### 61、ddms 和 traceView的区别；
+1、startService：
 
-#### 62、Fragment生命周期；Fragment状态保存；
+onCreate()--->onStartCommand() ---> onDestory()
 
-#### 63、startActivityForResult是哪个类的方法，在什么情况下使用，如果在Adapter中使用应该如何解耦；
+如果服务已经开启，不会重复的执行onCreate()， 而是会调用onStartCommand()。一旦服务开启跟调用者(开启者)就没有任何关系了。
+开启者退出了，开启者挂了，服务还在后台长期的运行。
+开启者不能调用服务里面的方法。
 
-#### 64、AsyncTask原理及不足；
+2、bindService：
 
-#### 65、IntentService原理；
+onCreate() --->onBind()--->onunbind()--->onDestory()
+
+bind的方式开启服务，绑定服务，调用者挂了，服务也会跟着挂掉。
+绑定者可以调用服务里面的方法。
+
+通信：
+
+1、通过Binder对象。
+
+2、通过broadcast(广播)。
+
+
+#### 60、ddms 和 traceView 的区别？
+
+ddms 原意是：davik debug monitor service。简单的说 ddms 是一个程序执行查看器，在里面可以看见线程和堆栈等信息，traceView 是程序性能分析器。traceview 是 ddms 中的一部分内容。
+
+Traceview 是 Android 平台特有的数据采集和分析工具，它主要用于分析 Android 中应用程序的 hotspot（瓶颈）。Traceview 本身只是一个数据分析工具，而数据的采集则需要使用 Android SDK 中的 Debug 类或者利用DDMS 工具。二者的用法如下：开发者在一些关键代码段开始前调用 Android SDK 中 Debug 类的 startMethodTracing 函数，并在关键代码段结束前调用 stopMethodTracing 函数。这两个函数运行过程中将采集运行时间内该应用所有线程（注意，只能是 Java线程） 的函数执行情况， 并将采集数据保存到/mnt/sdcard/下的一个文件中。 开发者然后需要利用 SDK 中的 Traceview工具来分析这些数据。
+
+
+#### 61、activity意外退出时信息的储存与恢复，onCreate正常进入时的判断。
+
+#### 62、HttpClient和HttpConnection的区别
+
+#### 63、除了日常开发，其他有做过什么工作？比如持续化集成，自动化测试等等
+
+#### 64、ActivityA跳转ActivityB然后B按back返回A，各自的生命周期顺序，A与B均不透明。
+
+#### 65、Android中main方法入口在哪里
 
 #### 66、Activity 怎么和Service 绑定，怎么在Activity 中启动自己对应的Service；
 
@@ -1611,45 +1800,13 @@ SharedPreference无法进行跨进程通信，MODE_MULTI_PROCESS只是保证了�
 
 #### 227、有博客和github，主要是写的什么？有哪些关注
 
-#### 228、HttpClient和HttpConnection的区别
 
-#### 229、除了日常开发，其他有做过什么工作？比如持续化集成，自动化测试等等
 
-#### 230、ActivityA跳转ActivityB然后B按back返回A，各自的生命周期顺序，A与B均不透明。
 
-#### 231、Android中main方法入口在哪里
 
-#### 232、写出你认为最优的懒汉式单例模式
 
-#### 233、activity意外退出时信息的储存与恢复，onCreate正常进入时的判断。
 
-#### 234、抽象类能否实例化，理论依据是什么？
 
-#### 235、如何通过Gradle配置差异较大(20%差异)的多渠道包
-
-#### 236、Service先start再bind如何关闭service，为什么bindService可以跟Activity生命周期联动？
-
-#### 237、直接在Activity中创建一个thread跟在service中创建一个thread之间恩区别
-
-#### 238、ListView针对多种item的缓存是如何实现的
-
-#### 239、Android绘制二维跟三维的View的区
-
-#### 240、是否了解硬件加速
-
-#### 241、ListView是如何实现对不同type的item的管理的
-
-#### 242、Android为什么要设计两种classloader，为什么不用一种，通过type来区分
-
-#### 243、Bundle传递数据为什么需要序列化
-
-#### 244、广播传输的数据是否有限制，是多少，为什么要限制？
-
-#### 245、关于反射混淆，耗性能的解决方式
-
-#### 246、RecyclerView的itemdecoration如何处理点击事件
-
-#### 247、编译期注解跟运行时注解
 
 
 
