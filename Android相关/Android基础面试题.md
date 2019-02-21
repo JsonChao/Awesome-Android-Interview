@@ -478,11 +478,11 @@ Handler 处理消息的过程是:首先,检查 Message 的 callback 是否为 nu
 
 #### 28、线程池的相关知识。
 
-Android中的线程池都是之间或间接通过配置ThreadPoolxecutor来实现不同特性的线程池.Android中最常见的类具有不同特性的线程池分别为FixThreadPool、CachedhreadPool、SingleThreadPool、ScheduleThreadExecutr.
+Android中的线程池都是直接或间接通过配置ThreadPoolExecutor来实现不同特性的线程池.Android中最常见的类具有不同特性的线程池分别为FixThreadPool、CachedhreadPool、SingleThreadPool、ScheduleThreadExecutr.
 
 1).FixThreadPool
 
-只有核心线程,并且数量固定的,也不会被回收,所有线都活动时,因为队列没有限制大小,新任务会等待执行.
+只有核心线程,并且数量固定的,也不会被回收,所有线程都活动时,因为队列没有限制大小,新任务会等待执行.
 
 优点:更快的响应外界请求.
 
@@ -494,15 +494,16 @@ Android中的线程池都是之间或间接通过配置ThreadPoolxecutor来实�
 
 只有非核心线程,最大线程数非常大,所有线程都活动时会为新任务创建新线程,否则会利用空闲线程(60s空闲时间,过了就会被回收,所以线程池中有0个线程的可能)处理任务.
     
-优点:任何任务都会被立即执行(任务队列SynchronousQuue相当于一个空集合);比较适合执行大量的耗时较少的务.
+优点:任何任务都会被立即执行(任务队列SynchronousQuue相当于一个空集合);比较适合执行大量的耗时较少的任务.
 
 4).ScheduledThreadPool
 
-核心线程数固定,非核心线程(闲着没活干会被立即回收数没有限制.
+核心线程数固定,非核心线程（闲着没活干会被立即回收数）没有限制.
 
 优点:执行定时任务以及有固定周期的重复任务
 
-#### 29、内存泄露，怎样查找，怎么产生的内存泄露。
+
+#### 29、内存泄露，怎样查找，怎么产生的内存泄露？
 
 1).资源对象没关闭造成的内存泄漏
 
@@ -516,48 +517,191 @@ Android中的线程池都是之间或间接通过配置ThreadPoolxecutor来实�
 
 6).集合中对象没清理造成的内存泄漏
 
-查找内存泄漏
 
-查找内存泄漏可以使用Android Studio 自带的AndroidProfiler工具,也可以使用Square产品的LeakCanary.
+查找内存泄漏可以使用Android Studio 自带的AndroidProfiler工具或MAT，也可以使用Square产品的LeakCanary.
 
-#### 30、类的初始化顺序依次是（静态变量、静态代码块）>（变量、代码块）>构造方法
+##### 1、使用AndroidProfiler的MEMORY工具：
 
-#### 31、如何实现Fragment的滑动
+运行程序，对每一个页面进行内存分析检查。首先，反复打开关闭页面5次，然后收到GC（点击Profile MEMORY左上角的垃圾桶图标），如果此时total内存还没有恢复到之前的数值，则可能发生了内存泄露。此时，再点击Profile MEMORY左上角的垃圾桶图标旁的heap dump按钮查看当前的内存堆栈情况，选择按包名查找，找到当前测试的Activity，如果引用了多个实例，则表明发生了内存泄露。
 
-#### 32、ViewPager使用细节，如何设置成每次只初始化当前的Fragment，其他的不初始化
+##### 2、使用MAT：
 
-#### 33、ListView重用的是什么
+1、运行程序，所有功能跑一遍，确保没有改出问题，完全退出程序，手动触发GC，然后使用adb shell dumpsys meminfo packagename -d命令查看退出界面后Objects下的Views和Activities数目是否为0，如果不是则通过Leakcanary检查可能存在内存泄露的地方，最后通过MAT分析，如此反复，改善满意为止。
 
-#### 34、如何取消AsyncTask
+1、在使用MAT之前，先使用as的Profile中的Memory去获取要分析的堆内存快照文件.hprof，如果要测试某个页面是否产生内存泄漏，可以先dump出没进入该页面的内存快照文件.hprof，然后，通常执行5次进入/退出该页面，然后再dump出此刻的内存快照文件.hprof，最后，将两者比较，如果内存相除明显，则可能发生内存泄露。（注意:MAT需要标准的.hprof文件，因此在as的Profiler中GC后dump出的内存快照文件.hprof必须手动使用android sdk platform-tools下的hprof-conv程序进行转换才能被MAT打开）
 
-#### 35、Android为什么引入Parcelable
+2、然后，使用MAT打开前面保存的2份.hprof文件，打开Overview界面，在Overview界面下面有4中action，其中最常用的就是Histogram和Dominator Tree。
 
-#### 36、有没有尝试简化Parcelable的使用
+Dominator Tree：支配树，按对象大小降序列出对象和其所引用的对象，注重引用关系分析。选择Group by package，找到当前要检测的类（或者使用顶部的Regex直接搜索），查看它的Object数目是否正确，如果多了，则判断发生了内存泄露。然后，右击该类，选择Merge Shortest Paths to GC Root中的exclude all phantom/weak/soft etc.references选项来查看该类的GC强引用链。最后，通过引用链即可看到最终强引用该类的对象。
+
+Histogram：直方图注重量的分析。使用方式与Dominator Tree类似。
+
+3、对比hprof文件，检测出复杂情况下的内存泄露：
+
+通用对比方式：在Navigation History下面选择想要对比的dominator_tree/histogram，右击选择Add to Compare Basket，然后在Compare Basket一栏中点击红色感叹号（Compare the results）生成对比表格（Compared Tables），在顶部Regex输入要检测的类，查看引用关系或对象数量去进行分析即可。
+
+针对于Historam的快速对比方式：直接选择Histogram上方的Compare to another Heap Dump选择要比较的hprof文件的Historam即可。
+
+
+#### 30、类的初始化顺序依次是？
+
+（静态变量、静态代码块）>（变量、代码块）>构造方法
+
+
+#### 31、JSON的结构？
+
+json是一种轻量级的数据交换格式，
+json简单说就是对象和数组，所以这两种结构就是对象和数组两种结构，通过这两种结构可以表示各种复杂的结构
+
+1、对象：对象表示为“{}”扩起来的内容，数据结构为 {key：value,key：value,...}的键值对的结构，在面向对象的语言中，key为对象的属性，value为对应的属性值，所以很容易理解，取值方法为 对象.key 获取属性值，这个属性值的类型可以是 数字、字符串、数组、对象几种。
+
+2、数组：数组在json中是中括号“[]”扩起来的内容，数据结构为 ["java","javascript","vb",...]，取值方式和所有语言中一样，使用索引获取，字段值的类型可以是 数字、字符串、数组、对象几种。
+经过对象、数组2种结构就可以组合成复杂的数据结构了。
+
+
+#### 32、ViewPager使用细节，如何设置成每次只初始化当前的Fragment，其他的不初始化（提示：Fragment懒加载）？
+
+自定义一个 LazyLoadFragment 基类，利用 setUserVisibleHint 和 生命周期方法，通过对 Fragment 状态判断，进行数据加载，并将数据加载的接口提供开放出去，供子类使用。然后在子类 Fragment 中实现 requestData 方法即可。这里添加了一个 isDataLoaded 变量，目的是避免重复加载数据。考虑到有时候需要刷新数据的问题，便提供了一个用于强制刷新的参数判断。
+
+    public abstract class LazyLoadFragment extends BaseFragment {
+        protected boolean isViewInitiated;
+        protected boolean isDataLoaded;
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            isViewInitiated = true;
+            prepareRequestData();
+        }
+        @Override
+        public void setUserVisibleHint(boolean isVisibleToUser) {
+            super.setUserVisibleHint(isVisibleToUser);
+            prepareRequestData();
+        }
+        public abstract void requestData();
+        public boolean prepareRequestData() {
+            return prepareRequestData(false);
+        }
+        public boolean prepareRequestData(boolean forceUpdate) {
+            if (getUserVisibleHint() && isViewInitiated && (!isDataLoaded || forceUpdate)) {
+                requestData();
+                isDataLoaded = true;
+                return true;
+            }
+            return false;
+        }
+    }
+    
+
+#### 35、Android为什么引入Parcelable？
+
+可以肯定的是，两者都是支持序列化和反序列化的操作。
+
+两者最大的区别在于 存储媒介的不同，Serializable 使用 I/O 读写存储在硬盘上，而 Parcelable 是直接 在内存中读写。很明显，内存的读写速度通常大于 IO 读写，所以在 Android 中传递数据优先选择 Parcelable。
+
+Serializable 会使用反射，序列化和反序列化过程需要大量 I/O 操作， Parcelable 自已实现封送和解封（marshalled &unmarshalled）操作不需要用反射，数据也存放在 Native 内存中，效率要快很多。
+
+
+#### 36、有没有尝试简化Parcelable的使用？
+
+使用Parcelable插件（Android Parcelable code generator）进行实体类的序列化的实现。
+
 
 #### 37、Bitmap 使用时候注意什么？
 
+1、要选择合适的图片规格（bitmap类型）：
+
+    ALPHA_8   每个像素占用1byte内存        
+    ARGB_4444 每个像素占用2byte内存       
+    ARGB_8888 每个像素占用4byte内存（默认）      
+    RGB_565 每个像素占用2byte内存
+
+2、降低采样率。BitmapFactory.Options 参数inSampleSize的使用，先把options.inJustDecodeBounds设为true，只是去读取图片的大小，在拿到图片的大小之后和要显示的大小做比较通过calculateInSampleSize()函数计算inSampleSize的具体值，得到值之后。options.inJustDecodeBounds设为false读图片资源。
+
+3、复用内存。即，通过软引用(内存不够的时候才会回收掉)，复用内存块，不需要再重新给这个bitmap申请一块新的内存，避免了一次内存的分配和回收，从而改善了运行效率。
+
+4、使用recycle()方法及时回收内存。
+
+5、压缩图片。
+
+
 #### 38、Oom 是否可以try catch ？
+
+只有在一种情况下，这样做是可行的：
+
+在try语句中声明了很大的对象，导致OOM，并且可以确认OOM是由try语句中的对象声明导致的，那么在catch语句中，可以释放掉这些对象，解决OOM的问题，继续执行剩余语句。
+
+但是这通常不是合适的做法。
+
+Java中管理内存除了显式地catch OOM之外还有更多有效的方法：比如SoftReference, WeakReference, 硬盘缓存等。
+在JVM用光内存之前，会多次触发GC，这些GC会降低程序运行的效率。
+如果OOM的原因不是try语句中的对象（比如内存泄漏），那么在catch语句中会继续抛出OOM。
+
 
 #### 39、多进程场景遇见过么？
 
-#### 40、关于handler，在任何地方new handler 都是什么线程下
+1、在新的进程中，启动前台Service，播放音乐。
+2、一个成熟的应用一定是多模块化的。首先多进程开发能为应用解决了OOM问题，因为Android对内存的限制是针对于进程的，所以，当我们需要加载大图之类的操作，可以在新的进程中去执行，避免主进程OOM。而且假如图片浏览进程打开了一个过大的图片，java heap 申请内存失败，该进程崩溃并不影响我主进程的使用。
 
-#### 41、sqlite升级，增加字段的语句
 
-#### 42、数据库升级增加表和删除表都不涉及数据迁移，但是修改表涉及到对原有数据进行迁移。升级的方法如下所示：
+#### 248、Canvas.save()跟Canvas.restore()的调用时机
+
+save：用来保存Canvas的状态。save之后，可以调用Canvas的平移、放缩、旋转、错切、裁剪等操作。
+
+restore：用来恢复Canvas之前保存的状态。防止save后对Canvas执行的操作对后续的绘制有影响。
+
+save和restore要配对使用（restore可以比save少，但不能多），如果restore调用次数比save多，会引发Error。save和restore操作执行的时机不同，就能造成绘制的图形不同。
+
+
+#### 41、数据库升级增加表和删除表都不涉及数据迁移，但是修改表涉及到对原有数据进行迁移。升级的方法如下所示：
 
 将现有表命名为临时表。
 创建新表。
 将临时表的数据导入新表。
 删除临时表。
-重写
 
-如果是跨版本数据库升级，可以由两种方式，如下所示：
+如果是跨版本数据库升级，可以有两种方式，如下所示：
 
 逐级升级，确定相邻版本与现在版本的差别，V1升级到V2,V2升级到V3，依次类推。
 跨级升级，确定每个版本与现在数据库的差别，为每个case编写专门升级大代码。
 
+    public class DBservice extends SQLiteOpenHelper{
+        private String CREATE_BOOK = "create table book(bookId integer primarykey,bookName text);";
+        private String CREATE_TEMP_BOOK = "alter table book rename to _temp_book";
+        private String INSERT_DATA = "insert into book select *,'' from _temp_book";
+        private String DROP_BOOK = "drop table _temp_book";
+        public DBservice(Context context, String name, CursorFactory factory,int version) {
+        super(context, name, factory, version);
+        }
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL(CREATE_BOOK);
+        }
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        switch (newVersion) {
+            case 2:
+                db.beginTransaction();
+
+                db.execSQL(CREATE_TEMP_BOOK);
+                db.execSQL(CREATE_BOOK);
+                db.execSQL(INSERT_DATA);
+                db.execSQL(DROP_BOOK);
+
+                db.setTransactionSuccessful();
+                db.endTransaction();
+
+                break;
+        }
+    }
+
+
 #### 43、bitmap recycler 相关
+
+
 
 #### 44、强引用置为null，会不会被回收？
 
@@ -1507,26 +1651,8 @@ SharedPreference无法进行跨进程通信，MODE_MULTI_PROCESS只是保证了�
 
 #### 247、编译期注解跟运行时注解
 
-#### 248、Canvas.save()跟Canvas.restore()的调用时机
 
-#### 249、手写一个简易的结合Retrofit + okhttp的网络请求的代码
 
-#### 250、JSON的结构？
-
-json是一种轻量级的数据交换格式，
-json简单说就是对象和数组，所以这两种结构就是对象和数组两种结构，通过这两种结构可以表示各种复杂的结构
-
-1、对象：对象表示为“{}”扩起来的内容，数据结构为 {key：value,key：value,...}的键值对的结构，在面向对象的语言中，key为对象的属性，value为对应的属性值，所以很容易理解，取值方法为 对象.key 获取属性值，这个属性值的类型可以是 数字、字符串、数组、对象几种。
-
-2、数组：数组在json中是中括号“[]”扩起来的内容，数据结构为 ["java","javascript","vb",...]，取值方式和所有语言中一样，使用索引获取，字段值的类型可以是 数字、字符串、数组、对象几种。
-经过对象、数组2种结构就可以组合成复杂的数据结构了。
-
-#### 251、xml有几种解析方式、区别？
-
-基本的解析方式有三种: DOM,SAX,Pull
-dom解析：解析器读入整个文档，然后构建一个驻留内存的树结构，然后就可以使用 DOM 接口来操作这个树结构。优点是对文档增删改查比较方便，缺点占用内存比较大。
-sax解析：基于事件驱动型,优点占用内存少，解析速度快，缺点是只适合做文档的读取，不适合做文档的增删改，不能中途停止。
-pull解析：同样基于事件驱动型,android 官方API提供,可随时终止,调用next() 方法提取它们（主动提取事件）
 
 
 
