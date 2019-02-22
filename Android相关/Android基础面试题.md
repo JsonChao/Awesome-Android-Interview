@@ -12,6 +12,27 @@
 
 不同的组件发生ANR的时间不一样，Activity是5秒，BroadCastReceiver是10秒，Service是20秒（均为前台）。
 
+如果开发机器上出现问题，我们可以通过查看/data/anr/traces.txt即可，最新的ANR信息在最开始部分。
+
+- 主线程被IO操作（从4.0之后网络IO不允许在主线程中）阻塞。
+- 主线程中存在耗时的计算
+- 主线程中错误的操作，比如Thread.wait或者Thread.sleep等 Android系统会监控程序的响应状况，一旦出现下面两种情况，则弹出ANR对话框
+- 应用在5秒内未响应用户的输入事件（如按键或者触摸）
+- BroadcastReceiver未在10秒内完成相关的处理
+- Service在特定的时间内无法处理完成 20秒
+
+修正：
+
+1、使用AsyncTask处理耗时IO操作。
+
+2、使用Thread或者HandlerThread时，调用Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)设置优先级，否则仍然会降低程序响应，因为默认Thread的优先级和主线程相同。
+
+3、使用Handler处理工作线程结果，而不是使用Thread.wait()或者Thread.sleep()来阻塞主线程。
+
+4、Activity的onCreate和onResume回调中尽量避免耗时的代码。
+BroadcastReceiver中onReceive代码也要尽量减少耗时，建议使用IntentService处理。
+
+
 ##### 解决方案：
 
 将所有耗时操作，比如访问网络，Socket通信，查询大
@@ -505,17 +526,54 @@ Android中的线程池都是直接或间接通过配置ThreadPoolExecutor来实�
 
 #### 29、内存泄露，怎样查找，怎么产生的内存泄露？
 
-1).资源对象没关闭造成的内存泄漏
+1.资源对象没关闭造成的内存泄漏
 
-2).构造Adapter时，没有使用缓存的convertView
+描述： 资源性对象比如(Cursor，File文件等)往往都用了一些缓冲，我们在不使用的时候，应该及时关闭它们，以便它们的缓冲及时回收内存。它们的缓冲不仅存在于 java虚拟机内，还存在于java虚拟机外。如果我们仅仅是把它的引用设置为null,而不关闭它们，往往会造成内存泄漏。因为有些资源性对象，比如SQLiteCursor(在析构函数finalize(),如果我们没有关闭它，它自己会调close()关闭)，如果我们没有关闭它，系统在回收它时也会关闭它，但是这样的效率太低了。因此对于资源性对象在不使用的时候，应该调用它的close()函数，将其关闭掉，然后才置为null.在我们的程序退出时一定要确保我们的资源性对象已经关闭。
 
-3).Bitmap对象不在使用时调用recycle()释放内存
+程序中经常会进行查询数据库的操作，但是经常会有使用完毕Cursor后没有关闭的情况。如果我们的查询结果集比较小，对内存的消耗不容易被发现，只有在常时间大量操作的情况下才会复现内存问题，这样就会给以后的测试和问题排查带来困难和风险。
 
-4).试着使用关于application的context来替代和activiy相关的context
+2.构造Adapter时，没有使用缓存的convertView
 
-5).注册没取消造成的内存泄漏
+描述： 以构造ListView的BaseAdapter为例，在BaseAdapter中提供了方法： public View getView(int position, ViewconvertView, ViewGroup parent) 来向ListView提供每一个item所需要的view对象。初始时ListView会从BaseAdapter中根据当前的屏幕布局实例化一定数量的 view对象，同时ListView会将这些view对象缓存起来。当向上滚动ListView时，原先位于最上面的list item的view对象会被回收，然后被用来构造新出现的最下面的list item。这个构造过程就是由getView()方法完成的，getView()的第二个形参View convertView就是被缓存起来的list item的view对象(初始化时缓存中没有view对象则convertView是null)。由此可以看出，如果我们不去使用 convertView，而是每次都在getView()中重新实例化一个View对象的话，即浪费资源也浪费时间，也会使得内存占用越来越大。 ListView回收list item的view对象的过程可以查看: android.widget.AbsListView.java --> voidaddScrapView(View scrap) 方法。 示例代码：
 
-6).集合中对象没清理造成的内存泄漏
+    public View getView(int position, ViewconvertView, ViewGroup parent) {
+    View view = new Xxx(...); 
+    ... ... 
+    return view; 
+    }
+    
+修正示例代码：
+
+    public View getView(int position, ViewconvertView, ViewGroup parent) {
+    View view = null; 
+    if (convertView != null) { 
+    view = convertView; 
+    populate(view, getItem(position)); 
+    ... 
+    } else { 
+    view = new Xxx(...); 
+    ... 
+    } 
+    return view; 
+    }
+    
+3.Bitmap对象不在使用时调用recycle()释放内存
+
+描述： 有时我们会手工的操作Bitmap对象，如果一个Bitmap对象比较占内存，当它不在被使用的时候，可以调用Bitmap.recycle()方法回收此对象的像素所占用的内存，但这不是必须的，视情况而定。可以看一下代码中的注释：
+
+/* •Free up the memory associated with thisbitmap's pixels, and mark the •bitmap as "dead", meaning itwill throw an exception if getPixels() or •setPixels() is called, and will drawnothing. This operation cannot be •reversed, so it should only be called ifyou are sure there are no •further uses for the bitmap. This is anadvanced call, and normally need •not be called, since the normal GCprocess will free up this memory when •there are no more references to thisbitmap. /
+
+4.试着使用关于application的context来替代和activity相关的context
+
+这是一个很隐晦的内存泄漏的情况。有一种简单的方法来避免context相关的内存泄漏。最显著地一个是避免context逃出他自己的范围之外。使用Application context。这个context的生存周期和你的应用的生存周期一样长，而不是取决于activity的生存周期。如果你想保持一个长期生存的对象，并且这个对象需要一个context,记得使用application对象。你可以通过调用 Context.getApplicationContext() or Activity.getApplication()来获得。更多的请看这篇文章如何避免 Android内存泄漏。
+
+5.注册没取消造成的内存泄漏
+
+一些Android程序可能引用我们的Anroid程序的对象(比如注册机制)。即使我们的Android程序已经结束了，但是别的引用程序仍然还有对我们的Android程序的某个对象的引用，泄漏的内存依然不能被垃圾回收。调用registerReceiver后未调用unregisterReceiver。 比如:假设我们希望在锁屏界面(LockScreen)中，监听系统中的电话服务以获取一些信息(如信号强度等)，则可以在LockScreen中定义一个 PhoneStateListener的对象，同时将它注册到TelephonyManager服务中。对于LockScreen对象，当需要显示锁屏界面的时候就会创建一个LockScreen对象，而当锁屏界面消失的时候LockScreen对象就会被释放掉。 但是如果在释放 LockScreen对象的时候忘记取消我们之前注册的PhoneStateListener对象，则会导致LockScreen无法被垃圾回收。如果不断的使锁屏界面显示和消失，则最终会由于大量的LockScreen对象没有办法被回收而引起OutOfMemory,使得system_process 进程挂掉。 虽然有些系统程序，它本身好像是可以自动取消注册的(当然不及时)，但是我们还是应该在我们的程序中明确的取消注册，程序结束时应该把所有的注册都取消掉。
+
+6.集合中对象没清理造成的内存泄漏
+
+我们通常把一些对象的引用加入到了集合中，当我们不需要该对象时，并没有把它的引用从集合中清理掉，这样这个集合就会越来越大。如果这个集合是static的话，那情况就更严重了。
 
 
 查找内存泄漏可以使用Android Studio 自带的AndroidProfiler工具或MAT，也可以使用Square产品的LeakCanary.
@@ -941,56 +999,200 @@ ddms 原意是：davik debug monitor service。简单的说 ddms 是一个程序
 
 Traceview 是 Android 平台特有的数据采集和分析工具，它主要用于分析 Android 中应用程序的 hotspot（瓶颈）。Traceview 本身只是一个数据分析工具，而数据的采集则需要使用 Android SDK 中的 Debug 类或者利用DDMS 工具。二者的用法如下：开发者在一些关键代码段开始前调用 Android SDK 中 Debug 类的 startMethodTracing 函数，并在关键代码段结束前调用 stopMethodTracing 函数。这两个函数运行过程中将采集运行时间内该应用所有线程（注意，只能是 Java线程） 的函数执行情况， 并将采集数据保存到/mnt/sdcard/下的一个文件中。 开发者然后需要利用 SDK 中的 Traceview工具来分析这些数据。
 
-
-#### 61、activity意外退出时信息的储存与恢复，onCreate正常进入时的判断。
-
-#### 62、HttpClient和HttpConnection的区别
-
-#### 63、除了日常开发，其他有做过什么工作？比如持续化集成，自动化测试等等
-
-#### 64、ActivityA跳转ActivityB然后B按back返回A，各自的生命周期顺序，A与B均不透明。
-
-#### 65、Android中main方法入口在哪里
-
-#### 66、Activity 怎么和Service 绑定，怎么在Activity 中启动自己对应的Service；
-
-#### 67、AstncTask + HttpClient与AsyncHttpClient有什么区别；
-
-#### 68、如何保证一个后台服务不被杀死；比较省电的方式是什么；
-
-#### 69、如何通过广播拦截和abort一条短信；广播是否可以请求网络；广播引起anr的时间限制；
-
-#### 70、BroadcastReceiver，LocalBroadcastReceiver 区别；
-
-#### 71、请介绍下ContentProvider 是如何实现数据共享的；
-
-#### 72、ListView 中图片错位的问题是如何产生的；
-
-#### 73、说说Activity、Intent、Service 是什么关系；
-
-#### 74、ApplicationContext和ActivityContext的区别；
-
-#### 75、Serializable 和Parcelable 的区别；
-
-#### 76、AsyncTask 如何使用；
-
-#### 77、对于应用更新这块是如何做的？(灰度，强制更新，分区域更新)；
-
-#### 78、两个Activity之间跳转时必然会执行的是哪几个方法？
-
-答：一般情况下比如说有两个activity,分别叫A,B,当在A里面激活B 组件的时候, A 会调用onPause()方法,然后B调用onCreate() ,onStart(), onResume()。
-这个时候B 覆盖了窗体, A 会调用onStop()方法. 如果B是个透明的,或者是对话框的样式, 就不会调用A 的
-onStop()方法。
     
-#### 79、如何选择第三方，从那些方面考虑？
+#### 61、ListView卡顿原因
 
-#### 80、简单说下接入支付的流程，是否自己接入过支付功能
+Adapter的getView方法里面convertView没有使用setTag和getTag方式；
 
-#### 81、说下你对多进程的理解，什么情况下要使用多进程，为什么要使用多进程，在多进程的情况下为什么要使用进程通讯。
+在getView方法里面ViewHolder初始化后的赋值或者是多个控件的显示状态和背景的显示没有优化好，抑或是里面含有复杂的计算和耗时操作；
 
-#### 82、说下handler为什么会出现内存泄漏，为什么继承Handle就不会出现内存泄漏？
+在getView方法里面 inflate的row 嵌套太深（布局过于复杂）或者是布局里面有大图片或者背景所致；
 
-#### 83、说下你对广播的理解
+Adapter多余或者不合理的notifySetDataChanged；
+
+listview 被多层嵌套，多次的onMessure导致卡顿，如果多层嵌套无法避免，建议把listview的高和宽设置为match_parent. 如果是代码继承的listview，那么也请你别忘记为你的继承类添加上LayoutPrams，注意高和宽都mactch_parent的；
+
+
+#### 62、AndroidManifest的作用与理解
+
+AndroidManifest.xml文件，也叫清单文件，来获知应用中是否包含该组件，如果有会直接启动该组件。可以理解是一个应用的配置文件。
+
+作用：
+
+- 为应用的 Java 软件包命名。软件包名称充当应用的唯一标识符。
+- 描述应用的各个组件，包括构成应用的 Activity、服务、广播接收器和内容提供程序。它还为实现每个组件的类命名并发布其功能，例如它们可以处理的 Intent - 消息。这些声明向 Android 系统告知有关组件以及可以启动这些组件的条件的信息。
+- 确定托管应用组件的进程。
+- 声明应用必须具备哪些权限才能访问 API 中受保护的部分并与其他应用交互。还声明其他应用与该应用组件交互所需具备的权限
+- 列出 Instrumentation类，这些类可在应用运行时提供分析和其他信息。这些声明只会在应用处于开发阶段时出现在清单中，在应用发布之前将移除。
+- 声明应用所需的最低 Android API 级别
+- 列出应用必须链接到的库
+
+
+#### 63、LaunchMode应用场景
+
+standard，创建一个新的Activity。
+
+singleTop，栈顶不是该类型的Activity，创建一个新的Activity。否则，onNewIntent。
+
+singleTask，回退栈中没有该类型的Activity，创建Activity，否则，onNewIntent+ClearTop。
+
+注意:
+
+设置了"singleTask"启动模式的Activity，它在启动的时候，会先在系统中查找属性值affinity等于它的属性值taskAffinity的Task存在；如果存在这样的Task，它就会在这个Task中启动，否则就会在新的任务栈中启动。因此， 如果我们想要设置了"singleTask"启动模式的Activity在新的任务中启动，就要为它设置一个独立的taskAffinity属性值。
+
+如果设置了"singleTask"启动模式的Activity不是在新的任务中启动时，它会在已有的任务中查看是否已经存在相应的Activity实例， 如果存在，就会把位于这个Activity实例上面的Activity全部结束掉，即最终这个Activity 实例会位于任务的Stack顶端中。
+
+在一个任务栈中只有一个”singleTask”启动模式的Activity存在。他的上面可以有其他的Activity。这点与singleInstance是有区别的。
+
+singleInstance，回退栈中，只有这一个Activity，没有其他Activity。
+
+singleTop适合接收通知启动的内容显示页面。
+
+例如，某个新闻客户端的新闻内容页面，如果收到10个新闻推送，每次都打开一个新闻内容页面是很烦人的。
+
+singleTask适合作为程序入口点。
+
+例如浏览器的主界面。不管从多少个应用启动浏览器，只会启动主界面一次，其余情况都会走onNewIntent，并且会清空主界面上面的其他页面。
+
+singleInstance应用场景：
+
+闹铃的响铃界面。 你以前设置了一个闹铃：上午6点。在上午5点58分，你启动了闹铃设置界面，并按 Home 键回桌面；在上午5点59分时，你在微信和朋友聊天；在6点时，闹铃响了，并且弹出了一个对话框形式的 Activity(名为 AlarmAlertActivity) 提示你到6点了(这个 Activity 就是以 SingleInstance 加载模式打开的)，你按返回键，回到的是微信的聊天界面，这是因为 AlarmAlertActivity 所在的 Task 的栈只有他一个元素， 因此退出之后这个 Task 的栈空了。如果是以 SingleTask 打开 AlarmAlertActivity，那么当闹铃响了的时候，按返回键应该进入闹铃设置界面。
+
+
+#### 64、说说Activity、Intent、Service 是什么关系
+
+他们都是 Android 开发中使用频率最高的类。其中 Activity 和 Service 都是 Android 四大组件之一。他俩都是
+Context 类的子类 ContextWrapper 的子类，因此他俩可以算是兄弟关系吧。不过兄弟俩各有各自的本领，Activity
+负责用户界面的显示和交互，Service 负责后台任务的处理。Activity 和 Service 之间可以通过 Intent 传递数据，因此
+可以把 Intent 看作是通信使者。
+
+
+#### 65、ApplicationContext和ActivityContext的区别
+
+这是两种不同的context，也是最常见的两种.第一种中context的生命周期与Application的生命周期相关的，context随着Application的销毁而销毁，伴随application的一生，与activity的生命周期无关.第二种中的context跟Activity的生命周期是相关的，但是对一个Application来说，Activity可以销毁几次，那么属于Activity的context就会销毁多次.至于用哪种context，得看应用场景。还有就是，在使用context的时候，小心内存泄露，防止内存泄露，注意一下几个方面：
+
+- 不要让生命周期长的对象引用activity context，即保证引用activity的对象要与activity本身生命周期是一样的。
+- 对于生命周期长的对象，可以使用application context。
+- 避免非静态的内部类，尽量使用静态类，避免生命周期问题，注意内部类对外部对象引用导致的生命周期变化。
+
+
+#### 66、Handler、Thread和HandlerThread的差别
+
+1、Handler：在android中负责发送和处理消息，通过它可以实现其他支线线程与主线程之间的消息通讯。
+
+2、Thread：Java进程中执行运算的最小单位，亦即执行处理机调度的基本单位。某一进程中一路单独运行的程序。
+
+3、HandlerThread：一个继承自Thread的类HandlerThread，Android中没有对Java中的Thread进行任何封装，而是提供了一个继承自Thread的类HandlerThread类，这个类对Java的Thread做了很多便利的封装。HandlerThread继承于Thread，所以它本质就是个Thread。与普通Thread的差别就在于，然后在内部直接实现了Looper的实现，这是Handler消息机制必不可少的。有了自己的looper,可以让我们在自己的线程中分发和处理消息。如果不用HandlerThread的话，需要手动去调用Looper.prepare()和Looper.loop()这些方法。
+
+
+#### 67、ThreadLocal的原理
+
+ThreadLocal是一个关于创建线程局部变量的类。使用场景如下所示：
+
+实现单个线程单例以及单个线程上下文信息存储，比如交易id等。
+
+实现线程安全，非线程安全的对象使用ThreadLocal之后就会变得线程安全，因为每个线程都会有一个对应的实例。
+承载一些线程相关的数据，避免在方法中来回传递参数。
+
+
+#### 68、计算一个view的嵌套层级
+
+    private int getParents(ViewParents view){
+        if(view.getParents() == null) 
+            return 0;
+        } else {
+        return (1 + getParents(view.getParents));
+       }
+    }
+
+
+#### 69、MVP，MVVM，MVC解释和实践
+
+
+
+#### 70、SharedPrefrences的apply和commit有什么区别？
+
+
+
+#### 71、Base64、MD5是加密方法么？
+
+
+
+#### 72、HttpClient和HttpConnection的区别？
+
+
+
+#### 73、ActivityA跳转ActivityB然后B按back返回A，各自的生命周期顺序，A与B均不透明。
+
+
+
+#### 74、如何通过广播拦截和abort一条短信？
+
+
+
+#### 75、BroadcastReceiver，LocalBroadcastReceiver 区别；
+
+    
+    
+#### 76、如何选择第三方，从那些方面考虑？
+
+
+
+#### 77、简单说下接入支付的流程，是否自己接入过支付功能？
+
+
+
+#### 78、说下你对多进程的理解，什么情况下要使用多进程，为什么要使用多进程，在多进程的情况下为什么要使用进程通讯。
+
+
+
+#### 79、说下你对广播的理解？
+
+
+
+#### 80、单例实现线程的同步的要求：
+
+1.单例类确保自己只有一个实例(构造函数私有:不被外部实例化,也不被继承)。
+
+2.单例类必须自己创建自己的实例。
+
+3.单例类必须为其他对象提供唯一的实例。
+
+
+#### 81、如何保证Service不被杀死
+
+Android 进程不死从3个层面入手：
+
+A.提供进程优先级，降低进程被杀死的概率
+
+方法一：监控手机锁屏解锁事件，在屏幕锁屏时启动1个像素的 Activity，在用户解锁时将 Activity 销毁掉。
+
+方法二：启动前台service。
+
+方法三：提升service优先级：
+
+在AndroidManifest.xml文件中对于intent-filter可以通过android:priority = "1000"这个属性设置最高优先级，1000是最高值，如果数字越小则优先级越低，同时适用于广播。
+
+B. 在进程被杀死后，进行拉活
+
+方法一：注册高频率广播接收器，唤起进程。如网络变化，解锁屏幕，开机等
+
+方法二：双进程相互唤起。
+
+方法三：依靠系统唤起。
+
+方法四：onDestroy方法里重启service：service +broadcast 方式，就是当service走ondestory的时候，发送一个自定义的广播，当收到广播的时候，重新启动service；
+
+C. 依靠第三方
+
+根据终端不同，在小米手机（包括 MIUI）接入小米推送、华为手机接入华为推送；其他手机可以考虑接入腾讯信鸽或极光推送与小米推送做 A/B Test。
+
+
+#### 82、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
+
+
+#### 83、[通过静态内部类实现单例模式有哪些优点](http://blog.csdn.net/yingpaixiaochuan/article/details/63260514)
+
 
 #### 84、说下你对服务的理解，如何杀死一个服务。
 
@@ -1445,360 +1647,11 @@ BigDecimal类进行商业计算，Float和Double只能用来做科学计算或�
 
 #### 174、[线程池的实现机制](http://www.cnblogs.com/dolphin0520/p/3932921.html)
 
-#### 175、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
 
-#### 176、[通过静态内部类实现单例模式有哪些优点](http://blog.csdn.net/yingpaixiaochuan/article/details/63260514)
 
-#### 177、单例实现线程的同步的要求：
 
-1.单例类确保自己只有一个实例(构造函数私有:不被外部实例化,也不被继承)。
 
-2.单例类必须自己创建自己的实例。
 
-3.单例类必须为其他对象提供唯一的实例。
-
-#### 178、[界面卡顿的原因有哪些？](https://www.jianshu.com/p/1fb065c806e6)
-
-#### 179、[造成OOM/ANR 的原因？](http://www.cnblogs.com/purediy/p/3276545.html)
-
-#### 180、[Activity与Fragment之间如何进行通信？](http://blog.csdn.net/u012702547/article/details/49786417)
-
-#### 181、[操作系统进程间通信有哪些方法](http://blog.csdn.net/shinehoo/article/details/5818843/)
-
-#### 182、如何保证Service不被杀死
-
-Android 进程不死从3个层面入手：
-
-A.提供进程优先级，降低进程被杀死的概率
-
-方法一：监控手机锁屏解锁事件，在屏幕锁屏时启动1个像素的 Activity，在用户解锁时将 Activity 销毁掉。
-
-方法二：启动前台service。
-
-方法三：提升service优先级：
-
-在AndroidManifest.xml文件中对于intent-filter可以通过android:priority = "1000"这个属性设置最高优先级，1000是最高值，如果数字越小则优先级越低，同时适用于广播。
-
-B. 在进程被杀死后，进行拉活
-
-方法一：注册高频率广播接收器，唤起进程。如网络变化，解锁屏幕，开机等
-
-方法二：双进程相互唤起。
-
-方法三：依靠系统唤起。
-
-方法四：onDestroy方法里重启service：service +broadcast 方式，就是当service走ondestory的时候，发送一个自定义的广播，当收到广播的时候，重新启动service；
-
-C. 依靠第三方
-
-根据终端不同，在小米手机（包括 MIUI）接入小米推送、华为手机接入华为推送；其他手机可以考虑接入腾讯信鸽或极光推送与小米推送做 A/B Test。
-
-#### 183、引起内存泄漏的情况
-
-- 对于使用了BraodcastReceiver，ContentObserver，File，游标 Cursor，Stream，Bitmap等资源的使用，应该在Activity销毁时及时关闭或者注销。
-- 静态内部类持有外部成员变量（或context）:可以使用弱引用或使用ApplicationContext。
-- 内部类持有外部类引用,异步任务中，持有外部成员变量。
-- 集合中没用的对象没有及时remove。
-- 不用的对象及时释放，如使用完Bitmap后掉用recycle（），再赋null。
-- handler引起的内存泄漏，MessageQueue里的消息如果在activity销毁时没有处理完，就会引起内存的泄漏，可以使用弱引用解决。
-- 设置过的监听不用时，及时移除。如在Destroy时及时remove。尤其以addListener开头的，在Destroy中都需要remove。
-- activity泄漏可以使用LeakCanary。
-- 在内存引用上做些处理，常用的有软引用、弱引用
-- 在内存中加载图片时直接在内存中作处理，如：边界压缩
-- 动态回收内存
-- 优化Dalvik虚拟机的堆内存分配
-- 自定义堆内存大小
-
-#### 184、Handler机制
-
-andriod提供了Handler 和 Looper 来满足线程间的通信。Handler先进先出原则。Looper类用来管理特定线程内对象之间的消息交换(MessageExchange)。
-
-Looper: 一个线程可以产生一个Looper对象，由它来管理此线程里的MessageQueue(消息队列)。
-
-Handler: 你可以构造Handler对象来与Looper沟通，以便push新消息到MessageQueue里;或者接收Looper从Message Queue取出)所送来的消息
-
-Message Queue(消息队列):用来存放线程放入的消息。
-
-线程：UIthread 通常就是main thread，而Android启动程序时会替它建立一个MessageQueue。
-    
-#### 185、ListView卡顿原因
-
-Adapter的getView方法里面convertView没有使用setTag和getTag方式；
-
-在getView方法里面ViewHolder初始化后的赋值或者是多个控件的显示状态和背景的显示没有优化好，抑或是里面含有复杂的计算和耗时操作；
-
-在getView方法里面 inflate的row 嵌套太深（布局过于复杂）或者是布局里面有大图片或者背景所致；
-
-Adapter多余或者不合理的notifySetDataChanged；
-
-listview 被多层嵌套，多次的onMessure导致卡顿，如果多层嵌套无法避免，建议把listview的高和宽设置为fill_parent. 如果是代码继承的listview，那么也请你别忘记为你的继承类添加上LayoutPrams，注意高和宽都是fill_parent的；
-
-#### 186、Json有什么优劣势
-
-1.JSON的速度要远远快于XML
-
-2.JSON相对于XML来讲，数据的体积小
-
-3.JSON对数据的描述性比XML较差
-
-#### 187、AndroidManifest的作用与理解
-
-#### 188、Android中开启摄像头的主要步骤
-
-#### 189、AlertDialog,popupWindow,Activity区别
-
-#### 190、LaunchMode应用场景
-
-standard，创建一个新的Activity。
-
-singleTop，栈顶不是该类型的Activity，创建一个新的Activity。否则，onNewIntent。
-
-singleTask，回退栈中没有该类型的Activity，创建Activity，否则，onNewIntent+ClearTop。
-
-注意:
-
-设置了"singleTask"启动模式的Activity，它在启动的时候，会先在系统中查找属性值affinity等于它的属性值taskAffinity的Task存在；如果存在这样的Task，它就会在这个Task中启动，否则就会在新的任务栈中启动。因此， 如果我们想要设置了"singleTask"启动模式的Activity在新的任务中启动，就要为它设置一个独立的taskAffinity属性值。
-
-如果设置了"singleTask"启动模式的Activity不是在新的任务中启动时，它会在已有的任务中查看是否已经存在相应的Activity实例， 如果存在，就会把位于这个Activity实例上面的Activity全部结束掉，即最终这个Activity 实例会位于任务的Stack顶端中。
-
-在一个任务栈中只有一个”singleTask”启动模式的Activity存在。他的上面可以有其他的Activity。这点与singleInstance是有区别的。
-
-singleInstance，回退栈中，只有这一个Activity，没有其他Activity。
-
-singleTop适合接收通知启动的内容显示页面。
-
-例如，某个新闻客户端的新闻内容页面，如果收到10个新闻推送，每次都打开一个新闻内容页面是很烦人的。
-
-singleTask适合作为程序入口点。
-
-例如浏览器的主界面。不管从多少个应用启动浏览器，只会启动主界面一次，其余情况都会走onNewIntent，并且会清空主界面上面的其他页面。
-
-singleInstance应用场景：
-
-闹铃的响铃界面。 你以前设置了一个闹铃：上午6点。在上午5点58分，你启动了闹铃设置界面，并按 Home 键回桌面；在上午5点59分时，你在微信和朋友聊天；在6点时，闹铃响了，并且弹出了一个对话框形式的 Activity(名为 AlarmAlertActivity) 提示你到6点了(这个 Activity 就是以 SingleInstance 加载模式打开的)，你按返回键，回到的是微信的聊天界面，这是因为 AlarmAlertActivity 所在的 Task 的栈只有他一个元素， 因此退出之后这个 Task 的栈空了。如果是以 SingleTask 打开 AlarmAlertActivity，那么当闹铃响了的时候，按返回键应该进入闹铃设置界面。
-
-#### 191、AsyncTask 如何使用？
-
-#### 192、SpareArray原理
-
-#### 193、请介绍下ContentProvider 是如何实现数据共享的？
-
-#### 194、Android Service 与 Activity 之间通信的几种方式
-
-- 通过Binder对象
-
-- 通过broadcast(广播)的形式
-
-#### 195、IntentService原理及作用是什么？
-
-#### 196、说说Activity、Intent、Service 是什么关系
-
-#### 197、ApplicationContext和ActivityContext的区别
-
-#### 198、SP是进程同步的吗?有什么方法做到同步？
-
-#### 199、进程和 Application 的生命周期
-
-#### 200、封装View的时候怎么知道view的大小
-
-#### 201、AndroidManifest的作用与理解
-
-#### 202、Handler、Thread和HandlerThread的差别
-
-#### 203、handler发消息给子线程，looper怎么启动？
-
-#### 204、关于Handler，在任何地方new Handler 都是什么线程下?
-
-#### 205、ThreadLocal的原理
-
-ThreadLocal是一个关于创建线程局部变量的类。使用场景如下所示：
-
-实现单个线程单例以及单个线程上下文信息存储，比如交易id等。
-
-实现线程安全，非线程安全的对象使用ThreadLocal之后就会变得线程安全，因为每个线程都会有一个对应的实例。
-承载一些线程相关的数据，避免在方法中来回传递参数。
-
-#### 206、请解释下在单线程模型中Message、Handler、Message Queue、Looper之间的关系
-
-#### 207、ANR定位和修正
-
-如果开发机器上出现问题，我们可以通过查看/data/anr/traces.txt即可，最新的ANR信息在最开始部分。
-
-主线程被IO操作（从4.0之后网络IO不允许在主线程中）阻塞。
-主线程中存在耗时的计算
-主线程中错误的操作，比如Thread.wait或者Thread.sleep等 Android系统会监控程序的响应状况，一旦出现下面两种情况，则弹出ANR对话框
-应用在5秒内未响应用户的输入事件（如按键或者触摸）
-BroadcastReceiver未在10秒内完成相关的处理
-Service在特定的时间内无法处理完成 20秒
-
-使用AsyncTask处理耗时IO操作。
-
-使用Thread或者HandlerThread时，调用Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND)设置优先级，否则仍然会降低程序响应，因为默认Thread的优先级和主线程相同。
-
-使用Handler处理工作线程结果，而不是使用Thread.wait()或者Thread.sleep()来阻塞主线程。
-
-Activity的onCreate和onResume回调中尽量避免耗时的代码
-BroadcastReceiver中onReceive代码也要尽量减少耗时，建议使用IntentService处理。
-
-#### 208、oom是什么？什么情况导致oom？
-
-http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0920/3478.html
-
-1）使用更加轻量的数据结构 
-
-2）Android里面使用Enum
-
-3）Bitmap对象的内存占用 
-
-4）更大的图片
-
-5）onDraw方法里面执行对象的创建
-
-6）StringBuilder
-
-#### 209、有什么解决方法可以避免OOM？
-
-#### 210、Oom 是否可以try catch？为什么？
-
-#### 211、什么情况导致内存泄漏？
-
-1.资源对象没关闭造成的内存泄漏
-
-描述： 资源性对象比如(Cursor，File文件等)往往都用了一些缓冲，我们在不使用的时候，应该及时关闭它们，以便它们的缓冲及时回收内存。它们的缓冲不仅存在于 java虚拟机内，还存在于java虚拟机外。如果我们仅仅是把它的引用设置为null,而不关闭它们，往往会造成内存泄漏。因为有些资源性对象，比如SQLiteCursor(在析构函数finalize(),如果我们没有关闭它，它自己会调close()关闭)，如果我们没有关闭它，系统在回收它时也会关闭它，但是这样的效率太低了。因此对于资源性对象在不使用的时候，应该调用它的close()函数，将其关闭掉，然后才置为null.在我们的程序退出时一定要确保我们的资源性对象已经关闭。
-
-程序中经常会进行查询数据库的操作，但是经常会有使用完毕Cursor后没有关闭的情况。如果我们的查询结果集比较小，对内存的消耗不容易被发现，只有在常时间大量操作的情况下才会复现内存问题，这样就会给以后的测试和问题排查带来困难和风险。
-
-2.构造Adapter时，没有使用缓存的convertView
-
-描述： 以构造ListView的BaseAdapter为例，在BaseAdapter中提供了方法： public View getView(int position, ViewconvertView, ViewGroup parent) 来向ListView提供每一个item所需要的view对象。初始时ListView会从BaseAdapter中根据当前的屏幕布局实例化一定数量的 view对象，同时ListView会将这些view对象缓存起来。当向上滚动ListView时，原先位于最上面的list item的view对象会被回收，然后被用来构造新出现的最下面的list item。这个构造过程就是由getView()方法完成的，getView()的第二个形参View convertView就是被缓存起来的list item的view对象(初始化时缓存中没有view对象则convertView是null)。由此可以看出，如果我们不去使用 convertView，而是每次都在getView()中重新实例化一个View对象的话，即浪费资源也浪费时间，也会使得内存占用越来越大。 ListView回收list item的view对象的过程可以查看: android.widget.AbsListView.java --> voidaddScrapView(View scrap) 方法。 示例代码：
-
-    public View getView(int position, ViewconvertView, ViewGroup parent) {
-    View view = new Xxx(...); 
-    ... ... 
-    return view; 
-    }
-    
-修正示例代码：
-
-    public View getView(int position, ViewconvertView, ViewGroup parent) {
-    View view = null; 
-    if (convertView != null) { 
-    view = convertView; 
-    populate(view, getItem(position)); 
-    ... 
-    } else { 
-    view = new Xxx(...); 
-    ... 
-    } 
-    return view; 
-    }
-    
-3.Bitmap对象不在使用时调用recycle()释放内存
-
-描述： 有时我们会手工的操作Bitmap对象，如果一个Bitmap对象比较占内存，当它不在被使用的时候，可以调用Bitmap.recycle()方法回收此对象的像素所占用的内存，但这不是必须的，视情况而定。可以看一下代码中的注释：
-
-/* •Free up the memory associated with thisbitmap's pixels, and mark the •bitmap as "dead", meaning itwill throw an exception if getPixels() or •setPixels() is called, and will drawnothing. This operation cannot be •reversed, so it should only be called ifyou are sure there are no •further uses for the bitmap. This is anadvanced call, and normally need •not be called, since the normal GCprocess will free up this memory when •there are no more references to thisbitmap. /
-
-4.试着使用关于application的context来替代和activity相关的context
-
-这是一个很隐晦的内存泄漏的情况。有一种简单的方法来避免context相关的内存泄漏。最显著地一个是避免context逃出他自己的范围之外。使用Application context。这个context的生存周期和你的应用的生存周期一样长，而不是取决于activity的生存周期。如果你想保持一个长期生存的对象，并且这个对象需要一个context,记得使用application对象。你可以通过调用 Context.getApplicationContext() or Activity.getApplication()来获得。更多的请看这篇文章如何避免 Android内存泄漏。
-
-5.注册没取消造成的内存泄漏
-
-一些Android程序可能引用我们的Anroid程序的对象(比如注册机制)。即使我们的Android程序已经结束了，但是别的引用程序仍然还有对我们的Android程序的某个对象的引用，泄漏的内存依然不能被垃圾回收。调用registerReceiver后未调用unregisterReceiver。 比如:假设我们希望在锁屏界面(LockScreen)中，监听系统中的电话服务以获取一些信息(如信号强度等)，则可以在LockScreen中定义一个 PhoneStateListener的对象，同时将它注册到TelephonyManager服务中。对于LockScreen对象，当需要显示锁屏界面的时候就会创建一个LockScreen对象，而当锁屏界面消失的时候LockScreen对象就会被释放掉。 但是如果在释放 LockScreen对象的时候忘记取消我们之前注册的PhoneStateListener对象，则会导致LockScreen无法被垃圾回收。如果不断的使锁屏界面显示和消失，则最终会由于大量的LockScreen对象没有办法被回收而引起OutOfMemory,使得system_process 进程挂掉。 虽然有些系统程序，它本身好像是可以自动取消注册的(当然不及时)，但是我们还是应该在我们的程序中明确的取消注册，程序结束时应该把所有的注册都取消掉。
-
-6.集合中对象没清理造成的内存泄漏
-
-我们通常把一些对象的引用加入到了集合中，当我们不需要该对象时，并没有把它的引用从集合中清理掉，这样这个集合就会越来越大。如果这个集合是static的话，那情况就更严重了。
-
-#### 212、ContentProvider的权限管理（解答：读写分离，权限控制-精确到表级，URL控制）
-
-#### 213、如何通过广播拦截和abort一条短信？
-
-#### 214、广播是否可以请求网络
-
-#### 215、计算一个view的嵌套层级
-
-#### 216、Android线程有没有上限？
-
-#### 217、线程池有没有上限？
-
-#### 218、ListView重用的是什么？
-
-#### 219、Android为什么引入Parcelable
-
-所谓序列化就是将对象变成二进制流，便于存储和传输。
-
-Serializable是java实现的一套序列化方式，可能会触发频繁的IO操作，效率比较低，适合将对象存储到磁盘上的情况。
-Parcelable是Android提供一套序列化机制，它将序列化后的字节流写入到一个共性内存中，其他对象可以从这块共享内存中读出字节流，并反序列化成对象。因此效率比较高，适合在对象间或者进程间传递信息。
-
-#### 220、有没有尝试简化Parcelable的使用？
-
-#### 221、Android进程分类？
-
-Android的进程主要分为以下几种：
-
-前台进程
-
-用户当前操作所必需的进程。如果一个进程满足以下任一条件，即视为前台进程：
-
-托管用户正在交互的 Activity（已调用 Activity 的 onResume() 方法）
-托管某个 Service，后者绑定到用户正在交互的 Activity
-托管正在“前台”运行的 Service（服务已调用 startForeground()）
-托管正执行一个生命周期回调的 Service（onCreate()、onStart() 或 onDestroy()）
-托管正执行其 onReceive() 方法的 BroadcastReceiver
-通常，在任意给定时间前台进程都为数不多。只有在内存不足以支持它们同时继续运行这一万不得已的情况下，系统才会终止它们。 此时，设备往往已达到内存分页状态，因此需要终止一些前台进程来确保用户界面正常响应。
-
-可见进程
-
-没有任何前台组件、但仍会影响用户在屏幕上所见内容的进程。 如果一个进程满足以下任一条件，即视为可见进程：
-
-托管不在前台、但仍对用户可见的 Activity（已调用其 onPause() 方法）。例如，如果前台 Activity 启动了一个对话框，允许在其后显示上一 Activity，则有可能会发生这种情况。
-托管绑定到可见（或前台）Activity 的 Service。
-可见进程被视为是极其重要的进程，除非为了维持所有前台进程同时运行而必须终止，否则系统不会终止这些进程。
-
-服务进程
-
-正在运行已使用 startService() 方法启动的服务且不属于上述两个更高类别进程的进程。尽管服务进程与用户所见内容没有直接关联，但是它们通常在执行一些用户关 心的操作（例如，在后台播放音乐或从网络下载数据）。因此，除非内存不足以维持所有前台进程和可见进程同时运行，否则系统会让服务进程保持运行状态。
-
-后台进程
-
-包含目前对用户不可见的 Activity 的进程（已调用 Activity 的 onStop() 方法）。这些进程对用户体验没有直接影响，系统可能随时终止它们，以回收内存供前台进程、可见进程或服务进程使用。 通常会有很多后台进程在运行，因此它们会保存在 LRU （最近最少使用）列表中，以确保包含用户最近查看的 Activity 的进程最后一个被终止。如果某个 Activity 正确实现了生命周期方法，并保存了其当前状态，则终止其进程不会对用户体验产生明显影响，因为当用户导航回该 Activity 时，Activity 会恢复其所有可见状态。
-
-空进程
-
-不含任何活动应用组件的进程。保留这种进程的的唯一目的是用作缓存，以缩短下次在其中运行组件所需的启动时间。 为使总体系统资源在进程缓存和底层内核缓存之间保持平衡，系统往往会终止这些进程。
-
-ActivityManagerService负责根据各种策略算法计算进程的adj值，然后交由系统内核进行进程的管理。
-
-SharePreference性能优化，可以做进程同步吗？
-在Android中, SharePreferences是一个轻量级的存储类，特别适合用于保存软件配置参数。使用SharedPreferences保存数据，其背后是用xml文件存放数据，文件 存放在/data/data/ < package name > /shared_prefs目录下.
-
-之所以说SharedPreference是一种轻量级的存储方式，是因为它在创建的时候会把整个文件全部加载进内存，如果SharedPreference文件比较大，会带来以下问题：
-
-第一次从sp中获取值的时候，有可能阻塞主线程，使界面卡顿、掉帧。
-解析sp的时候会产生大量的临时对象，导致频繁GC，引起界面卡顿。
-这些key和value会永远存在于内存之中，占用大量内存。
-优化建议
-
-不要存放大的key和value，会引起界面卡、频繁GC、占用内存等等。
-毫不相关的配置项就不要放在在一起，文件越大读取越慢。
-读取频繁的key和不易变动的key尽量不要放在一起，影响速度，如果整个文件很小，那么忽略吧，为了这点性能添加维护成本得不偿失。
-不要乱edit和apply，尽量批量修改一次提交，多次apply会阻塞主线程。
-尽量不要存放JSON和HTML，这种场景请直接使用JSON。
-SharedPreference无法进行跨进程通信，MODE_MULTI_PROCESS只是保证了在API 11以前的系统上，如果sp已经被读取进内存，再次获取这个SharedPreference的时候，如果有这个flag，会重新读一遍文件，仅此而已。
-
-#### 222、Fragment的replace和add的区别？
-
-#### 223、MVP，MVVM，MVC解释和实践
-
-#### 224、项目之外的，对技术的见解，拓展知识
-
-#### 225、SharedPrefrences的apply和commit有什么区别
-
-#### 226、MD5是加密方法么，Base64
-
-#### 227、有博客和github，主要是写的什么？有哪些关注
 
 
 
