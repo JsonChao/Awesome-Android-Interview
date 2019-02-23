@@ -93,6 +93,9 @@ Java中多态的实现方式：接口实现，继承父类进行方法重写，�
 
 #### 5、适配器模式，装饰者模式，外观模式的异同？
 
+#### 6、[通过静态内部类实现单例模式有哪些优点](http://blog.csdn.net/yingpaixiaochuan/article/details/63260514)
+
+
 
     
 ### 二、集合框架 （⭐⭐⭐）
@@ -558,7 +561,24 @@ Java中需要编码的地方一般都在字符到字节的转换上，这个一�
 
 Reader 类是 Java 的 I/O 中读字符的父类，而InputStream 类是读字节的父类，InputStreamReader类就是关联字节到字符的桥梁，它负责在 I/O过程中处理读取字节到字符的转换，而具体字节到字符解码实现它由 StreamDecoder 去实现，在 StreamDecoder解码过程中必须由用户指定 Charset 编码格式。
 
-#### 30、String、StringBuffer、StringBuilder区别
+#### 30、String，StringBuffer，StringBuilder有哪些不同
+
+三者在执行速度方面的比较：StringBuilder >  StringBuffer  >  String
+
+String每次变化一个值就会开辟一个新的内存空间
+
+StringBuilder：线程非安全的
+
+StringBuffer：线程安全的
+
+对于三者使用的总结： 
+
+1.如果要操作少量的数据用 = String
+
+2.单线程操作字符串缓冲区 下操作大量数据 = StringBuilder
+
+3.多线程操作字符串缓冲区 下操作大量数据 = StringBuffer
+
 
 #### 31、什么是内部类？内部类的作用
 
@@ -714,5 +734,23 @@ val log = { str: String, printLog: (String) -> Unit ->
     printLog(str)
 }
 
+
+#### 61、java为什么跨平台
+
+因为Java程序编译之后的代码不是能被硬件系统直接运行的代码，而是一种“中间码”——字节码。然后不同的硬件平台上安装有不同的Java虚拟机(JVM)，由JVM来把字节码再“翻译”成所对应的硬件平台能够执行的代码。因此对于Java编程者来说，不需要考虑硬件平台是什么。所以Java可以跨平台。
+
+#### 62、浮点数的精准计算
+
+BigDecimal类进行商业计算，Float和Double只能用来做科学计算或者是工程计算
+
+#### 63、int,long的取值范围以及BigDecimal，数值越界了如何处理？
+
+#### 64、注解如何获取，反射为何耗性能？
+
+#### 65、final修饰一个对象，能否调用对象修改属性的方法
+
+#### 66、谈谈对接口与回调的理解
+
+#### 67、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
 
 
