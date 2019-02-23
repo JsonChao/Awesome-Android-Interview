@@ -1089,10 +1089,14 @@ Context 类的子类 ContextWrapper 的子类，因此他俩可以算是兄弟�
 
 ThreadLocal是一个关于创建线程局部变量的类。使用场景如下所示：
 
-实现单个线程单例以及单个线程上下文信息存储，比如交易id等。
+- 实现单个线程单例以及单个线程上下文信息存储，比如交易id等。
 
-实现线程安全，非线程安全的对象使用ThreadLocal之后就会变得线程安全，因为每个线程都会有一个对应的实例。
+- 实现线程安全，非线程安全的对象使用ThreadLocal之后就会变得线程安全，因为每个线程都会有一个对应的实例。
 承载一些线程相关的数据，避免在方法中来回传递参数。
+
+当需要使用多线程时，有个变量恰巧不需要共享，此时就不必使用synchronized这么麻烦的关键字来锁住，每个线程都相当于在堆内存中开辟一个空间，线程中带有对共享变量的缓冲区，通过缓冲区将堆内存中的共享变量进行读取和操作，ThreadLocal相当于线程内的内存，一个局部变量。每次可以对线程自身的数据读取和操作，并不需要通过缓冲区与 主内存中的变量进行交互。并不会像synchronized那样修改主内存的数据，再将主内存的数据复制到线程内的工作内存。ThreadLocal可以让线程独占资源，存储于线程内部，避免线程堵塞造成CPU吞吐下降。
+
+在每个Thread中包含一个ThreadLocalMap，ThreadLocalMap的key是ThreadLocal的对象，value是独享数据。
 
 
 #### 68、计算一个view的嵌套层级
@@ -1188,91 +1192,52 @@ C. 依靠第三方
 根据终端不同，在小米手机（包括 MIUI）接入小米推送、华为手机接入华为推送；其他手机可以考虑接入腾讯信鸽或极光推送与小米推送做 A/B Test。
 
 
-#### 82、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
 
 
-#### 83、[通过静态内部类实现单例模式有哪些优点](http://blog.csdn.net/yingpaixiaochuan/article/details/63260514)
 
+#### 82、说下你对服务的理解，如何杀死一个服务。
 
-#### 84、说下你对服务的理解，如何杀死一个服务。
+#### 83、如何查看模拟器中的SP与SQList文件。如何可视化查看布局嵌套层数与加载时间。
 
-#### 85、如何查看模拟器中的SP与SQList文件。如何可视化查看布局嵌套层数与加载时间。
+#### 84、各大平台打包上线的流程与审核时间，常见问题(主流的应用市场说出3-4个)
 
-#### 86、各大平台打包上线的流程与审核时间，常见问题(主流的应用市场说出3-4)
-
-#### 87、如何收集anr信息
-
-#### 88、说说ContentProvider、ContentResolver、ContentObserver 之间的关系
+#### 85、说说ContentProvider、ContentResolver、ContentObserver 之间的关系
 
 ContentProvider：管理数据，提供数据的增删改查操作，数据源可以是数据库、文件、XML、网络等，ContentProvider为这些数据的访问提供了统一的接口，可以用来做进程间数据共享。
 ContentResolver：ContentResolver可以不同URI操作不同的ContentProvider中的数据，外部进程可以通过ContentResolver与ContentProvider进行交互。
 ContentObserver：观察ContentProvider中的数据变化，并将变化通知给外界。
 
-#### 89、AlertDialog,popupWindow,Activity区别
-
-#### 90、Android属性动画特性
-
-如果你的需求中只需要对View进行移动、缩放、旋转和淡入淡出操作，那么补间动画确实已经足够健全了。但是很显然，这些功能是不足以覆盖所有的场景的，一旦我们的需求超出了移动、缩放、旋转和淡入淡出这四种对View的操作，那么补间动画就不能再帮我们忙了，也就是说它在功能和可扩展方面都有相当大的局限性，那么下面我们就来看看补间动画所不能胜任的场景。
-
-注意上面我在介绍补间动画的时候都有使用“对View进行操作”这样的描述，没错，补间动画是只能够作用在View上的。也就是说，我们可以对一个Button、TextView、甚至是LinearLayout、或者其它任何继承自View的组件进行动画操作，但是如果我们想要对一个非View的对象进行动画操作，抱歉，补间动画就帮不上忙了。可能有的朋友会感到不能理解，我怎么会需要对一个非View的对象进行动画操作呢？这里我举一个简单的例子，比如说我们有一个自定义的View，在这个View当中有一个Point对象用于管理坐标，然后在onDraw()方法当中就是根据这个Point对象的坐标值来进行绘制的。也就是说，如果我们可以对Point对象进行动画操作，那么整个自定义View的动画效果就有了。显然，补间动画是不具备这个功能的，这是它的第一个缺陷。
-
-然后补间动画还有一个缺陷，就是它只能够实现移动、缩放、旋转和淡入淡出这四种动画操作，那如果我们希望可以对View的背景色进行动态地改变呢？很遗憾，我们只能靠自己去实现了。说白了，之前的补间动画机制就是使用硬编码的方式来完成的，功能限定死就是这些，基本上没有任何扩展性可言。
-
-最后，补间动画还有一个致命的缺陷，就是它只是改变了View的显示效果而已，而不会真正去改变View的属性。什么意思呢？比如说，现在屏幕的左上角有一个按钮，然后我们通过补间动画将它移动到了屏幕的右下角，现在你可以去尝试点击一下这个按钮，点击事件是绝对不会触发的，因为实际上这个按钮还是停留在屏幕的左上角，只不过补间动画将这个按钮绘制到了屏幕的右下角而已。
-
-#### 91、如何导入外部数据库?
+#### 86、如何导入外部数据库?
 
 把原数据库包括在项目源码的 res/raw
 
 android系统下数据库应该存放在 /data/data/com..（package name）/ 目录下，所以我们需要做的是把已有的数据库传入那个目录下.操作方法是用FileInputStream读取原数据库，再用FileOutputStream把读取到的东西写入到那个目录.
 
-#### 92、LinearLayout、RelativeLayout、FrameLayout的特性及对比，并介绍使用场景。
+#### 87、屏幕适配的处理技巧都有哪些?
 
-#### 93、谈谈对接口与回调的理解
+#### 88、动态布局的理解
 
-#### 94、屏幕适配的处理技巧都有哪些?
+#### 89、怎么去除重复代码？
 
-#### 95、服务器只提供数据接收接口，在多线程或多进程条件下，如何保证数据的有序到达？
+#### 90、Recycleview和ListView的区别
 
-#### 96、动态布局的理解
+#### 91、动态权限适配方案，权限组的概念
 
-#### 97、怎么去除重复代码？
+#### 92、Android系统为什么会设计ContentProvider？
 
-#### 98、Recycleview和ListView的区别
+#### 93、下拉状态栏是不是影响activity的生命周期
 
-#### 99、ListView图片加载错乱的原理和解决方案
+#### 94、如果在onStop的时候做了网络请求，onResume的时候怎么恢复？
 
-#### 100、动态权限适配方案，权限组的概念
+#### 95、Debug和Release状态的不同
 
-#### 101、Android系统为什么会设计ContentProvider？
+#### 96、dp是什么，sp呢，有什么区别
 
-#### 102、下拉状态栏是不是影响activity的生命周期
+#### 97、自定义View，ViewGroup注意那些回调？
 
-#### 103、如果在onStop的时候做了网络请求，onResume的时候怎么恢复？
+#### 98、android中的存储类型
 
-#### 104、Bitmap使用时候注意什么？
-
-#### 105、Bitmap的recycler（）
-
-#### 106、Android中开启摄像头的主要步骤
-
-#### 107、ViewPager使用细节，如何设置成每次只初始化当前的Fragment，其他的不初始化？
-
-#### 108、Debug和Release状态的不同
-
-#### 109、dp是什么，sp呢，有什么区别
-
-#### 110、自定义View，ViewGroup注意那些回调？
-
-#### 111、界面卡顿的原因以及解决方法
-
-#### 112、android中的存储类型
-
-#### 113、service用过么，基本调用方法
-
-#### 114、Handler机制
-
-#### 115、LinearLayout、FrameLayout、RelativeLayout性能对比，为什么
+#### 99、LinearLayout、FrameLayout、RelativeLayout性能对比，为什么
 
 RelativeLayout会让子View调用2次onMeasure，LinearLayout 在有weight时，也会调用子View2次onMeasure
 
@@ -1281,29 +1246,10 @@ RelativeLayout的子View如果高度和RelativeLayout不同，则会引发效率
 在不影响层级深度的情况下,使用LinearLayout和FrameLayout而不是RelativeLayout。
 最后再思考一下文章开头那个矛盾的问题，为什么Google给开发者默认新建了个RelativeLayout，而自己却在DecorView中用了个LinearLayout。因为DecorView的层级深度是已知而且固定的，上面一个标题栏，下面一个内容栏。采用RelativeLayout并不会降低层级深度，所以此时在根节点上用LinearLayout是效率最高的。而之所以给开发者默认新建了个RelativeLayout是希望开发者能采用尽量少的View层级来表达布局以实现性能最优，因为复杂的View嵌套对性能的影响会更大一些。
 
-#### 116、Activity的生命周期，finish调用后其他生命周期还会走么？
 
-#### 117、内存泄漏如何排查，MAT分析方法以及原理，各种泄漏的原因是什么比如Handler为什么会泄漏
+#### 100、Activity的生命周期，finish调用后其他生命周期还会走么？
 
-#### 118、view的绘制熟悉么，介绍下
-
-#### 119、anr是因为什么产生的，怎么排查
-
-#### 120、界面上的话，有什么优化措施么？比如列表展示之类的，平时遇到过内存问题吗，怎么优化的？
-
-#### 121、线程之间怎么通信的？
-
-#### 122、有没有做过 apk 多渠道打包；
-
-#### 123、java线程，场景实现，多个线程如何同时请求，返回的结果如何等待所有线程数据完成后合成一个数据
-
-#### 124、Manifest.xml的里有什么和作用
-
-#### 125、什么是多进程，进程和线程的区别，如何给四大组件指定多进程。
-
-#### 126、如何选择第三方，从那些方面考虑
-
-#### 127、scheme跳转协议
+#### 101、scheme跳转协议
 
 Android中的scheme是一种页面内跳转协议，通过定义自己的scheme协议，可以跳转到app中的各个页面
 
@@ -1313,25 +1259,8 @@ App可以通过跳转到另一个App页面
 
 可以通过H5页面跳转页面
 
-#### 128、Service和Thread的区别
 
-Service是安卓中系统的组件，它运行在独立进程的主线程中，不可以执行耗时操作。Thread是程序执行的最小单元，分配CPU的基本单位，可以开启子线程执行耗时操作
-
-Service在不同Activity中可以获取自身实例，可以方便的对Service进行操作。Thread在不同的Activity中难以获取自身实例，如果Activity被销毁，Thread实例就很难再获取得到
-
-#### 129、Bitmap recycle
-
-在安卓3.0以前Bitmap是存放在堆中的，我们只要回收堆内存即可
-    
-在安卓3.0以后Bitmap是存放在内存中的，我们需要回收native层和Java层的内存
-    
-官方建议我们3.0以后使用recycle方法进行回收，该方法也可以不主动调用，因为垃圾回收器会自动收集不可用的Bitmap对象进行回收
-    
-recycle方法会判断Bitmap在不可用的情况下，将发送指令到垃圾回收器，让其回收native层和Java层的内存，则Bitmap进入dead状态
-    
-recycle方法是不可逆的，如果再次调用getPixels()等方法，则获取不到想要的结果
-    
-#### 130、HandlerThread
+#### 102、HandlerThread
 
 1、HandlerThread作用
 
@@ -1353,174 +1282,8 @@ recycle方法是不可逆的，如果再次调用getPixels()等方法，则获�
 
 - HandlerThread与线程池不同，HandlerThread是一个串队列，背后只有一个线程。
 
-#### 131、IntentService
 
-https://link.juejin.im/?target=http%3A%2F%2Fblog.csdn.net%2Fjavazejian%2Farticle%2Fdetails%2F52426425
-
-#### 132、AsyncTask
-
-https://link.juejin.im/?target=http%3A%2F%2Fblog.csdn.net%2Fjavazejian%2Farticle%2Fdetails%2F52462830
-
-#### 133、有遇到过哪些屏幕和资源适配问题？
-
-https://www.jianshu.com/p/46ce37b8553c
-
-#### 134、项目中遇到哪些难题，最终你是如何解决的？
-
-https://www.jianshu.com/p/69d9444e2a9a
-
-#### 135、如何将一个Activity设置成窗口的样式。
-
-<activity>中配置：
-
-    android:theme="@android:style/Theme.Dialog"
-    
-另外 
-
-    android:theme="@android:style/Theme.Translucnt"
-是设置透明
-
-
-#### 136、Android Application对象必须掌握的七点
-
-https://blog.csdn.net/lilu_leo/article/details/8649941
-
-#### 137、listview图片加载错乱的原理和解决方案
-
-https://blog.csdn.net/guolin_blog/article/details/45586553
-
-#### 138、数据库数据迁移，把大象装进新冰箱共分几步？
-
-- 将表名改成临时表ALTER TABLE Order RENAME TO _Order
-
-- 创建新表 CREATETABLE Test(Id VARCHAR(32) PRIMARY KEY ,
-  CustomName VARCHAR(32) NOTNULL , Country VARCHAR(16) NOTNULL)
-
-- 导入数据 INSERTINTO Order SELECT id, “”, Age FROM _Order
-
-- 删除临时表DROPTABLE _Order
-
-#### 139、深入理解Java注解类型(@Annotation)
-
-https://blog.csdn.net/javazejian/article/details/71860633
-
-#### 140、如何开启多进程?应用是否可以开启N个进程？
-
-#### 141、final修饰一个对象，能否调用对象修改属性的方法
-
-#### 142、注解如何获取，反射为何耗性能？
-
-#### 143、int,long的取值范围以及BigDecimal，数值越界了如何处理？
-
-#### 144.Android中如何查看一个对象的回收情况？
-
-#### 145、ContentProvider、ContentResolver、ContentObserver 之间的关系。
-
-#### 146、Android怎么加速启动Activity
-
-#### 147、invalidate和requestLayout的区别及使用。
-
-#### 148、如何反编译，对代码逆向分析；
-
-#### 149、Intent传值有大小限制吗，为什么，如何处理；
-
-#### 151、广播中怎么进行网络请求
-
-#### 152、双线程通过线程同步的方式打印12121212.......
-
-
-
-#### 153、RemoteViews实现和使用场景
-
-
-#### 154、对服务器众多错误码的处理（错误码有好几万个）
-
-
-#### 155、adb常用命令行 
-
-#### 156、Android中跨进程通讯的几种方式
-
-1：访问其他应用程序的Activity
-如调用系统通话应用
-
-    Intent callIntent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:12345678");
-    startActivity(callIntent);
-
-2：Content Provider
-如访问系统相册
-
-3：广播（Broadcast）
-如显示系统时间
-
-4：AIDL服务
-
-#### 157、显示Intent与隐式Intent的区别
-
-对明确指出了目标组件名称的Intent，我们称之为“显式Intent”。
-
-对于没有明确指出目标组件名称的Intent，则称之为“隐式 Intent”。
-
-对于隐式意图，在定义Activity时，指定一个intent-filter，当一个隐式意图对象被一个意图过滤器进行匹配时，将有三个方面会被参考到：
-
-动作(Action)
-
-类别(Category ['kætɪg(ə)rɪ] )
-
-数据(Data )
-
-    <activity android:name=".MainActivity"  android:label="@string/app_name">
-                <intent-filter>
-                    <action android:name="com.wpc.test" />
-                    <category android:name="android.intent.category.DEFAULT" />
-                    <data android:mimeType="image/gif"/>
-                </intent-filter>
-    </activity>
-
-#### 158、什么是线程池，线程池的作用是什么
-
-线程池的基本思想还是一种对象池的思想，开辟一块内存空间，里面存放了众多(未死亡)的线程，池中线程执行调度由池管理器来处理。当有线程任务时，从池中取一个，执行完成后线程对象归池，这样可以避免反复创建线程对象所带来的性能开销，节省了系统的资源。就好比原来去食堂打饭是每个人看谁抢的赢，谁先抢到谁先吃，有了线程池之后，就是排好队形，今天我跟你关系好，你先来吃饭。比如：一个应用要和网络打交道，有很多步骤需要访问网络，为了不阻塞主线程，每个步骤都创建个线程，在线程中和网络交互，用线程池就变的简单，线程池是对线程的一种封装，让线程用起来更加简便，只需要创一个线程池，把这些步骤像任务一样放进线程池，在程序销毁时只要调用线程池的销毁函数即可。
-
-单个线程的弊端：a. 每次new Thread新建对象性能差b. 线程缺乏统一管理，可能无限制新建线程，相互之间竞争，及可能占用过多系统资源导致死机或者OOM,c. 缺乏更多功能，如定时执行、定期执行、线程中断。
-
-java提供的四种线程池的好处在于：a. 重用存在的线程，减少对象创建、消亡的开销，性能佳。b. 可有效控制最大并发线程数，提高系统资源的使用率，同时避免过多资源竞争，避免堵塞。c. 提供定时执行、定期执行、单线程、并发数控制等功能。
-
-Java 线程池
-
-Java通过Executors提供四种线程池，分别为：
-
-newCachedThreadPool创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。
-
-newFixedThreadPool 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。
-
-newScheduledThreadPool 创建一个定长线程池，支持定时及周期性任务执行。
-
-newSingleThreadExecutor 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。
-
-(1). newCachedThreadPool
-
-创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。线程池为无限大，当执行第二个任务时第一个任务已经完成，会复用执行第一个任务的线程，而不用每次新建线程。
-
-(2). newFixedThreadPool
-
-创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。
-
-(3) newScheduledThreadPool
-
-创建一个定长线程池，支持定时及周期性任务执行。ScheduledExecutorService比Timer更安全，功能更强大
-
-(4)、newSingleThreadExecutor
-
-创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行
-
-http://yukai.space/2017/05/08/java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E4%BD%BF%E7%94%A8/
-
-https://juejin.im/post/5906b6e78d6d810058dab1bf
-
-虚拟机如何实现的synchronized？
-
-http://www.infoq.com/cn/articles/java-se-16-synchronized
-
-#### 159、IntentService的用法
+#### 103、IntentService
 
 一、IntentService简介 
 
@@ -1543,7 +1306,7 @@ Service也不是专门一条新线程，因此不应该在Service中直接处理
 为Service的onStartCommand提供默认实现，将请求Intent添加到队列中； 
 
 IntentService不会阻塞UI线程，而普通Serveice会导致ANR异常
-Intentservice若未执行完成上一次的任务，将不会新开一个线程，是等待之前的任务完成后，再执行新的任务，等任务完成后再次调用stopSelf
+Intentservice若未执行完成上一次的任务，将不会新开一个线程，是等待之前的任务完成后，再执行新的任务，等任务完成后再次调用stopSelf。
 
 三、作用
 
@@ -1555,7 +1318,98 @@ Intentservice若未执行完成上一次的任务，将不会新开一个线程�
 
 提供了一个onStartCommand()方法的默认实现，它将Intent先传送至工作队列，然后从工作队列中每次取出一个传送至onHandleIntent()方法，在该方法中对Intent对相应的处理。
 
-#### 160、Android Holo主题与MD主题的理念，以及你的看法
+https://link.juejin.im/?target=http%3A%2F%2Fblog.csdn.net%2Fjavazejian%2Farticle%2Fdetails%2F52426425
+
+
+#### 104、有遇到过哪些屏幕和资源适配问题？
+
+https://www.jianshu.com/p/46ce37b8553c
+
+#### 105、项目中遇到哪些难题，最终你是如何解决的？
+
+https://www.jianshu.com/p/69d9444e2a9a
+
+
+#### 106、如何将一个Activity设置成窗口的样式。
+
+<activity>中配置：
+
+    android:theme="@android:style/Theme.Dialog"
+    
+另外 
+
+    android:theme="@android:style/Theme.Translucnt"
+是设置透明
+
+
+#### 107、listview图片加载错乱的原理和解决方案
+
+https://blog.csdn.net/guolin_blog/article/details/45586553
+
+
+#### 108.Android中如何查看一个对象的回收情况？
+
+#### 109、invalidate和requestLayout的区别及使用。
+
+#### 110、如何反编译，对代码逆向分析；
+
+
+
+#### 111、RemoteViews实现和使用场景
+
+
+
+
+#### 112、对服务器众多错误码的处理（错误码有好几万个）
+
+
+
+
+#### 113、adb常用命令行 
+
+
+
+#### 114、Android中跨进程通讯的几种方式
+
+1：访问其他应用程序的Activity
+如调用系统通话应用
+
+    Intent callIntent = new Intent(Intent.ACTION_CALL,Uri.parse("tel:12345678");
+    startActivity(callIntent);
+
+2：Content Provider
+如访问系统相册
+
+3：广播（Broadcast）
+如显示系统时间
+
+4：AIDL服务
+
+
+#### 115、显示Intent与隐式Intent的区别
+
+对明确指出了目标组件名称的Intent，我们称之为“显式Intent”。
+
+对于没有明确指出目标组件名称的Intent，则称之为“隐式 Intent”。
+
+对于隐式意图，在定义Activity时，指定一个intent-filter，当一个隐式意图对象被一个意图过滤器进行匹配时，将有三个方面会被参考到：
+
+动作(Action)
+
+类别(Category ['kætɪg(ə)rɪ] )
+
+数据(Data )
+
+    <activity android:name=".MainActivity"  android:label="@string/app_name">
+                <intent-filter>
+                    <action android:name="com.wpc.test" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <data android:mimeType="image/gif"/>
+                </intent-filter>
+    </activity>
+
+
+#### 116、Android Holo主题与MD主题的理念，以及你的看法
 
 Holo Theme
 
@@ -1563,7 +1417,7 @@ Holo Theme 是 Android Design 的最基础的呈现方式。因为是最为基�
 
 Material Design
 
-Material design其实是单纯一种设计语言，它包含了系统界面风格、交互、UI,更加专注拟真,更加大胆丰富的用色,更加丰富的交互形式,更加灵活的布局形式
+Material design其实是单纯的一种设计语言，它包含了系统界面风格、交互、UI,更加专注拟真,更加大胆丰富的用色,更加丰富的交互形式,更加灵活的布局形式
 
 1.鲜明、形象的界面风格，
 
@@ -1573,79 +1427,13 @@ Material design其实是单纯一种设计语言，它包含了系统界面风�
 
 4.Material design的交互设计上采用的是响应式交互，这样的交互设计能把一个应用从简单展现用户所请求的信息，提升至能与用户产生更强烈、更具体化交互的工具。
 
-#### 161、String，StringBuffer，StringBuilder有哪些不同
 
-三者在执行速度方面的比较：StringBuilder >  StringBuffer  >  String
+#### 117、Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)
 
-String每次变化一个值就会开辟一个新的内存空间
+#### 118、[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)
 
-StringBuilder：线程非安全的
+#### 119、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
 
-StringBuffer：线程安全的
-
-对于三者使用的总结： 
-
-1.如果要操作少量的数据用 = String
-
-2.单线程操作字符串缓冲区 下操作大量数据 = StringBuilder
-
-3.多线程操作字符串缓冲区 下操作大量数据 = StringBuffer
-
-#### 162、浮点数的精准计算
-
-BigDecimal类进行商业计算，Float和Double只能用来做科学计算或者是工程计算
-
-#### 163、Android系统提供了那些动画机制
-
-1.逐帧动画
-
-  逐帧动画的工作原理很简单，其实就是将一个完整的动画拆分成一张张单独的图片，然后再将它们连贯起来进行播放，类似于动画片的工作原理
-
-2.补间动画
-
-  补间动画则是可以对View进行一系列的动画操作，包括淡入淡出、缩放、平移、旋转四种
-
-  缺陷：补间动画是只能够作用在View上，它只能够实现移动、缩放、旋转和淡入淡出这四种动画操作，补间动画还有一个致命的缺陷，就是它只是改变了View的显示效果而已，而不会真正去改变View的属性
-
-  逐帧动画和补间动画它们的技术已经比较老了，而且网上资料也非常多
-
-3.属性动画
-
-  ValueAnimator
-
-  ValueAnimator是整个属性动画机制当中最核心的一个类
-
-  ObjectAnimator
-
-  相比于ValueAnimator，ObjectAnimator可能才是我们最常接触到的类，因为ValueAnimator只不过是对值进行了一个平滑的动画过渡，但我们实际使用到这种功能的场景好像并不多。而ObjectAnimator则就不同了，它是可以直接对任意对象的任意属性进行动画操作的，比如说View的alpha属性
-
-#### 164、java为什么跨平台
-
-因为Java程序编译之后的代码不是能被硬件系统直接运行的代码，而是一种“中间码”——字节码。然后不同的硬件平台上安装有不同的Java虚拟机(JVM)，由JVM来把字节码再“翻译”成所对应的硬件平台能够执行的代码。因此对于Java编程者来说，不需要考虑硬件平台是什么。所以Java可以跨平台。
-
-
-#### 165、Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)
-
-#### 166、IntentService比Service好在哪](https://link.zhihu.com/?target=http%3A//blog.qiji.tech/archives/2693)
-
-
-
-#### 167、Thread和HandlerThread区别](https://www.jianshu.com/p/5b6c71a7e8d7)
-
-#### 168、[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)
-
-
-#### 169、[对Android消息机制的理解](https://zhuanlan.zhihu.com/p/25222485)
-
-#### 170、[哪些情况会导致OOM？](http://note.youdao.com/)
-
-#### 171、[用leak工具监测内存泄露的原理是什么？](https://www.jianshu.com/p/5ee6b471970e)
-
-#### 172、[ThreadLocal原理，实现及如何保证Local属性]()
-
-#### 173、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
-
-#### 174、[线程池的实现机制](http://www.cnblogs.com/dolphin0520/p/3932921.html)
 
 
 
