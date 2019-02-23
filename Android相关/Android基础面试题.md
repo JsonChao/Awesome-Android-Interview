@@ -1112,49 +1112,169 @@ ThreadLocal是一个关于创建线程局部变量的类。使用场景如下所
 
 #### 69、MVP，MVVM，MVC解释和实践
 
+##### MVC:
+
+- 视图层(View)
+对应于xml布局文件和java代码动态view部分
+- 控制层(Controller)
+MVC中Android的控制层是由Activity来承担的，Activity本来主要是作为初始化页面，展示数据的操作，但是因为XML视图功能太弱，所以Activity既要负责视图的显示又要加入控制逻辑，承担的功能过多。
+- 模型层(Model)
+针对业务模型，建立数据结构和相关的类，它主要负责网络请求，数据库处理，I/O的操作。
+
+##### 总结
+
+具有一定的分层，model彻底解耦，controller和view并没有解耦
+层与层之间的交互尽量使用回调或者去使用消息机制去完成，尽量避免直接持有
+controller和view在android中无法做到彻底分离，但在代码逻辑层面一定要分清
+业务逻辑被放置在model层，能够更好的复用和修改增加业务。
+
+##### MVP
+
+通过引入接口BaseView，让相应的视图组件如Activity，Fragment去实现BaseView，实现了视图层的独立，通过中间层Preseter实现了Model和View的完全解耦。MVP彻底解决了MVC中View和Controller傻傻分不清楚的问题，但是随着业务逻辑的增加，一个页面可能会非常复杂，UI的改变是非常多，会有非常多的case，这样就会造成View的接口会很庞大。
+
+##### MVVM
+
+MVP中我们说过随着业务逻辑的增加，UI的改变多的情况下，会有非常多的跟UI相关的case，这样就会造成View的接口会很庞大。而MVVM就解决了这个问题，通过双向绑定的机制，实现数据和UI内容，只要想改其中一方，另一方都能够及时更新的一种设计理念，这样就省去了很多在View层中写很多case的情况，只需要改变数据就行。
+
+##### MVVM与DataBinding的关系？
+
+MVVM是一种思想，DataBinding是谷歌推出的方便实现MVVM的工具。
+
+看起来MVVM很好的解决了MVC和MVP的不足，但是由于数据和视图的双向绑定，导致出现问题时不太好定位来源，有可能数据问题导致，也有可能业务逻辑中对视图属性的修改导致。如果项目中打算用MVVM的话可以考虑使用官方的架构组件ViewModel、LiveData、DataBinding去实现MVVM。
+
+##### 三者如何选择？
+
+- 如果项目简单，没什么复杂性，未来改动也不大的话，那就不要用设计模式或者架构方法，只需要将每个模块封装好，方便调用即可，不要为了使用设计模式或架构方法而使用。
+- 对于偏向展示型的app，绝大多数业务逻辑都在后端，app主要功能就是展示数据，交互等，建议使用mvvm。
+- 对于工具类或者需要写很多业务逻辑app，使用mvp或者mvvm都可。
 
 
 #### 70、SharedPrefrences的apply和commit有什么区别？
 
+这两个方法的区别在于：
+
+1. apply没有返回值而commit返回boolean表明修改是否提交成功。
+
+2. apply是将修改数据原子提交到内存, 而后异步真正提交到硬件磁盘, 而commit是同步的提交到硬件磁盘，因此，在多个并发的提交commit的时候，他们会等待正在处理的commit保存到磁盘后在操作，从而降低了效率。而apply只是原子的提交到内容，后面有调用apply的函数的将会直接覆盖前面的内存数据，这样从一定程度上提高了很多效率。 
+
+3. apply方法不会提示任何失败的提示。 
+由于在一个进程中，sharedPreference是单实例，一般不会出现并发冲突，如果对提交的结果不关心的话，建议使用apply，当然需要确保提交成功且有后续操作的话，还是需要用commit的。
 
 
 #### 71、Base64、MD5是加密方法么？
 
+##### Base64是什么？
+
+Base64是用文本表示二进制的编码方式，它使用4个字节的文本来表示3个字节的原始二进制数据。
+它将二进制数据转换成一个由64个可打印的字符组成的序列：A-Za-z0-9+/
+
+##### MD5是什么？
+
+MD5是哈希算法的一种，可以将任意数据产生出一个128位（16字节）的散列值，用于确保信息传输完整一致。我们常在注册登录模块使用MD5，用户密码可以使用MD5加密的方式进行存储。如：md5(hello world,32) = 5eb63bbbe01eeed093cb22bb8f5acdc3
+
+加密，指的是对数据进行转换以后，数据变成了另一种格式，并且除了拿到解密方法的人，没人能把数据转换回来。
+MD5是一种信息摘要算法，它是不可逆的，不可以解密。所以它只能算的上是一种单向加密算法。
+Base64也不是加密算法，它是一种数据编码方式，虽然是可逆的，但是它的编码方式是公开的，无所谓加密。
 
 
 #### 72、HttpClient和HttpConnection的区别？
 
+Http Client适用于web浏览器，拥有大量灵活的API，实现起来比较稳定，且其功能比较丰富，提供了很多工具，封装了http的请求头，参数，内容体，响应，还有一些高级功能，代理、COOKIE、鉴权、压缩、连接池的处理。
+　　但是，正因此，在不破坏兼容性的前提下，其庞大的API也使人难以改进，因此Android团队对于修改优化Apache Http Client并不积极。(并在Android 6.0中抛弃了Http Client，替换成OkHttp)
+
+HttpURLConnection对于大部分功能都进行了包装，Http Client的高级功能代码会较复杂，另外，HttpURLConnection在Android 2.3中增加了一些Https方面的改进(包括Http Client，两者都支持https)。且在Android 4.0中增加了response cache。当缓存被安装后(调用HttpResponseCache的install()方法)，所有的HTTP请求都会满足以下三种情况：
+
+- 所有的缓存响应都由本地存储来提供。因为没有必要去发起任务的网络连接请求，所有的响应都可以立刻获取到。
+- 视情况而定的缓存响应必须要有服务器来进行更新检查。比如说客户端发起了一条类似于 “如果/foo.png这张图片发生了改变，就将它发送给我” 这样的请求，服务器需要将更新后的数据进行返回，或者返回一个304 Not Modified状态。如果请求的内容没有发生，客户端就不会下载任何数据。
+- 没有缓存的响应都是由服务器直接提供的。这部分响应会在稍后存储到响应缓存中。
+
+在Android 2.2版本之前，HttpClient拥有较少的bug，因此使用它是最好的选择。
+      而在Android 2.3版本及以后，HttpURLConnection则是最佳的选择。它的API简单，体积较小，因而非常适用于Android项目。压缩和缓存机制可以有效地减少网络访问的流量，在提升速度和省电方面也起到了较大的作用。对于新的应用程序应该更加偏向于使用HttpURLConnection，因为在以后的工作当中Android官方也会将更多的时间放在优化HttpURLConnection上面。
 
 
 #### 73、ActivityA跳转ActivityB然后B按back返回A，各自的生命周期顺序，A与B均不透明。
 
+##### ActivityA跳转到ActivityB：
+
+    Activity A：onPause
+    Activity B：onCreate
+    Activity B：onStart
+    Activity B：onResume
+    Activity A：onStop
+    
+##### ActivityB返回ActivityA：
+
+    Activity B：onPause
+    Activity A：onRestart
+    Activity A：onStart
+    Activity A：onResume
+    Activity B：onStop
+    Activity B：onDestroy
 
 
 #### 74、如何通过广播拦截和abort一条短信？
 
+可以监听这条信号，在传递给真正的接收程序时，我们将自定义的广播接收程序的优先级大于它，并且取消广播的传播，这样就可以实现拦截短信的功能了。
 
 
-#### 75、BroadcastReceiver，LocalBroadcastReceiver 区别；
+#### 75、BroadcastReceiver，LocalBroadcastReceiver 区别？
 
-    
-    
+##### 1、应用场景
+
+   1、BroadcastReceiver用于应用之间的传递消息；
+
+   2、而LocalBroadcastManager用于应用内部传递消息，比broadcastReceiver更加高效。
+
+##### 2、安全
+
+   1、BroadcastReceiver使用的Content API，所以本质上它是跨应用的，所以在使用它时必须要考虑到不要被别的应用滥用；
+
+   2、LocalBroadcastManager不需要考虑安全问题，因为它只在应用内部有效。
+
+##### 3、原理方面
+
+(1) 与BroadcastReceiver是以 Binder 通讯方式为底层实现的机制不同，LocalBroadcastManager 的核心实现实际还是 Handler，只是利用到了 IntentFilter 的 match 功能，至于 BroadcastReceiver 换成其他接口也无所谓，顺便利用了现成的类和概念而已。
+
+(2) LocalBroadcastManager因为是 Handler 实现的应用内的通信，自然安全性更好，效率更高。
+
+
 #### 76、如何选择第三方，从那些方面考虑？
 
+##### 大方向：从软件环境做判断
+
+性能是开源软件第一解决的问题。
+
+一个好的生态，是一个优秀的开源库必备的，取决标准就是观察它是否一直在持续更新迭代，是否能及时处理github上用户提出来的问题。大家在社区针对这个开源库是否有比较活跃的探讨。
+
+背景，该开源库由谁推出，由哪个公司推出来的。
+
+用户数和有哪些知名的企业落地使用
+
+##### 小方向：从软件开发者的角度做判断
+
+是否解决了我们现有问题或长期来看带来的维护成本。
+
+公司有多少人会。
+
+学习成本。
 
 
 #### 77、简单说下接入支付的流程，是否自己接入过支付功能？
 
+Alipay支付功能：
+
+1.首先登录支付宝开放平台创建应用，并给应用添加App支付功能，
+由于App支付功能需要签约，因此需要上传公司信息和证件等资料进行签约。
+
+2.签约成功后，需要配置秘钥。使用支付宝提供的工具生成RSA公钥和私钥，公钥需要设置到管理后台。
+
+3.android studio集成
+
+    （1）copy jar包；
+    （2）发起支付请求，处理支付请求。
 
 
-#### 78、说下你对多进程的理解，什么情况下要使用多进程，为什么要使用多进程，在多进程的情况下为什么要使用进程通讯。
-
-
-
-#### 79、说下你对广播的理解？
-
-
-
-#### 80、单例实现线程的同步的要求：
+#### 78、单例实现线程的同步的要求：
 
 1.单例类确保自己只有一个实例(构造函数私有:不被外部实例化,也不被继承)。
 
@@ -1163,7 +1283,7 @@ ThreadLocal是一个关于创建线程局部变量的类。使用场景如下所
 3.单例类必须为其他对象提供唯一的实例。
 
 
-#### 81、如何保证Service不被杀死
+#### 79、如何保证Service不被杀死？
 
 Android 进程不死从3个层面入手：
 
@@ -1185,71 +1305,43 @@ B. 在进程被杀死后，进行拉活
 
 方法三：依靠系统唤起。
 
-方法四：onDestroy方法里重启service：service +broadcast 方式，就是当service走ondestory的时候，发送一个自定义的广播，当收到广播的时候，重新启动service；
+方法四：onDestroy方法里重启service：service + broadcast 方式，就是当service走ondestory的时候，发送一个自定义的广播，当收到广播的时候，重新启动service；
 
 C. 依靠第三方
 
 根据终端不同，在小米手机（包括 MIUI）接入小米推送、华为手机接入华为推送；其他手机可以考虑接入腾讯信鸽或极光推送与小米推送做 A/B Test。
 
 
-
-
-
-#### 82、说下你对服务的理解，如何杀死一个服务。
-
-#### 83、如何查看模拟器中的SP与SQList文件。如何可视化查看布局嵌套层数与加载时间。
-
-#### 84、各大平台打包上线的流程与审核时间，常见问题(主流的应用市场说出3-4个)
-
-#### 85、说说ContentProvider、ContentResolver、ContentObserver 之间的关系
+#### 80、说说ContentProvider、ContentResolver、ContentObserver 之间的关系？
 
 ContentProvider：管理数据，提供数据的增删改查操作，数据源可以是数据库、文件、XML、网络等，ContentProvider为这些数据的访问提供了统一的接口，可以用来做进程间数据共享。
-ContentResolver：ContentResolver可以不同URI操作不同的ContentProvider中的数据，外部进程可以通过ContentResolver与ContentProvider进行交互。
+
+ContentResolver：ContentResolver可以为不同URI操作不同的ContentProvider中的数据，外部进程可以通过ContentResolver与ContentProvider进行交互。
+
 ContentObserver：观察ContentProvider中的数据变化，并将变化通知给外界。
 
-#### 86、如何导入外部数据库?
 
-把原数据库包括在项目源码的 res/raw
+#### 81、如何导入外部数据库?
 
-android系统下数据库应该存放在 /data/data/com..（package name）/ 目录下，所以我们需要做的是把已有的数据库传入那个目录下.操作方法是用FileInputStream读取原数据库，再用FileOutputStream把读取到的东西写入到那个目录.
+把原数据库包括在项目源码的 res/raw。
 
-#### 87、屏幕适配的处理技巧都有哪些?
+android系统下数据库应该存放在 /data/data/com.（package name）/ 目录下，所以我们需要做的是把已有的数据库传入那个目录下。操作方法是用FileInputStream读取原数据库，再用FileOutputStream把读取到的东西写入到那个目录。
 
-#### 88、动态布局的理解
 
-#### 89、怎么去除重复代码？
+#### 82、LinearLayout、FrameLayout、RelativeLayout性能对比，为什么？
 
-#### 90、Recycleview和ListView的区别
-
-#### 91、动态权限适配方案，权限组的概念
-
-#### 92、Android系统为什么会设计ContentProvider？
-
-#### 93、下拉状态栏是不是影响activity的生命周期
-
-#### 94、如果在onStop的时候做了网络请求，onResume的时候怎么恢复？
-
-#### 95、Debug和Release状态的不同
-
-#### 96、dp是什么，sp呢，有什么区别
-
-#### 97、自定义View，ViewGroup注意那些回调？
-
-#### 98、android中的存储类型
-
-#### 99、LinearLayout、FrameLayout、RelativeLayout性能对比，为什么
-
-RelativeLayout会让子View调用2次onMeasure，LinearLayout 在有weight时，也会调用子View2次onMeasure
+RelativeLayout会让子View调用2次onMeasure，LinearLayout 在有weight时，也会调用子 View 2次onMeasure
 
 RelativeLayout的子View如果高度和RelativeLayout不同，则会引发效率问题，当子View很复杂时，这个问题会更加严重。如果可以，尽量使用padding代替margin。
  
 在不影响层级深度的情况下,使用LinearLayout和FrameLayout而不是RelativeLayout。
-最后再思考一下文章开头那个矛盾的问题，为什么Google给开发者默认新建了个RelativeLayout，而自己却在DecorView中用了个LinearLayout。因为DecorView的层级深度是已知而且固定的，上面一个标题栏，下面一个内容栏。采用RelativeLayout并不会降低层级深度，所以此时在根节点上用LinearLayout是效率最高的。而之所以给开发者默认新建了个RelativeLayout是希望开发者能采用尽量少的View层级来表达布局以实现性能最优，因为复杂的View嵌套对性能的影响会更大一些。
+
+#### 为什么Google给开发者默认新建了个RelativeLayout，而自己却在DecorView中用了个LinearLayout？
+
+因为DecorView的层级深度是已知而且固定的，上面一个标题栏，下面一个内容栏。采用RelativeLayout并不会降低层级深度，所以此时在根节点上用LinearLayout是效率最高的。而之所以给开发者默认新建了个RelativeLayout是希望开发者能采用尽量少的View层级来表达布局以实现性能最优，因为复杂的View嵌套对性能的影响会更大一些。
 
 
-#### 100、Activity的生命周期，finish调用后其他生命周期还会走么？
-
-#### 101、scheme跳转协议
+#### 83、scheme跳转协议
 
 Android中的scheme是一种页面内跳转协议，通过定义自己的scheme协议，可以跳转到app中的各个页面
 
@@ -1260,30 +1352,30 @@ App可以通过跳转到另一个App页面
 可以通过H5页面跳转页面
 
 
-#### 102、HandlerThread
+#### 84、HandlerThread
 
 1、HandlerThread作用
 
-当系统有多个耗时任务需要执行时，每个任务都会开启个新线程去执行耗时任务，这样会导致系统多次创建和毁线程，从而影响性能。为了解决这一问题，Google提了HandlerThread，HandlerThread是在线程中创建一个Loper循环器，让Looper轮询消息队列，当有耗时任务进队列时，则不需要开启新线程，在原有的线程中执行耗任务即可，否则线程阻塞。
+当系统有多个耗时任务需要执行时，每个任务都会开启个新线程去执行耗时任务，这样会导致系统多次创建和销毁线程，从而影响性能。为了解决这一问题，Google提出了HandlerThread，HandlerThread是在线程中创建一个Looper循环器，让Looper轮询消息队列，当有耗时任务进入队列时，则不需要开启新线程，在原有的线程中执行耗任务即可，否则线程阻塞。
     
 2、HanlderThread的优缺点
 
-- HandlerThread本质上是一个线程类，它继承了Thread；
+- HandlerThread本质上是一个线程类，它继承了Thread。
 
-- HandlerThread有自己的内部Looper对象，可以进行loopr循环；
+- HandlerThread有自己的内部Looper对象，可以进行loopr循环。
 
-- 通过获取HandlerThread的looper对象传递给Handler对，可以在handleMessage()方法中执行异步任务。
+- 通过获取HandlerThread的looper对象传递给Handler对象，可以在handleMessage()方法中执行异步任务。
 
-- 创建HandlerThread后必须先调用HandlerThread.start(方法，Thread会先调用run方法，创建Looper对象。
+- 创建HandlerThread后必须先调用HandlerThread.start()方法，Thread会先调用run方法，创建Looper对象。
 
-- HandlerThread优点是异步不会堵塞，减少对性能的消耗
+- HandlerThread优点是异步不会堵塞，减少对性能的消耗。
 
-- HandlerThread缺点是不能同时继续进行多任务处理，要等待进行处理，处理效率较低
+- HandlerThread缺点是不能同时继续进行多任务处理，要等待进行处理，处理效率较低。
 
 - HandlerThread与线程池不同，HandlerThread是一个串队列，背后只有一个线程。
 
 
-#### 103、IntentService
+#### 85、IntentService
 
 一、IntentService简介 
 
@@ -1305,12 +1397,13 @@ Service也不是专门一条新线程，因此不应该在Service中直接处理
 
 为Service的onStartCommand提供默认实现，将请求Intent添加到队列中； 
 
-IntentService不会阻塞UI线程，而普通Serveice会导致ANR异常
-Intentservice若未执行完成上一次的任务，将不会新开一个线程，是等待之前的任务完成后，再执行新的任务，等任务完成后再次调用stopSelf。
+IntentService不会阻塞UI线程，而普通Serveice会导致ANR异常；
+
+Intentservice若未执行完成上一次的任务，将不会新开一个线程，而是等待之前的任务完成后，再执行新的任务，等任务完成后再次调用stopSelf。
 
 三、作用
 
-生成一个默认的且与主线程互相独立的工作者线程来执行所有传送至onStartCommand() 方法的Intetnt。
+生成一个默认的且与主线程互相独立的工作者线程来执行所有传送至onStartCommand()方法的Intetnt。
 
 生成一个工作队列来传送Intent对象给你的onHandleIntent()方法，同一时刻只传送一个Intent对象，这样一来，你就不必担心多线程的问题。在所有的请求(Intent)都被执行完以后会自动停止服务，所以，你不需要自己去调用stopSelf()方法来停止。
 
@@ -1318,19 +1411,8 @@ Intentservice若未执行完成上一次的任务，将不会新开一个线程�
 
 提供了一个onStartCommand()方法的默认实现，它将Intent先传送至工作队列，然后从工作队列中每次取出一个传送至onHandleIntent()方法，在该方法中对Intent对相应的处理。
 
-https://link.juejin.im/?target=http%3A%2F%2Fblog.csdn.net%2Fjavazejian%2Farticle%2Fdetails%2F52426425
 
-
-#### 104、有遇到过哪些屏幕和资源适配问题？
-
-https://www.jianshu.com/p/46ce37b8553c
-
-#### 105、项目中遇到哪些难题，最终你是如何解决的？
-
-https://www.jianshu.com/p/69d9444e2a9a
-
-
-#### 106、如何将一个Activity设置成窗口的样式。
+#### 86、如何将一个Activity设置成窗口的样式。
 
 <activity>中配置：
 
@@ -1339,37 +1421,11 @@ https://www.jianshu.com/p/69d9444e2a9a
 另外 
 
     android:theme="@android:style/Theme.Translucnt"
-是设置透明
+    
+是设置透明。
 
 
-#### 107、listview图片加载错乱的原理和解决方案
-
-https://blog.csdn.net/guolin_blog/article/details/45586553
-
-
-#### 108.Android中如何查看一个对象的回收情况？
-
-#### 109、invalidate和requestLayout的区别及使用。
-
-#### 110、如何反编译，对代码逆向分析；
-
-
-
-#### 111、RemoteViews实现和使用场景
-
-
-
-
-#### 112、对服务器众多错误码的处理（错误码有好几万个）
-
-
-
-
-#### 113、adb常用命令行 
-
-
-
-#### 114、Android中跨进程通讯的几种方式
+#### 87、Android中跨进程通讯的几种方式
 
 1：访问其他应用程序的Activity
 如调用系统通话应用
@@ -1386,7 +1442,7 @@ https://blog.csdn.net/guolin_blog/article/details/45586553
 4：AIDL服务
 
 
-#### 115、显示Intent与隐式Intent的区别
+#### 88、显示Intent与隐式Intent的区别
 
 对明确指出了目标组件名称的Intent，我们称之为“显式Intent”。
 
@@ -1409,7 +1465,7 @@ https://blog.csdn.net/guolin_blog/article/details/45586553
     </activity>
 
 
-#### 116、Android Holo主题与MD主题的理念，以及你的看法
+#### 89、Android Holo主题与MD主题的理念，以及你的看法
 
 Holo Theme
 
@@ -1428,11 +1484,68 @@ Material design其实是单纯的一种设计语言，它包含了系统界面�
 4.Material design的交互设计上采用的是响应式交互，这样的交互设计能把一个应用从简单展现用户所请求的信息，提升至能与用户产生更强烈、更具体化交互的工具。
 
 
-#### 117、Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)
+#### 90、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
 
-#### 118、[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)
+#### 91、说下你对服务的理解，如何杀死一个服务。
 
-#### 119、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
+#### 92、如何查看模拟器中的SP与SQList文件。如何可视化查看布局嵌套层数与加载时间。
+
+#### 93、各大平台打包上线的流程与审核时间，常见问题(主流的应用市场说出3-4个)
+
+#### 94、屏幕适配的处理技巧都有哪些?
+
+#### 95、动态布局的理解
+
+#### 96、怎么去除重复代码？
+
+#### 97、Recycleview和ListView的区别
+
+#### 98、动态权限适配方案，权限组的概念
+
+#### 99、Android系统为什么会设计ContentProvider？
+
+#### 100、下拉状态栏是不是影响activity的生命周期
+
+#### 101、如果在onStop的时候做了网络请求，onResume的时候怎么恢复？
+
+#### 102、Debug和Release状态的不同
+
+#### 103、dp是什么，sp呢，有什么区别
+
+#### 103、自定义View，ViewGroup注意那些回调？
+
+#### 104、android中的存储类型
+
+#### 105、Activity的生命周期，finish调用后其他生命周期还会走么？
+
+#### 106、有遇到过哪些屏幕和资源适配问题？
+
+https://www.jianshu.com/p/46ce37b8553c
+
+#### 107、项目中遇到哪些难题，最终你是如何解决的？
+
+https://www.jianshu.com/p/69d9444e2a9a
+
+#### 108、listview图片加载错乱的原理和解决方案
+
+https://blog.csdn.net/guolin_blog/article/details/45586553
+
+#### 109、invalidate和requestLayout的区别及使用。
+
+#### 110、如何反编译，对代码逆向分析。
+
+#### 111、RemoteViews实现和使用场景
+
+#### 112、对服务器众多错误码的处理（错误码有好几万个）
+
+#### 113、adb常用命令行 
+
+#### 114.Android中如何查看一个对象的回收情况？
+
+#### 115、[Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)
+
+#### 116、[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)
+
 
 
 
