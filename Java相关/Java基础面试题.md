@@ -106,9 +106,9 @@ Java中多态的实现方式：接口实现，继承父类进行方法重写，�
 
 #### 1、集合框架，list，map，set都有哪些具体的实现类，区别都是什么?
 
-Java集合里使用接口来定义功能，是一套完善的继承体系。Iterator是所有集合的总接口，其他所有接口都继承于它，该接口定义了集合的 遍历操作，Collection接口继承于Iterator，是集合的次级接口（Map独立存在，除外），定义了集合的一些通用操作。
+Java集合里使用接口来定义功能，是一套完善的继承体系。Iterator是所有集合的总接口，其他所有接口都继承于它，该接口定义了集合的遍历操作，Collection接口继承于Iterator，是集合的次级接口（Map独立存在），定义了集合的一些通用操作。
 
-Java集合的类结构图如下所示：
+##### Java集合的类结构图如下所示：
 
 ![image](https://github.com/guoxiaoxing/data-structure-and-algorithm/raw/master/art/java_collection_structure.png)
 
@@ -122,15 +122,15 @@ Map：键值对，键唯一，值多个；
 
 2.List特点：元素有放入顺序，元素可重复;
 
-Set特点：元素无放入顺序，元素不可重复，重复元素会盖掉，（注意：元素虽然无放入顺序，但是元素在set中位置是有该元素的HashCode决定的，其位置其实是固定，加入Set 的Object必须定义equals()方法;
+Set特点：元素无放入顺序，元素不可重复，重复元素会盖掉，（注意：元素虽然无放入顺序，但是元素在set中位置是由该元素的HashCode决定的，其位置其实是固定，加入Set 的Object必须定义equals()方法;
 
-另外list支持for循环，也就是通过下标来遍历，也可以迭代器，但是set只能用迭代，因为他无序，无法用下标取得想要的值）。
+另外list支持for循环，也就是通过下标来遍历，也可以使用迭代器，但是set只能用迭代，因为他无序，无法用下标取得想要的值）。
 
 3.Set和List对比：
 
-Set：检索元素效率低下，删除和插入效率高，插入和删不会引起元素位置改变。
+Set：检索元素效率低下，删除和插入效率高，插入和删除不会引起元素位置改变。
 
-List：和数组类似，List可以动态增长，查找元素效率，插入删除元素效率低，因为会引起其他元素位置改变。
+List：和数组类似，List可以动态增长，查找元素效率高，插入删除元素效率低，因为会引起其他元素位置改变。
 
 4.Map适合储存键值对的数据。
 
@@ -142,137 +142,171 @@ HashMap是非线程安全的，HashTable是线程安全的;
 
 StringBuilder是非线程安全的，StringBuffer是线程安的。
 
-下面是这些类具体的使用介绍：
+##### 下面是这些类具体的使用介绍：
 
-ArrayList与LinkedList的区别和适用场景
+##### ArrayList与LinkedList的区别和适用场景
 
 Arraylist：
 
-优点：ArrayList是实现了基于动态数组的数据结构,因地址连续，一旦数据存储好了，查询操作效率会比较高在内存里是连着放的）。
+优点：ArrayList是实现了基于动态数组的数据结构,因地址连续，一旦数据存储好了，查询操作效率会比较高（在内存里是连着放的）。
 
 缺点：因为地址连续，ArrayList要移动数据,所以插入和删除操作效率比较低。
 
 LinkedList：
 
-优点：LinkedList基于链表的数据结构,地址是任意的，以在开辟内存空间的时候不需要等一个连续的地址，对新增和删除操作add和remove，LinedList比较占优势。LikedList 适用于要头尾操作或插入指定位置的场景。
+优点：LinkedList基于链表的数据结构，地址是任意的，其在开辟内存空间的时候不需要等一个连续的地址，对新增和删除操作add和remove，LinedList比较占优势。LikedList 适用于要头尾操作或插入指定位置的场景。
 
-缺点：因为LinkedList要移动指针,所以查询操作性能比低。
+缺点：因为LinkedList要移动指针,所以查询操作性能比较低。
 
 适用场景分析：
 
 当需要对数据进行对此访问的情况下选用ArrayList，当要对数据进行多次增加删除修改时采用LinkedList。
 
-ArrayList与Vector的区别和适用场景
+##### ArrayList和LinkedList怎么动态扩容的吗？
+
+ArrayList:
+
+ArrayList 初始化大小是 10 （如果你知道你的arrayList 会达到多少容量，可以在初始化的时候就指定，能节省扩容的性能开支） 
+扩容点规则是，新增的时候发现容量不够用了，就去扩容 
+扩容大小规则是，扩容后的大小= 原始大小+原始大小/2 + 1。（例如：原始大小是 10 ，扩容后的大小就是 10 + 5+1 = 16）
+
+LinkedList:
+
+linkedList 是一个双向链表，没有初始化大小，也没有扩容的机制，就是一直在前面或者后面新增就好。 
+
+##### ArrayList与Vector的区别和适用场景
 
 ArrayList有三个构造方法：
 
-    public ArrayList(intinitialCapacity)//构造一个具有指定    初始容量的空列表。   
-    public ArrayList()//构造一个初始容量为10的空列表。
-    public ArrayList(Collection<? extends E>     c)//构造一个包含指定 collection 的元素的列表  
+    public ArrayList(intinitialCapacity)// 构造一个具有指定初始容量的空列表。   
+    public ArrayList()// 构造一个初始容量为10的空列表。
+    public ArrayList(Collection<? extends E> c)// 构造一个包含指定 collection 的元素的列表  
     
 Vector有四个构造方法：
     
     public Vector() // 使用指定的初始容量和等于零的容量增量构造一个空向量。    
     public Vector(int initialCapacity) // 构造一个空向量，使其内部数据数组的大小，其标准容量增量为零。    
     public Vector(Collection<? extends E> c)// 构造一个包含指定 collection 中的元素的向量  
-    public Vector(int initialCapacity,int capacityIncrement)//使用指定的初始容量和容量增量构造一个空的向量
+    public Vector(int initialCapacity, int capacityIncrement)// 使用指定的初始容量和容量增量构造一个空的向量
        
-ArrayList和Vector都是用数组实现的，主要有这么三个区别：
+ArrayList和Vector都是用数组实现的，主要有这么四个区别：
 
-1).Vector是多线程安全的，线程安全就是说多线程访问一代码，不会产生不确定的结果。而ArrayList不是，这可以从源码中看出，Vector类中的方法很多有synchronied进行修饰，这样就导致了Vector在效率上无法与ArrayLst相比；
+1)Vector是多线程安全的，线程安全就是说多线程访问代码，不会产生不确定的结果。而ArrayList不是，这可以从源码中看出，Vector类中的方法很多有synchronied进行修饰，这样就导致了Vector在效率上无法与ArrayLst相比；
 
-2).两个都是采用的线性连续空间存储元素，但是当空间足的时候，两个类的增加方式是不同。
+2)两个都是采用的线性连续空间存储元素，但是当空间充足的时候，两个类的增加方式是不同。
 
-3).Vector可以设置增长因子，而ArrayList不可以。
+3)Vector可以设置增长因子，而ArrayList不可以。
 
-4).Vector是一种老的动态数组，是线程同步的，效率很，一般不赞成使用。
+4)Vector是一种老的动态数组，是线程同步的，效率很低，一般不赞成使用。
 
 适用场景：
 
-1.Vector是线程同步的，所以它也是线程安全的，而ArraList是线程异步的，是不安全的。如果不考虑到线程的全因素，一般用ArrayList效率比较高。
+1.Vector是线程同步的，所以它也是线程安全的，而ArraList是线程异步的，是不安全的。如果不考虑到线程的安全因素，一般用ArrayList效率比较高。
 
-2.如果集合中的元素的数目大于目前集合数组的长度时在集合中使用数据量比较大的数据，用Vector有一定的优势。
+2.如果集合中的元素的数目大于目前集合数组的长度时，在集合中使用数据量比较大的数据，用Vector有一定的优势。
     
-HashSet与Treeset的适用场景
+##### HashSet与TreeSet的区别和适用场景
 
-1.TreeSet 是二叉树（红黑树的树据结构）实现的,Treest中的数据是自动排好序的，不允许放入null值。
+1.TreeSet 是二叉树（红黑树的树据结构）实现的，Treest中的数据是自动排好序的，不允许放入null值。
 
-2.HashSet 是哈希表实现的,HashSet中的数据是无序的可以放入null，但只能放入一个null，两者中的值都不重复，就如数据库中唯一约束。
+2.HashSet 是哈希表实现的，HashSet中的数据是无序的可以放入null，但只能放入一个null，两者中的值都不重复，就如数据库中唯一约束。
 
-3.HashSet要求放入的对象必须实现HashCode()方法，放的对象，是以hashcode码作为标识的，而具有相同内容的tring对象，hashcode是一样，所以放入的内容不能重复但是同一个类的对象可以放入不同的实例。
+3.HashSet要求放入的对象必须实现HashCode()方法，放的对象，是以hashcode码作为标识的，而具有相同内容的String对象，hashcode是一样，所以放入的内容不能重复但是同一个类的对象可以放入不同的实例。
 
 适用场景分析:
 
-HashSet是基于Hash算法实现的，其性能通常都优于TreeSt。为快速查找而设计的Set，我们通常都应该使用HashSe，在我们需要排序的功能时，我们才使用TreeSet。
+HashSet是基于Hash算法实现的，其性能通常都优于TreeSet。为快速查找而设计的Set，我们通常都应该使用HashSet，在我们需要排序的功能时，我们才使用TreeSet。
 
-HashMap与TreeMap、HashTable的区别及适用场景
+##### HashMap与TreeMap、HashTable的区别及适用场景
 
 HashMap 非线程安全  
 
-HashMap：基于哈希表(散列表)实现。使用HashMap要求加的键类明确定义了hashCode()和equals()[可以重写hasCode()和equals()]，为了优化HashMap空间的使用，您以调优初始容量和负载因子。其中散列表的冲突处理主分两种，一种是开放定址法，另一种是链表法。HashMap实现中采用的是链表法。
+HashMap：基于哈希表(散列表)实现。使用HashMap要求的键类明确定义了hashCode()和equals()[可以重写hasCode()和equals()]，为了优化HashMap空间的使用，您可以调优初始容量和负载因子。其中散列表的冲突处理主分两种，一种是开放定址法，另一种是链表法。HashMap实现中采用的是链表法。
 
-TreeMap：非线程安全基于红黑树实现。TreeMap没有调选项，因为该树总处于平衡状态。
+TreeMap：非线程安全基于红黑树实现。TreeMap没有调优选项，因为该树总处于平衡状态。
 
 适用场景分析：
 
-HashMap和HashTable:HashMap去掉了HashTable的contain方法，但是加上了containsValue()和containsKey()方法。HashTable同步的，而HashMap是非同步的，效率上比HashTable要高。HashMap允许空键值，而HashTable不允许。
+HashMap和HashTable:HashMap去掉了HashTable的contain方法，但是加上了containsValue()和containsKey()方法。HashTable是同步的，而HashMap是非同步的，效率上比HashTable要高。HashMap允许空键值，而HashTable不允许。
     
 HashMap：适用于Map中插入、删除和定位元素。
 
 Treemap：适用于按自然顺序或自定义顺序遍历键(key)。
 (ps:其实我们工作的过程中对集合的使用是很频繁的,稍注意并总结积累一下,在面试的时候应该会回答的很轻松)
 
-#### 2、set集合从原理上如何保证不重复
 
-1）在往set中添加元素时，如果指定元素不存在，则添加成功。也就是说，如果set中不存在(e==null ? e1==null : e.queals(e1))的元素e1,则e1能添加到set中。
+#### 2、set集合从原理上如何保证不重复？
 
-2）具体来讲：当向HashSet中添加元素的时候，首先计算元素的hashcode值，然后用这个（元素的hashcode）%（HashMap集合的大小）+1计算出这个元素的存储位置，如果这个位置位空，就将元素添加进去；如果不为空，则用equals方法比较元素是否相等，相等就不添加，否则找一个空位添加。
+1）在往set中添加元素时，如果指定元素不存在，则添加成功。
+
+2）具体来讲：当向HashSet中添加元素的时候，首先计算元素的hashcode值，然后用这个（元素的hashcode）%（HashMap集合的大小）+1计算出这个元素的存储位置，如果这个位置为空，就将元素添加进去；如果不为空，则用equals方法比较元素是否相等，相等就不添加，否则找一个空位添加。
+
 
 #### 3、HashMap和HashTable的主要区别是什么？，两者底层实现的数据结构是什么？
 
 HashMap和HashTable的区别：
 
-二者都实现了Map 接口，是将惟一键映射到特定的值上；主要区别在于：
+二者都实现了Map 接口，是将唯一的键映射到特定的值上，主要区别在于：
 
 1)HashMap 没有排序，允许一个null 键和多个null 值,而Hashtable 不允许；
 
-2)HashMap 把Hashtable 的contains 方法去掉了，改成containsvalue 和
-
-containsKey,因为contains 方法容易让人引起误解；
+2)HashMap 把Hashtable 的contains 方法去掉了，改成containsvalue 和containsKey, 因为contains 方法容易让人引起误解；
 
 3)Hashtable 继承自Dictionary 类，HashMap 是Java1.2 引进的Map 接口的实现；
 
-4)Hashtable 的方法是Synchronize 的，而HashMap 不是，在多个线程访问Hashtable 时，不需要自己为它的方法实现同步，而HashMap 就必须为之提供外同步。Hashtable 和HashMap 采用的hash/rehash 算法大致一样，所以性能不会有很大的差异。
+4)Hashtable 的方法是Synchronized 的，而HashMap 不是，在多个线程访问Hashtable 时，不需要自己为它的方法实现同步，而HashMap 就必须为之提供额外的同步。Hashtable 和HashMap 采用的hash/rehash 算法大致一样，所以性能不会有很大的差异。
 
 HashMap和HashTable的底层实现数据结构：
 
 HashMap和Hashtable的底层实现都是数组 + 链表结构实现的（jdk8以前）
 
 
-#### 4、HashSet与HashMap怎么判断集合元素重复
+#### 4、HashMap、ConcurrentHashMap、hash()相关原理解析？
 
+[HashMap、ConcurrentHashMap 1.7/1.8实现原理](https://crossoverjie.top/2018/07/23/java-senior/ConcurrentHashMap/)
 
-#### 5、HashMap底层实现，hashCode如何对应bucket？hashMap的2倍扩容机制为什么是2倍？在java8和java7中，hashMap的hash函数有什么不同？hash冲突及处理算法？HashMap何时扩容，扩容的算法是什么？
+[hash()算法全解析](https://www.hollischuang.com/archives/2091）
 
 HashMap何时扩容：
 
-当向容器添加元素的时候，会判断当前容器的元素个数，如果大于等于阈值---即当前数组的长度乘以加载因子的值的时候，就要自动扩容
+当向容器添加元素的时候，会判断当前容器的元素个数，如果大于等于阈值---即大于当前数组的长度乘以加载因子的值的时候，就要自动扩容。
 
 扩容的算法是什么：
 
-扩容(resize)就是重新计算容量，向HashMap对象里不停的添加元素，而HashMap对象内部的数组无法装载更多的元素时，对象就需要扩大数组的长度，以便能装入更多的元素。当然Java里的数组是无法自动扩容的，方法是使用一个新的数组代替已有的容量小的数组
+扩容(resize)就是重新计算容量，向HashMap对象里不停的添加元素，而HashMap对象内部的数组无法装载更多的元素时，对象就需要扩大数组的长度，以便能装入更多的元素。当然Java里的数组是无法自动扩容的，方法是使用一个新的数组代替已有的容量小的数组。
 
 
-#### 6、sparearray原理（拆分包）
+#### 5、ArrayMap跟SparseArray在HashMap上面的改进？
+
+HashMap要存储完这些数据将要不断的扩容，而且在此过程中也需要不断的做hash运算，这将对我们的内存空间造成很大消耗和浪费。
+
+##### SparseArray:
+
+SparseArray比HashMap更省内存，在某些条件下性能更好，主要是因为它避免了对key的自动装箱（int转为Integer类型），它内部则是通过两个数组来进行数据存储的，一个存储key，另外一个存储value，为了优化性能，它内部对数据还采取了压缩的方式来表示稀疏数组的数据，从而节约内存空间，我们从源码中可以看到key和value分别是用数组表示：
+
+    private int[] mKeys;
+    private Object[] mValues;
+    
+    
+同时，SparseArray在存储和读取数据时候，使用的是二分查找法。也就是在put添加数据的时候，会使用二分查找法和之前的key比较当前我们添加的元素的key的大小，然后按照从小到大的顺序排列好，所以，SparseArray存储的元素都是按元素的key值从小到大排列好的。 
+而在获取数据的时候，也是使用二分查找法判断元素的位置，所以，在获取数据的时候非常快，比HashMap快的多。
+
+##### ArrayMap:
+
+ArrayMap利用两个数组，mHashes用来保存每一个key的hash值，mArrray大小为mHashes的2倍，依次保存key和value。
+
+    mHashes[index] = hash;
+    mArray[index<<1] = key;
+    mArray[(index<<1)+1] = value;
+    
+当插入时，根据key的hashcode()方法得到hash值，计算出在mArrays的index位置，然后利用二分查找找到对应的位置进行插入，当出现哈希冲突时，会在index的相邻位置插入。
 
 
-#### 7、ArrayMap跟SparseArray在HashMap上面的改进？
+##### 假设数据量都在千级以内的情况下：
 
+1、如果key的类型已经确定为int类型，那么使用SparseArray，因为它避免了自动装箱的过程，如果key为long类型，它还提供了一个LongSparseArray来确保key为long类型时的使用
 
-#### 8、ArrayList和LinkedList你知道吗？你知道它怎么动态扩容的吗？
-
-
-#### 9、TreeMap具体实现？
+2、如果key类型为其它的类型，则使用ArrayMap。
 
 
 ### 三、反射 （⭐⭐⭐）
@@ -285,35 +319,24 @@ HashMap何时扩容：
 
 2.类名.class
 
-3.this.getClass()。然后将字节码中的方法，变量，构函数等映射成相应的Method、Filed、Constructor等类，这些类提供了丰富的方法可以被我们所使用
+3.this.getClass()。
 
-Java对象的生命周期
+然后将字节码中的方法，变量，构造函数等映射成相应的Method、Filed、Constructor等类，这些类提供了丰富的方法可以被我们所使用。
 
-- 加载：将类的信息加载到JVM的方法区，然后在堆区中实例化一个java.lang.Class对象，作为方法去中这个类的信息入口。
-- 链接。
-- 验证：验证类是否合法。
-- 准备：为静态变量分配内存并设置JVM默认值，非静态变量不会分配内存。
-- 解析：将常量池里的符号引用转换为直接引用。
-- 初始化：初始化类的静态赋值语句和静态代码块，主动引用会被触发类的初始化，被动引用不会触发类的初始化。
-- 使用：执行类的初始化，主动引用会被触发类的初始化，被动引用不会触发类的初始化。
-- 卸载：卸载过程就是清楚堆里类的信息，以下情况会被卸载：
+[深入解析Java反射（1） - 基础](https://www.sczyh30.com/posts/Java/java-reflection-1/)
 
-    ① 类的所有实例都已经被回收。
-    
-    ② 类的ClassLoader被回收。
-    
-    ③ 类的CLass对象没有被任何地方引用，无法在任何地方通过 反射访问该类。
+[Java基础之—反射（非常重要）](https://blog.csdn.net/sinat_38259539/article/details/71799078)
     
     
 ### 四、泛型 （⭐⭐）
 
 #### 1、简单介绍一下java中的泛型，泛型擦除以及相关的概念，解析与分派？
 
-泛型是Java SE1.5的新特性，泛型的本质是参数化类型，也就是说所操的数据类型被指定为一个参数。这种参数类型可以用在、接口和方法的创建中，分别称为泛型类、泛型接口、型方法。 Java语言引入泛型的好处是安全简单。
+泛型是Java SE1.5的新特性，泛型的本质是参数化类型，也就是说所操的数据类型被指定为一个参数。这种参数类型可以用在类、接口和方法的创建中，分别称为泛型类、泛型接口、泛型方法。 Java语言引入泛型的好处是安全简单。
 
-在Java SE 1.5之前，没有泛型的情况的下，通过对类型Oject的引用来实现参数的“任意化”，“任意化”带来的缺是要做显式的强制类型转换，而这种转换是要求开发者实际参数类型可以预知的情况下进行的。对于强制类型换错误的情况，编译器可能不提示错误，在运行的时候出现异常，这是一个安全隐患。
+在Java SE 1.5之前，没有泛型的情况的下，通过对类型Object的引用来实现参数的“任意化”，“任意化”带来的缺点是要做显式的强制类型转换，而这种转换是要求开发者实际参数类型可以预知的情况下进行的。对于强制类型换错误的情况，编译器可能不提示错误，在运行的时候出现异常，这是一个安全隐患。
 
-泛型的好处是在编译的时候检查类型安全，并且所有的制转换都是自动和隐式的，提高代码的重用率。
+泛型的好处是在编译的时候检查类型安全，并且所有的转换都是自动和隐式的，提高代码的重用率。
 
 1、泛型的类型参数只能是类类型（包括自定义类），不是简单类型。
 
@@ -321,17 +344,17 @@ Java对象的生命周期
 
 3、泛型的类型参数可以有多个。
 
-4、泛型的参数类型可以使用extends语句，例如<Textends superclass>。习惯上称为“有界类型”。
+4、泛型的参数类型可以使用extends语句，例如<T extends superclass>。习惯上称为“有界类型”。
 
-5、泛型的参数类型还可以是通配符类型。例如Class<?>classType = Class.forName("java.lang.String");
+5、泛型的参数类型还可以是通配符类型。例如Class<?> classType = Class.forName("java.lang.String");
     
-泛型擦除以及相关的概念
+##### 泛型擦除以及相关的概念
     
 泛型信息只存在代码编译阶段，在进入JVM之前，与泛型关的信息都会被擦除掉。
 
-在类型擦除的时候，如果泛型类里的类型参数没有指定上限，例如：，则会被转成Object类型，如果指定了上限，例如：，则会 被传换成对应的类型上限。
+在类型擦除的时候，如果泛型类里的类型参数没有指定上限，则会被转成Object类型，如果指定了上限，则会被传转换成对应的类型上限。
     
-Java中的泛型基本上都是在编译器这个层次来实现的。生成的Java字节码中是不包含泛型中的类型信息的。使泛型的时候加上的类型参数，会在编译器在编译的时候掉。这个过程就称为类型擦除。
+Java中的泛型基本上都是在编译器这个层次来实现的。生成的Java字节码中是不包含泛型中的类型信息的。使用泛型的时候加上的类型参数，会在编译器在编译的时候擦除掉。这个过程就称为类型擦除。
 
 类型擦除引起的问题及解决方法：
 
