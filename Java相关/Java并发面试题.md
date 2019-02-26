@@ -9,53 +9,147 @@
 
 #### 2、Java中的线程池共有几种？
 
-Java四种线程池
+Java有四种线程池：
 
 第一种：newCachedThreadPool
 
-创建一个可根据需要创建新线程的线程池，但是在以前构造的线程可用时将重用它们。
+不固定线程数量，且支持最大为Integer.MAX_VALUE的线程数量:
+
+    public static ExecutorService newCachedThreadPool() {
+        // 这个线程池corePoolSize为0，maximumPoolSize为Integer.MAX_VALUE
+        // 意思也就是说来一个任务就创建一个woker，回收时间是60s
+        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                    60L, TimeUnit.SECONDS,
+                                    new SynchronousQueue<Runnable>());
+    }
+    
+可缓存线程池：
+
+1、线程数无限制。
+2、有空闲线程则复用空闲线程，若无空闲线程则新建线程。
+3、一定程序减少频繁创建/销毁线程，减少系统开销。
 
 第二种：newFixedThreadPool
 
-创建一个指定工作线程数量的线程池
+一个固定线程数量的线程池:
 
-第三种：newScheduledThreadPool
+    public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
+        // corePoolSize跟maximumPoolSize值一样，同时传入一个无界阻塞队列
+        // 该线程池的线程会维持在指定线程数，不会进行回收
+        return new ThreadPoolExecutor(nThreads, nThreads,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue<Runnable>(),
+                                    threadFactory);
+    }
+    
+定长线程池：
 
-创建一个线程池，它可安排在给定延迟后运行命令或者定期地执行。
+1、可控制线程最大并发数（同时执行的线程数）。
+2、超出的线程会在队列中等待。
 
-第四种：newSingleThreadExecutor
+第三种：newSingleThreadExecutor
 
-创建一个使用单个 worker 线程的 Executor，以无界队列方式来运行该线程。
+可以理解为线程数量为1的FixedThreadPool:
+
+    public static ExecutorService newSingleThreadExecutor() {
+        // 线程池中只有一个线程进行任务执行，其他的都放入阻塞队列
+        // 外面包装的FinalizableDelegatedExecutorService类实现了finalize方法，在JVM垃圾回收的时候会关闭线程池
+        return new FinalizableDelegatedExecutorService
+            (new ThreadPoolExecutor(1, 1,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue<Runnable>()));
+    }
+
+单线程化的线程池：
+
+1、有且仅有一个工作线程执行任务。
+2、所有任务按照指定顺序执行，即遵循队列的入队出队规则。
+
+第四种：newScheduledThreadPool。
+
+支持定时以指定周期循环执行任务:
+
+    public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
+        return new ScheduledThreadPoolExecutor(corePoolSize);
+    }
+    
+注意：前三种线程池是ThreadPoolExecutor不同配置的实例，最后一种是ScheduledThreadPoolExecutor的实例。
+
 
 #### 3、[线程池原理？](https://itimetraveler.github.io/2018/02/13/%E3%80%90Java%E3%80%91%E7%BA%BF%E7%A8%8B%E6%B1%A0ThreadPoolExecutor%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/)
 
+从数据结构的角度来看，线程池主要使用了阻塞队列（BlockingQueue）和HashSet集合构成。
+从任务提交的流程角度来看，对于使用线程池的外部来说，线程池的机制是这样的：
+
+    1、如果正在运行的线程数 < coreSize，马上创建核心线程执行该task，不排队等待；
+    2、如果正在运行的线程数 >= coreSize，把该task放入阻塞队列；
+    3、如果队列已满 && 正在运行的线程数 < maximumPoolSize，创建新的非核心线程执行该task；
+    4、如果队列已满 && 正在运行的线程数 >= maximumPoolSize，线程池调用handler的reject方法拒绝本次提交。
+    
+理解记忆：1-2-3-4对应（核心线程->阻塞队列->非核心线程->handler拒绝提交）。
+
+
 #### 4、线程池都有哪几种工作队列？
+
+1、ArrayBlockingQueue
+
+是一个基于数组结构的有界阻塞队列，此队列按 FIFO（先进先出）原则对元素进行排序。
+
+2、LinkedBlockingQueue
+
+一个基于链表结构的阻塞队列，此队列按FIFO （先进先出） 排序元素，吞吐量通常要高于ArrayBlockingQueue。静态工厂方法Executors.newFixedThreadPool()和Executors.newSingleThreadExecutor使用了这个队列。
+
+3、SynchronousQueue
+
+一个不存储元素的阻塞队列。每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于LinkedBlockingQueue，静态工厂方法Executors.newCachedThreadPool使用了这个队列。
+
+4、PriorityBlockingQueue
+
+一个具有优先级的无限阻塞队列。
+
 
 #### 5、怎么理解无界队列和有界队列？
 
+##### 有界队列
+
+1.初始的poolSize < corePoolSize，提交的runnable任务，会直接做为new一个Thread的参数，立马执行 。
+2.当提交的任务数超过了corePoolSize，会将当前的runable提交到一个block queue中。
+3.有界队列满了之后，如果poolSize < maximumPoolsize时，会尝试new 一个Thread的进行救急处理，立马执行对应的runnable任务。
+4.如果3中也无法处理了，就会走到第四步执行reject操作。
+
+##### 无界队列
+
+与有界队列相比，除非系统资源耗尽，否则无界的任务队列不存在任务入队失败的情况。当有新的任务到来，系统的线程数小于corePoolSize时，则新建线程执行任务。当达到corePoolSize后，就不会继续增加，若后续仍有新的任务加入，而没有空闲的线程资源，则任务直接进入队列等待。若任务创建和处理的速度差异很大，无界队列会保持快速增长，直到耗尽系统内存。
+当线程池的任务缓存队列已满并且线程池中的线程数目达到maximumPoolSize，如果还有任务到来就会采取任务拒绝策略。
+
+
 #### 6、[多线程中的安全队列一般通过什么实现？](https://blog.csdn.net/bieleyang/article/details/78027032)
+
+Java提供的线程安全的Queue可以分为阻塞队列和非阻塞队列，其中阻塞队列的典型例子是BlockingQueue，非阻塞队列的典型例子是ConcurrentLinkedQueue.
+
+对于BlockingQueue，想要实现阻塞功能，需要调用put(e) take() 方法。而ConcurrentLinkedQueue是基于链接节点的、无界的、线程安全的非阻塞队列。
+
 
 ### 二、Synchronized、volatile、ReentrantLock、Lock相关 （⭐⭐⭐）
 
-#### 1、synchronize的原理
+#### 1、synchronized的原理？
 
-#### 2、谈谈对Synchronized关键字，类锁，方法锁，重入锁的理解
+synchronized 代码块是由一对儿 monitorenter/monitorexit 指令实现的，Monitor 对象是同步的基本实现，而 synchronized 同步方法使用了ACC_SYNCHRONIZED访问标志来辨别一个方法是否声明为同步方法，从而执行相应的同步调用。
 
-#### 3、static synchronized 方法的多线程访问和作用
+在 Java 6 之前，Monitor 的实现完全是依靠操作系统内部的互斥锁，因为需要进行用户态到内核态的切换，所以同步操作是一个无差别的重量级操作。
 
-#### 4、同一个类里面两个synchronized方法，两个线程同时访问的问题
+现代的（Oracle）JDK 中，JVM 对此进行了大刀阔斧地改进，提供了三种不同的 Monitor 实现，也就是常说的三种不同的锁：偏斜锁（Biased Locking）、轻量级锁和重量级锁，大大改进了其性能。
 
-#### 5、Synchronized和锁的等级（方法锁、对象锁、类锁）。
+所谓锁的升级、降级，就是 JVM 优化 synchronized 运行的机制，当 JVM 检测到不同的竞争状况时，会自动切换到适合的锁实现，这种切换就是锁的升级、降级。
 
-#### 6、Synchronized的wait（sleep的区别）和notify运行过程。
+当没有竞争出现时，默认会使用偏斜锁。JVM 会利用 CAS 操作，在对象头上的 Mark Word 部分设置线程 ID，以表示这个对象偏向于当前线程，所以并不涉及真正的互斥锁。这样做的假设是基于在很多应用场景中，大部分对象生命周期中最多会被一个线程锁定，使用偏斜锁可以降低无竞争开销。
 
-#### 7、synchrolzie关键字和Lock的区别你知道吗？为什么Lock的性能好一些？
+如果有另外的线程试图锁定某个已经被偏斜过的对象，JVM 就需要撤销（revoke）偏斜锁，并切换到轻量级锁实现。轻量级锁依赖 CAS 操作 Mark Word 来试图获取锁，如果重试成功，就使用普通的轻量级锁；否则，进一步升级为重量级锁（可能会先进行自旋锁升级，如果失败再尝试重量级锁升级）。
 
-#### 8、Synchronize关键字后面跟类或者对象有什么不同。
+我注意到有的观点认为 Java 不会进行锁降级。实际上据我所知，锁降级确实是会发生的，当 JVM 进入安全点（SafePoint）的时候，会检查是否有闲置的 Monitor，然后试图进行降级。
 
-#### 9、方法的多线程访问和作用，同一个类里面两个synchronized方法，两个线程同时访问的问题
 
-#### 10、Synchronized优化后的锁机制简单介绍一下，包括自旋锁、偏向锁、轻量级锁、重量级锁？
+#### 2、Synchronized优化后的锁机制简单介绍一下，包括自旋锁、偏向锁、轻量级锁、重量级锁？
 
 自旋锁：
 
@@ -67,33 +161,98 @@ Java四种线程池
 
 轻量级锁：
 
-轻量级锁是由偏向所升级来的，偏向锁运行在一个线程进入同步块的情况下，当第二个线程加入锁争用的时候，偏向锁就会升级为轻量级锁；
+轻量级锁是由偏向所升级来的，偏向锁运行在一个线程进入同步块的情况下，当第二个线程加入锁竞争用的时候，偏向锁就会升级为轻量级锁；
 
 重量级锁
 
 重量锁在JVM中又叫对象监视器（Monitor），它很像C中的Mutex，除了具备Mutex(0|1)互斥的功能，它还负责实现了Semaphore(信号量)的功能，也就是说它至少包含一个竞争锁的队列，和一个信号阻塞队列（wait队列），前者负责做互斥，后一个用于做线程同步。
 
-#### 11、volatile原理
 
-在《Java并发编程：核心理论》一文中，我们已经提到可见性、有序性及原子性问题，通常情况下我们可以通过ynchronized关键字来解决这些个问题，不过如果对Synchonized原理有了解的话，应该知道Synchronized是一个较重量级的操作，对系统的性能有比较大的影响，所以如果有其他解决方案，我们通常都避免使用Synchronize来解决问题。
+#### 3、谈谈对Synchronized关键字涉及到的类锁，方法锁，重入锁的理解？
+
+synchronized修饰静态方法获取的是类锁(类的字节码文件对象)。
+
+synchronized修饰普通方法或代码块获取的是对象锁。这种机制确保了同一时刻对于每一个类实例，其所有声明为 synchronized 的成员函数中至多只有一个处于可执行状态，从而有效避免了类成员变量的访问冲突。
+
+它俩是不冲突的，也就是说：获取了类锁的线程和获取了对象锁的线程是不冲突的！
+
+    public class Widget {
+
+        // 锁住了
+        public synchronized void doSomething() {
+            ...
+        }
+    }
+
+    public class LoggingWidget extends Widget {
+
+        // 锁住了
+        public synchronized void doSomething() {
+            System.out.println(toString() + ": calling doSomething");
+            super.doSomething();
+        }
+    }
+
+因为锁的持有者是“线程”，而不是“调用”。
+
+线程A已经是有了LoggingWidget实例对象的锁了，当再需要的时候可以继续**“开锁”**进去的！
+
+这就是内置锁的可重入性。
+
+
+#### 4、wait、sleep的区别和notify运行过程。
+
+##### wait、sleep的区别
+
+- 首先，要记住这个差别，“sleep是Thread类的方法,wait是Object类中定义的方法”。尽管这两个方法都会影响线程的执行行为，但是本质上是有区别的。
+- Thread.sleep不会导致锁行为的改变，如果当前线程是拥有锁的，那么Thread.sleep不会让线程释放锁。如果能够帮助你记忆的话，可以简单认为和锁相关的方法都定义在Object类中，因此调用Thread.sleep是不会影响锁的相关行为。
+- Thread.sleep和Object.wait都会暂停当前的线程，对于CPU资源来说，不管是哪种方式暂停的线程，都表示它暂时不再需要CPU的执行时间。OS会将执行时间分配给其它线程。区别是，调用wait后，需要别的线程执行notify/notifyAll才能够重新获得CPU执行时间。
+- 线程的状态参考 Thread.State的定义。新创建的但是没有执行（还没有调用start())的线程处于“就绪”，或者说Thread.State.NEW状态。
+- Thread.State.BLOCKED（阻塞）表示线程正在获取锁时，因为锁不能获取到而被迫暂停执行下面的指令，一直等到这个锁被别的线程释放。BLOCKED状态下线程，OS调度机制需要决定下一个能够获取锁的线程是哪个，这种情况下，就是产生锁的争用，无论如何这都是很耗时的操作。
+
+##### notify运行过程
+
+当线程A（消费者）调用wait()方法后，线程A让出锁，自己进入等待状态，同时加入锁对象的等待队列。
+线程B（生产者）获取锁后，调用notify方法通知锁对象的等待队列，使得线程A从等待队列进入阻塞队列。
+线程A进入阻塞队列后，直至线程B释放锁后，线程A竞争得到锁继续从wait()方法后执行。
+
+
+#### 5、synchronized关键字和Lock的区别你知道吗？为什么Lock的性能好一些？
+
+    类别              synchronized	                                                Lock（底层实现主要是Volatile + CAS）
+    存在层次：	Java的关键字，在jvm层面上	是一个类
+    锁的释放	1、以获取锁的线程执行完同步代码，释放锁 2、线程执行发生异常，jvm会让线程释放锁	在finally中必须释放锁，不然容易造成线程死锁
+       锁的获取	假设A线程获得锁，B线程等待。如果A线程阻塞，B线程会一直等待	分情况而定，Lock有多个锁获取的方式，具体下面会说道，大致就是可以尝试获得锁，线程可以不用一直等待
+    锁状态	无法判断	可以判断
+    锁类型	可重入 不可中断 非公平	可重入 可判断 可公平（两者皆可）
+    性能	少量同步	大量同步
     
-而volatile关键字就是Java中提供的另一种解决可见性有序性问题的方案。对于原子性，需要强调一点，也是家容易误解的一点：对volatile变量的单次读/写操作可保证原子性的，如long和double类型变量，但是并不能保证i++这种操作的原子性，因为本质上i++是读、写两次操作。
+Lock（ReentrantLock）的底层实现主要是Volatile + CAS（乐观锁），而Synchronized是一种悲观锁，比较耗性能。但是在JDK1.6以后对Synchronized的锁机制进行了优化，加入了偏向锁、轻量级锁、自旋锁、重量级锁，在并发量不大的情况下，性能可能优于Lock机制。所以建议一般请求并发量不大的情况下使用synchronized关键字。
+
+
+#### 6、volatile原理。
+
+在《Java并发编程：核心理论》一文中，我们已经提到可见性、有序性及原子性问题，通常情况下我们可以通过Synchronized关键字来解决这些个问题，不过如果对Synchonized原理有了解的话，应该知道Synchronized是一个较重量级的操作，对系统的性能有比较大的影响，所以如果有其他解决方案，我们通常都避免使用Synchronized来解决问题。
+    
+而volatile关键字就是Java中提供的另一种解决可见性有序性问题的方案。对于原子性，需要强调一点，也是大家容易误解的一点：对volatile变量的单次读/写操作可保证原子性的，如long和double类型变量，但是并不能保证i++这种操作的原子性，因为本质上i++是读、写两次操作。
 
 volatile也是互斥同步的一种实现，不过它非常的轻量级。
 
-volatile 的意义？
+##### volatile 的意义？
 
 - 防止CPU指令重排序
 
 volatile有两条关键的语义：
 
 保证被volatile修饰的变量对所有线程都是可见的
+
 禁止进行指令重排序
+
 要理解volatile关键字，我们得先从Java的线程模型开始说起。如图所示：
 
 ![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/native/process/java_memory_model.png)
 
-Java内存模型规定了所有字段（这些字段包括实例字段、静态字段等，不包括局部变量、方法参数等，因为这些是线程私有的，并不存在竞争）都存在主内存中，每个线程会 有自己的工作内存，工作内存里保存了线程所使用到的变量在主内存里的副本拷贝，线程对变量的操作只能在工作内存里进行，而不能直接读写主内存，当然不同内存之间也 无法直接访问对方的工作内存，也就是说主内存时线程传值的媒介。
+Java内存模型规定了所有字段（这些字段包括实例字段、静态字段等，不包括局部变量、方法参数等，因为这些是线程私有的，并不存在竞争）都存在主内存中，每个线程会 有自己的工作内存，工作内存里保存了线程所使用到的变量在主内存里的副本拷贝，线程对变量的操作只能在工作内存里进行，而不能直接读写主内存，当然不同内存之间也 无法直接访问对方的工作内存，也就是说主内存是线程传值的媒介。
 
 我们来理解第一句话：
 
@@ -113,7 +272,7 @@ Java内存模型规定了所有字段（这些字段包括实例字段、静态�
 
     private volatile int start = 0;
 
-    private void volatileKeyword() {
+    private void volatile Keyword() {
 
         Runnable runnable = new Runnable() {
             @Override
@@ -166,7 +325,7 @@ Java内存模型规定了所有字段（这些字段包括实例字段、静态�
 
 2）禁止进行指令重排序。
 
-volatile 本质是在告诉jvm当前变量在寄存器（工作内存）中的值是不确定的，需从主存中读取；synchronized则是锁定当前变量，只有当前线程可以访问该变量，其线程被阻塞住。
+volatile 本质是在告诉jvm当前变量在寄存器（工作内存）中的值是不确定的，需从主存中读取；synchronized则是锁定当前变量，只有当前线程可以访问该变量，其它线程被阻塞住。
 
 1.volatile 仅能使用在变量级别；synchronized则可以使用在变量、方法、和类级别的
 
