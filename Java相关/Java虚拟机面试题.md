@@ -1,10 +1,16 @@
 ## Java虚拟机面试题 （⭐⭐⭐）
 
 
-#### 1、JVM的内存模型的理解，threadlocal使用场景及注意事项？
+#### 1、[JVM的内存模型的理解](https://blog.csdn.net/suifeng3051/article/details/52611310)？
 
-http://www.iteye.com/topic/806990
-http://ifeve.com/java-memory-model-0/
+Java内存模型即Java Memory Model，简称JMM。JMM定义了Java 虚拟机(JVM)在计算机内存(RAM)中的工作方式。JVM是整个计算机虚拟模型，所以JMM是隶属于JVM的。
+
+Java线程之间的通信总是隐式进行，并且采用的是共享内存模型。这里提到的共享内存模型指的就是Java内存模型(简称JMM)，JMM决定一个线程对共享变量的写入何时对另一个线程可见。从抽象的角度来看，JMM定义了线程和主内存之间的抽象关系：线程之间的共享变量存储在主内存（main memory）中，每个线程都有一个私有的本地内存（local memory），本地内存中存储了该线程以读/写共享变量的副本。本地内存是JMM的一个抽象概念，并不真实存在。它涵盖了缓存，写缓冲区，寄存器以及其他的硬件和编译器优化。
+
+
+
+
+
 
 #### 2、描述一下GC的原理和回收策略？
 
