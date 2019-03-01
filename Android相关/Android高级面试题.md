@@ -355,33 +355,46 @@ https://www.jianshu.com/p/376ea8a19a17
 
 #### 1、做过哪些性能优化？是怎么评测和具体优化的？
 
-##### App启动速度优化
+##### 一、App启动速度优化
+
+![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E4%BC%98%E5%8C%96.png?raw=true)
+
+##### 统计启动时长,标准
+
+##### 开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题。
+
+##### 有什么工具可以看到Activity栈信息么？多个栈话，有方法分别得到各个栈的Activity列表么？
+
+##### 都熟悉哪些命令？知道怎么用命令启动一个Activity么?
+
+##### 如何检测一段代码的执行时间？
 
 
+##### 二、App绘制优化
 
-##### App绘制优化
-
-
-##### App内存优化
+![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png?raw=true)
 
 
-##### App瘦身
+##### 三、App内存优化
+
+![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96.png?raw=true)
+
+##### Bitmap如何处理大图，如一张30M的大图，如何预防OOM
+
+##### [LeakCanary 实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
 
 
-##### App电量优化
+##### 四、App瘦身
+
+![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%98%A6%E8%BA%AB.png?raw=true)
 
 
-    
-##### FC(Force Close)什么时候会出现
+##### 五、App电量优化
 
-Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
+![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%94%B5%E9%87%8F%E4%BC%98%E5%8C%96.png?raw=true)
 
-解决的办法：
 
-- 注意内存的使用和管理
-- 使用Thread.UncaughtExceptionHandler接口
-
-##### 网络优化
+##### 六、网络优化
     
 ##### 移动端获取网络数据优化的几个点
 
@@ -394,68 +407,11 @@ Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 
 - 4、根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）。
 
-
-##### ddms 和 traceView
-
-##### 性能优化如何分析systrace
-
-##### 用IDE如何分析内存泄漏
-
-##### Java多线程引发的性能问题，怎么解决
-
-##### 启动太慢怎么解决？启动页缓存设计，启动页白屏及黑屏解决？
-
-##### App启动崩溃异常捕捉
-
-##### 自定义View注意事项
-
-##### 渲染帧率、内存
-
-##### 现在下载速度很慢,试从网络协议的角度分析原因,并优化(提示：网络的5层都可以涉及)。
+##### 现在下载速度很慢,试从网络协议的角度分析原因,并优化(提示：网络的5层都可以涉及)
 
 ##### Https请求慢的解决办法（提示：DNS，携带数据，直接访问IP）
 
-##### RecyclerView和ListView的性能对比及其优化？
-
-##### Bitmap如何处理大图，如一张30M的大图，如何预防OOM
-
-##### java中的四种引用的区别以及使用场景
-
-##### 强引用置为null，会不会被回收？
-
-##### 如何处理App启动流程优化
-
-##### [LeakCanary 实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
-
-
-##### 如何优化自定义View
-
-为了加速你的view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里做内存分配的事情，因为它会导致GC，从而导致卡顿。在初始化或者动画间隙期间做分配内存的动作。不要在动画正在执行的时候做内存分配的事情。
-
-你还需要尽可能的减少onDraw被调用的次数，大多数时候导致onDraw都是因为调用了invalidate().因此请尽量减少调用invaildate()的次数。如果可能的话，尽量调用含有4个参数的invalidate()方法而不是没有参数的invalidate()。没有参数的invalidate会强制重绘整个view。
-
-另外一个非常耗时的操作是请求layout。任何时候执行requestLayout()，会使得Android UI系统去遍历整个View的层级来计算出每一个view的大小。如果找到有冲突的值，它会需要重新计算好几次。另外需要尽量保持View的层级是扁平化的，这样对提高效率很有帮助。
-
-如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置的view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。
-
-
-##### 统计启动时长,标准
-
-##### 如何保持应用的稳定性
-
-##### 性能优化,怎么保证应用启动不卡顿
-
-##### 开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题。
-
-##### 有什么工具可以看到Activity栈信息么？多个栈话，有方法分别得到各个栈的Activity列表么
-
-##### 都熟悉哪些命令？知道怎么用命令启动一个Activity么?
-
-##### 如何检测一段代码的执行时间
-
-##### Webview性能优化
-
-##### 为什么WebView加载会慢呢？
+#### 2、为什么WebView加载会慢呢？
 
 这是因为在客户端中，加载H5页面之前，需要先初始化WebView，在WebView完全初始化完成之前，后续的界面加载过程都是被阻塞的。
 
@@ -477,15 +433,30 @@ Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 - React框架代码执行慢，可以将这部分代码拆分出来，提前进行解析。
 
 
-##### 界面卡顿如何修复
+#### 3、如何优化自定义View
 
-##### 滑动不流畅怎么处理
+为了加速你的view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里做内存分配的事情，因为它会导致GC，从而导致卡顿。在初始化或者动画间隙期间做分配内存的动作。不要在动画正在执行的时候做内存分配的事情。
 
-##### 50fps 有什么办法可以提高到 60fps
+你还需要尽可能的减少onDraw被调用的次数，大多数时候导致onDraw都是因为调用了invalidate().因此请尽量减少调用invaildate()的次数。如果可能的话，尽量调用含有4个参数的invalidate()方法而不是没有参数的invalidate()。没有参数的invalidate会强制重绘整个view。
 
-##### 统计启动时长,标准
+另外一个非常耗时的操作是请求layout。任何时候执行requestLayout()，会使得Android UI系统去遍历整个View的层级来计算出每一个view的大小。如果找到有冲突的值，它会需要重新计算好几次。另外需要尽量保持View的层级是扁平化的，这样对提高效率很有帮助。
 
-##### apk包大小有限制么？怎么减少包大小？
+如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置的view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。
+
+
+#### 4、FC(Force Close)什么时候会出现？
+
+Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
+
+解决的办法：
+
+- 注意内存的使用和管理
+- 使用Thread.UncaughtExceptionHandler接口
+
+
+#### 5、Java多线程引发的性能问题，怎么解决？
+
+#### 6、RecyclerView和ListView的性能对比及其优化？
 
 
 ### 七、NDK、jni、Binder、AIDL、进程通信有关
