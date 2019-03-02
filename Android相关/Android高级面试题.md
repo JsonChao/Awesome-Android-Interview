@@ -595,8 +595,11 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
 请按顺序仔细阅读下列文章提升对Binder机制的理解程度：
 
 [Android跨进程通信：图文详解 Binder机制 原理](https://blog.csdn.net/carson_ho/article/details/73560642)
+
 [Binder学习指南](http://weishu.me/2016/01/12/binder-index-for-newer/)
+
 [Binder设计与实现](https://blog.csdn.net/universus/article/details/6211589)
+
 [老罗Binder机制分析系列或Android系统源代码情景分析Binder章节](https://blog.csdn.net/luoshengyang/article/details/6618363)
 
 
@@ -973,7 +976,7 @@ APK的安装流程如下所示：
 
 ##### 系统启动流程是什么？（提示：Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程）
    
-### 九、其它高频面试题
+### 八、其它高频面试题
 
 ##### 事件传递机制
 
