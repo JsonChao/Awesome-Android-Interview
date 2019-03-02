@@ -447,34 +447,37 @@ Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 
 #### 5、[Java多线程引发的性能问题，怎么解决](https://blog.csdn.net/luofenghan/article/details/78596950)？
 
-
-### 七、NDK、jni、Binder、AIDL、进程通信有关
-
-##### AIDL的全称是什么?如何工作?能处理哪些类型的数据?
-
-http://blog.csdn.net/singwhatiwanna/article/details/17041691
-
-AIDL (Android Interface Definition Language) 是一种IDL 语言，用于生成可以在Android设备上两个进程之间进行进程间通信(interprocess communication, IPC)的代码。如果在一个进程中（例如Activity）要调用另一个进程中（例如Service）对象的操作，就可以使用AIDL生成可序列化的参数。 AIDL IPC机制是面向接口的，像COM或Corba一样，但是更加轻量级。它是使用代理类在客户端和实现端传递数据。
-
-    AIDL全称Android Interface Definition Language（Android接口描述语言）是一种接口描述语言; 编译器可以通过aidl文件生成一段代码，通过预先定义的接口达到两个进程内部通信进程跨界访问对象的目的.AIDL的IPC的机制和COM或CORBA类似, 是基于接口的，但它是轻量级的。它使用代理类在客户端和实现层间传递值. 如果要使用AIDL, 需要完成2件事情: 1. 引入AIDL的相关类.; 2. 调用aidl产生的class.
-    理论上, 参数可以传递基本数据类型和String, 还有就是Bundle的派生类, 不过在Eclipse中,目前的ADT不支持Bundle做为参数,
-    具体实现步骤如下:
-    1、创建AIDL文件, 在这个文件里面定义接口, 该接口定义了可供客户端访问的方法和属性。
-    2、编译AIDL文件, 用Ant的话, 可能需要手动, 使用Eclipse plugin的话,可以根据adil文件自动生产java文件并编译, 不需要人为介入.
-    3、在Java文件中, 实现AIDL中定义的接口. 编译器会根据AIDL接口, 产生一个JAVA接口。这个接口有一个名为Stub的内部抽象类，它继承扩展了接口并实现了远程调用需要的几个方法。接下来就需要自己去实现自定义的几个接口了.
-    4、向客户端提供接口ITaskBinder, 如果写的是service，扩展该Service并重载onBind ()方法来返回一个实现上述接口的类的实例。
-    5、在服务器端回调客户端的函数. 前提是当客户端获取的IBinder接口的时候,要去注册回调函数, 只有这样, 服务器端才知道该调用那些函数
-    AIDL语法很简单,可以用来声明一个带一个或多个方法的接口，也可以传递参数和返回值。 由于远程调用的需要, 这些参数和返回值并不是任何类型.下面是些AIDL支持的数据类型:
     
-    不需要import声明的简单Java编程语言类型(int,boolean等)
-    String, CharSequence不需要特殊声明
-    List, Map和Parcelables类型, 这些类型内所包含的数据成员也只能是简单数据类型, String等其他比支持的类型.
-    (另外: 我没尝试Parcelables, 在Eclipse+ADT下编译不过, 或许以后会有所支持).
-    实现接口时有几个原则:
-    1.抛出的异常不要返回给调用者. 跨进程抛异常处理是不可取的.
-    2.IPC调用是同步的。如果你知道一个IPC服务需要超过几毫秒的时间才能完成地话，你应该避免在Activity的主线程中调用。也就是IPC调用会挂起应用程序导致界面失去响应. 这种情况应该考虑单起一个线程来处理.
-    3.不能在AIDL接口中声明静态属性。
-    IPC的调用步骤:
+### 七、Android Framework相关
+
+#### 1、跨进程通信
+
+##### [AIDL使用](http://blog.csdn.net/singwhatiwanna/article/details/17041691)
+
+AIDL (Android Interface Definition Language) 是一种AIDL 语言，用于生成可以在Android设备上两个进程之间进行进程间通信(interprocess communication, IPC)的代码。如果在一个进程中（例如Activity）要调用另一个进程中（例如Service）对象的操作，就可以使用AIDL生成可序列化的参数。 AIDL IPC机制是面向接口的，像COM或Corba一样，但是更加轻量级。它是使用代理类在客户端和实现端传递数据。如果要使用AIDL, 需要完成2件事情: 1. 引入AIDL的相关类.; 2. 调用aidl产生的class.
+
+理论上, 参数可以传递基本数据类型和String, 还有就是Bundle的派生类, 不过在Eclipse中,目前的ADT不支持Bundle做为参数，具体实现步骤如下:
+
+- 1、创建AIDL文件, 在这个文件里面定义接口, 该接口定义了可供客户端访问的方法和属性。
+- 2、编译AIDL文件, 用Ant的话, 可能需要手动, 使用Eclipse plugin的话,可以根据adil文件自动生产java文件并编译, 不需要人为介入.
+- 3、在Java文件中, 实现AIDL中定义的接口. 编译器会根据AIDL接口, 产生一个JAVA接口。这个接口有一个名为Stub的内部抽象类，它继承扩展了接口并实现了远程调用需要的几个方法。接下来就需要自己去实现自定义的几个接口了.
+- 4、向客户端提供接口ITaskBinder, 如果写的是service，扩展该Service并重载onBind ()方法来返回一个实现上述接口的类的实例。
+- 5、在服务器端回调客户端的函数. 前提是当客户端获取的IBinder接口的时候,要去注册回调函数, 只有这样, 服务器端才知道该调用那些函数
+    
+AIDL语法很简单,可以用来声明一个带一个或多个方法的接口，也可以传递参数和返回值。 由于远程调用的需要, 这些参数和返回值并不是任何类型.下面是些AIDL支持的数据类型:
+    
+- 不需要import声明的简单Java编程语言类型(int,boolean等)
+- String, CharSequence不需要特殊声明
+- List, Map和Parcelables类型, 这些类型内所包含的数据成员也只能是简单数据类型, String等其他比支持的类型.
+    
+实现接口时有几个原则:
+
+- 1.抛出的异常不要返回给调用者. 跨进程抛异常处理是不可取的.
+- 2.IPC调用是同步的。如果你知道一个IPC服务需要超过几毫秒的时间才能完成地话，你应该避免在Activity的主线程中调用。也就是IPC调用会挂起应用程序导致界面失去响应. 这种情况应该考虑单起一个线程来处理.
+- 3.不能在AIDL接口中声明静态属性。
+
+IPC的调用步骤:
+
     声明一个接口类型的变量，该接口类型在.aidl文件中定义。
     实现ServiceConnection。
     调用ApplicationContext.bindService(),并在ServiceConnection实现中进行传递.
@@ -483,73 +486,62 @@ AIDL (Android Interface Definition Language) 是一种IDL 语言，用于生成�
     调用接口中定义的方法。你总要检测到DeadObjectException异常，该异常在连接断开时被抛出。它只会被远程方法抛出。
     断开连接，调用接口实例中的ApplicationContext.unbindService()
     aidl主要就是帮助我们完成了包装数据和解包的过程，并调用了transact过程，而用来传递的数据包我们就称为parcel
-    
     AIDL: xxx.aidl->xxx.java,注册service
-    
     用aidl定义需要被调用方法接口
     实现这些方法
     调用这些方法
 
-说下binder序列化与反序列化的过程，与使用过程
 
-##### Android 上的 Inter-Process-Communication 跨进程通信时如何工作的
-
-跨进程通信主要靠Binder
-
-https://blog.csdn.net/carson_ho/article/details/73560642
-
-##### Android IPC:Binder原理。
+##### Binder机制
 
 IPC:
 
 ![image](https://user-gold-cdn.xitu.io/2017/10/10/a1cd0604f7807e215047053498e6daad?imageslim)
 
-    通信，利用进程间可共享的内核内存空间来完成底层通信工作的，Client 端与 Server 端进程往往采用 ioctl 等方法跟内核空间的驱动进行交互。
-    Binder 原理:
-    Binder 通信采用 C/S 架构，包含 Client、Server、ServiceManager 以及 binder 驱动，其中 ServiceManager 用于管理系统中的各种服务。
+通信，利用进程间可共享的内核内存空间来完成底层通信工作的，Client 端与 Server 端进程往往采用 ioctl 等方法跟内核空间的驱动进行交互。
+
+Binder 原理:
+
+Binder 通信采用 C/S 架构，包含 Client、Server、ServiceManager 以及 binder 驱动，其中 ServiceManager 用于管理系统中的各种服务。
+    
 架构图如下所示：
 
 ![image](https://raw.githubusercontent.com/wangkuiwu/android_applets/master/os/pic/binder/binder_frame.jpg)
 
-    Binder 四个角色：
-    Client 进程：使用服务的进程
-    server 进程：提供服务的进程
-    ServiceManager 进程：将字符型是的 Binder 名字转为 Client 中对该 Binder 的引用，使得 Client 能够通过 Binder 名字获取到 Server 中 Binder 实体的引用。
-    Binder 驱动：进程间 Binder 通信的建立，Binder 在进程间的传递，Binder 引用计数管理，数据包在进程间传递和交互等一系列底层支持。
-    Binder 运行机制：
-    注册服务：Server 在 ServiceManager 注册服务
-    获取服务：Client 从 ServiceManager 获取相应的 Service
-    使用服务：Client 根据得到的 Service 信息建立与 Service 所在的 Server 进程通信的通路可与 Server 进行交互。
+Binder 四个角色：
+
+- Client 进程：使用服务的进程
+- Server 进程：提供服务的进程
+- ServiceManager 进程：将字符型是的 Binder 名字转为 Client 中对该 Binder 的引用，使得 Client 能够通过 Binder 名字获取到 Server 中 Binder 实体的引用。
+- Binder 驱动：进程间 Binder 通信的建立，Binder 在进程间的传递，Binder 引用计数管理，数据包在进程间传递和交互等一系列底层支持。
+
+Binder 运行机制：
+
+- 注册服务：Server 在 ServiceManager 注册服务
+- 获取服务：Client 从 ServiceManager 获取相应的 Service
+- 使用服务：Client 根据得到的 Service 信息建立与 Service 所在的 Server 进程通信的通路可与 Server 进行交互。
     
 Android Binder是用来做进程通信的，Android的各个应用以及系统服务都运行在独立的进程中，它们的通信都依赖于Binder。
 
 为什么选用Binder，在讨论这个问题之前，我们知道Android也是基于Linux内核，Linux现有的进程通信手段有以下几种：
 
 管道：在创建时分配一个page大小的内存，缓存区大小比较有限；
+
 消息队列：信息复制两次，额外的CPU消耗；不合适频繁或信息量大的通信；
+
 共享内存：无须复制，共享缓冲区直接付附加到进程虚拟地址空间，速度快；但进程间的同步问题操作系统无法实现，必须各进程利用同步工具解决；
+
 套接字：作为更通用的接口，传输效率低，主要用于不通机器或跨网络的通信；
+
 信号量：常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。6. 信号: 不适用于信息交换，更适用于进程中断控制，比如非法内存访问，杀死某个进程等；
+
 既然有现有的IPC方式，为什么重新设计一套Binder机制呢。主要是出于以上三个方面的考量：
 
 高性能：从数据拷贝次数来看Binder只需要进行一次内存拷贝，而管道、消息队列、Socket都需要两次，共享内存不需要拷贝，Binder的性能仅次于共享内存。
+
 稳定性：上面说到共享内存的性能优于Binder，那为什么不适用共享内存呢，因为共享内存需要处理并发同步问题，控制负责，容易出现死锁和资源竞争，稳定性较差。而Binder基于C/S架构，客户端与服务端彼此独立，稳定性较好。
+
 安全性：我们知道Android为每个应用分配了UID，用来作为鉴别进程的重要标志，Android内部也依赖这个UID进行权限管理，包括6.0以前的固定权限和6.0以后的动态权限，传荣IPC只能由用户在数据包里填入UID/PID，这个标记完全 是在用户空间控制的，没有放在内核空间，因此有被恶意篡改的可能，因此Binder的安全性更高。
-
-https://www.zhihu.com/question/39440766
-http://gityuan.com/2016/09/04/binder-start-service/
-http://baronzhang.com/blog/Android/%E5%86%99%E7%BB%99-Android-%E5%BA%94%E7%94%A8%E5%B7%A5%E7%A8%8B%E5%B8%88%E7%9A%84-Binder-%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/
-https://blog.csdn.net/prike/article/details/70195608
-http://blog4jimmy.com/2018/01/356.html
-
-老罗：
-https://blog.csdn.net/luoshengyang/article/details/6618363
-
-    在Android系统中，每一个应用程序都运行在独立的进程中，这也保证了当其中一个程序出现异常而不会影响另一个应用程序的正常运转。在许多情况下，我们activity都会与各种系统的service打交道，很显然，我们写的程序中activity与系统service肯定不是同一个进程，但是它们之间是怎样实现通信的呢？
-
-
-    所以Binder是android中一种实现进程间通信（IPC）的方式之一。
-
 
 1).首先，Binder分为Client和Server两个进程。
 
@@ -568,12 +560,9 @@ https://blog.csdn.net/luoshengyang/article/details/6618363
 
 图中的ServiceManager，负责把Binder Server注册到一个容器中。
 
-
-    有人把ServiceManager比喻成电话局，存储着每个住宅的座机电话，还是很恰当的。张三给李四打电话，拨打电话号码，会先转接到电话局，电话局的接线员查到这个电话号码的地址，因为李四的电话号码之前在电话局注册过，所以就能拨通；没注册，就会提示该号码不存在。
+有人把ServiceManager比喻成电话局，存储着每个住宅的座机电话，还是很恰当的。张三给李四打电话，拨打电话号码，会先转接到电话局，电话局的接线员查到这个电话号码的地址，因为李四的电话号码之前在电话局注册过，所以就能拨通；没注册，就会提示该号码不存在。
     
-    
-    对照着Android Binder机制，对着上面这图，张三就是Binder Client，李四就是Binder Server，电话局就是ServiceManager，电话局的接线员在这个过程中做了很多事情，对应着图中的Binder驱动.
-
+对照着Android Binder机制，对着上面这图，张三就是Binder Client，李四就是Binder Server，电话局就是ServiceManager，电话局的接线员在这个过程中做了很多事情，对应着图中的Binder驱动.
 
 3).接下来我们看Binder通信的过程，还是摘自田维术博客的一张图：
 
@@ -581,47 +570,35 @@ https://blog.csdn.net/luoshengyang/article/details/6618363
 
 注：图中的SM也就是ServiceManager。
 
-
-    我们看到，Client想要直接调用Server的add方法，是不可以的，因为它们在不同的进程中，这时候就需要Binder来帮忙了。
+我们看到，Client想要直接调用Server的add方法，是不可以的，因为它们在不同的进程中，这时候就需要Binder来帮忙了。
     
+首先是Server在SM这个容器中注册。
     
-    首先是Server在SM这个容器中注册。
+其次，Client想要调用Server的add方法，就需要先获取Server对象， 但是SM不会把真正的Server对象返回给Client，而是把Server的一个代理对象返回给Client，也就是Proxy。
     
-    其次，Client想要调用Server的add方法，就需要先获取Server对象， 但是SM不会把真正的Server对象返回给Client，而是把Server的一个代理对象返回给Client，也就是Proxy。
+然后，Client调用Proxy的add方法，SM会帮他去调用Server的add方法，并把结果返回给Client。
     
-    然后，Client调用Proxy的add方法，SM会帮他去调用Server的add方法，并把结果返回给Client。
-    
-    
-    以上这3步，Binder驱动出了很多力，但我们不需要知道Binder驱动的底层实现，涉及到C++的代码了——把有限的时间去做更有意义的事情。
+以上这3步，Binder驱动出了很多力，但我们不需要知道Binder驱动的底层实现，涉及到C++的代码了——把有限的时间去做更有意义的事情。
 
 2.为什么android选用Binder来实现进程间通信？
 
-    1).可靠性。在移动设备上，通常采用基于Client-Server的通信方式来实现互联网与设备间的内部通信。目前linux支持IPC包括传统的管道，System V IPC，即消息队列/共享内存/信号量，以及socket中只有socket支持Client-Server的通信方式。Android系统为开发者提供了丰富进程间通信的功能接口，媒体播放，传感器，无线传输。
+1).可靠性。在移动设备上，通常采用基于Client-Server的通信方式来实现互联网与设备间的内部通信。目前linux支持IPC包括传统的管道，System V IPC，即消息队列/共享内存/信号量，以及socket中只有socket支持Client-Server的通信方式。Android系统为开发者提供了丰富进程间通信的功能接口，媒体播放，传感器，无线传输。
     
+这些功能都由不同的server来管理。开发都只关心将自己应用程序的client与server的通信建立起来便可以使用这个服务。毫无疑问，如若在底层架设一套协议来实现Client-Server通信，增加了系统的复杂性。在资源有限的手机 上来实现这种复杂的环境，可靠性难以保证。
     
-    这些功能都由不同的server来管理。开发都只关心将自己应用程序的client与server的通信建立起来便可以使用这个服务。毫无疑问，如若在底层架设一套协议来实现Client-Server通信，增加了系统的复杂性。在资源有限的手机 上来实现这种复杂的环境，可靠性难以保证。
+2).传输性能。socket主要用于跨网络的进程间通信和本机上进程间的通信，但传输效率低，开销大。消息队列和管道采用存储-转发方式，即数据先从发送方缓存区拷贝到内核开辟的一块缓存区中，然后从内核缓存区拷贝到接收方缓存区，其过程至少有两次拷贝。虽然共享内存无需拷贝，但控制复杂。比较各种IPC方式的数据拷贝次数。共享内存：0次。Binder：1次。Socket/管道/消息队列：2次。
     
+3).安全性。Android是一个开放式的平台，所以确保应用程序安全是很重要的。Android对每一个安装应用都分配了UID/PID,其中进程的UID是可用来鉴别进程身份。传统的只能由用户在数据包里填写UID/PID，这样不可靠，容易被恶意程序利用。而我们要求由内核来添加可靠的UID。
     
-    2).传输性能。socket主要用于跨网络的进程间通信和本机上进程间的通信，但传输效率低，开销大。消息队列和管道采用存储-转发方式，即数据先从发送方缓存区拷贝到内核开辟的一块缓存区中，然后从内核缓存区拷贝到接收方缓存区，其过程至少有两次拷贝。虽然共享内存无需拷贝，但控制复杂。比较各种IPC方式的数据拷贝次数。共享内存：0次。Binder：1次。Socket/管道/消息队列：2次。
-    
-    
-    3).安全性。Android是一个开放式的平台，所以确保应用程序安全是很重要的。Android对每一个安装应用都分配了UID/PID,其中进程的UID是可用来鉴别进程身份。传统的只能由用户在数据包里填写UID/PID，这样不可靠，容易被恶意程序利用。而我们要求由内核来添加可靠的UID。
-    
-    
-    所以，出于可靠性、传输性、安全性。android建立了一套新的进程间通信方式。
+所以，出于可靠性、传输性、安全性。android建立了一套新的进程间通信方式。
 
-Binder原理：
+请按顺序仔细阅读下列文章提升对Binder机制的理解程度：
 
-    1.在Activity和Service进行通讯的时候，用到了Binder。
-        1.当属于同个进程我们可以继承Binder然后在Activity中对Service进行操作
-        2.当不属于同个进程，那么要用到AIDL让系统给我们创建一个Binder，然后在Activity中对远端的Service进行操作。
-    2.系统给我们生成的Binder：
-        1.Stub类中有:接口方法的id，有该Binder的标识，有asInterface(IBinder)(让我们在Activity中获取实现了Binder的接口，接口的实现在Service里，同进程时候返回Stub否则返回Proxy)，有onTransact()这个方法是在不同进程的时候让Proxy在Activity进行远端调用实现Activity操作Service
-        2.Proxy类是代理，在Activity端，其中有:IBinder mRemote(这就是远端的Binder)，两个接口的实现方法不过是代理最终还是要在远端的onTransact()中进行实际操作。
-    3.哪一端的Binder是副本，该端就可以被另一端进行操作，因为Binder本体在定义的时候可以操作本端的东西。所以可以在Activity端传入本端的Binder，让Service端对其进行操作称为Listener，可以用RemoteCallbackList这个容器来装Listener，防止Listener因为经历过序列化而产生的问题。
-    4.当Activity端向远端进行调用的时候，当前线程会挂起，当方法处理完毕才会唤醒。
-    5.如果一个AIDL就用一个Service太奢侈，所以可以使用Binder池的方式，建立一个AIDL其中的方法是返回IBinder，然后根据方法中传入的参数返回具体的AIDL。
-    6.IPC的方式有：Bundle（在Intent启动的时候传入，不过是一次性的），文件共享(对于SharedPreference是特例，因为其在内存中会有缓存)，使用Messenger(其底层用的也是AIDL，同理要操作哪端，就在哪端定义Messenger)，AIDL，ContentProvider(在本进程中继承实现一个ContentProvider，在增删改查方法中调用本进程的SQLite，在其他进程中查询)，Socket
+[Android跨进程通信：图文详解 Binder机制 原理](https://blog.csdn.net/carson_ho/article/details/73560642)
+[Binder学习指南](http://weishu.me/2016/01/12/binder-index-for-newer/)
+[Binder设计与实现](https://blog.csdn.net/universus/article/details/6211589)
+[老罗Binder机制分析系列或Android系统源代码情景分析Binder章节](https://blog.csdn.net/luoshengyang/article/details/6618363)
+
 
 ##### 请介绍一下NDK
 
@@ -688,7 +665,6 @@ Binder原理：
         (*env)->DeleteLocalRef(env,str_arg);  
     }  
     
-### 八、Android Framework相关
 
 ##### 启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？
 
