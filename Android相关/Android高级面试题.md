@@ -359,15 +359,7 @@ https://www.jianshu.com/p/376ea8a19a17
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E4%BC%98%E5%8C%96.png?raw=true)
 
-##### 统计启动时长,标准
-
-##### 开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题。
-
-##### 有什么工具可以看到Activity栈信息么？多个栈话，有方法分别得到各个栈的Activity列表么？
-
-##### 都熟悉哪些命令？知道怎么用命令启动一个Activity么?
-
-##### 如何检测一段代码的执行时间？
+#### [开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题](https://blog.csdn.net/dd864140130/article/details/53558011)
 
 
 ##### 二、App绘制优化
@@ -379,7 +371,9 @@ https://www.jianshu.com/p/376ea8a19a17
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96.png?raw=true)
 
-##### Bitmap如何处理大图，如一张30M的大图，如何预防OOM
+##### [Bitmap如何处理大图，如一张30M的大图，如何预防OOM](https://blog.csdn.net/lmj623565791/article/details/493009890)?
+
+使用BitmapRegionDecoder动态加载图片的显示区域。
 
 ##### [LeakCanary 实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
 
@@ -407,9 +401,6 @@ https://www.jianshu.com/p/376ea8a19a17
 
 - 4、根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）。
 
-##### 现在下载速度很慢,试从网络协议的角度分析原因,并优化(提示：网络的5层都可以涉及)
-
-##### Https请求慢的解决办法（提示：DNS，携带数据，直接访问IP）
 
 #### 2、为什么WebView加载会慢呢？
 
@@ -454,9 +445,7 @@ Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 - 使用Thread.UncaughtExceptionHandler接口
 
 
-#### 5、Java多线程引发的性能问题，怎么解决？
-
-#### 6、RecyclerView和ListView的性能对比及其优化？
+#### 5、[Java多线程引发的性能问题，怎么解决](https://blog.csdn.net/luofenghan/article/details/78596950)？
 
 
 ### 七、NDK、jni、Binder、AIDL、进程通信有关
