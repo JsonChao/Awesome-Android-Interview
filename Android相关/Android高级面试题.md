@@ -1,396 +1,156 @@
-## Android高级面试题 （⭐⭐⭐）
+# Android高级面试题 （⭐⭐⭐）
 
-### 一、图片
 
-#### 1、基础
+## 一、热修复、插件化、模块化、组件化、Gradle
 
-##### 图片库对比
+### 1、热修复和插件化
 
-http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
-http://www.trinea.cn/android/android-image-cache-compare/
-
-##### 图片加载原理
-
-##### 自己去实现图片库，怎么做？（对扩展开发，对修改封闭，同时又保持独立性，参考Android源码设计模式解析实战的图片加载库案例即可）
-
-##### 怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。
-
-    计算一张图片的大小
-    
-    
-    图片占用内存的计算公式：图片高度 * 图片宽度 * 一个像素占用的内存大小.所以，计算图片占用内存大小的时候，要考虑图片所在的目录跟设备密度，这两个因素其实影响的是图片的高宽，android会对图片进行拉升跟压缩。
-    
-    
-    加载bitmap过程（怎样保证不产生内存溢出）
-    
-    
-    由于Android对图片使用内存有限制，若是加载几兆的大图片便内存溢出。Bitmap会将图片的所有像素（即长x宽）加载到内存中，如果图片分辨率过大，会直接导致内存OOM，只有在BitmapFactory加载图片时使用BitmapFactory.Options对相关参数进行配置来减少加载的像素。
-    
-    
-    BitmapFactory.Options相关参数详解
-    
-    
-    (1).Options.inPreferredConfig值来降低内存消耗。
-    
-    比如：默认值ARGB_8888改为RGB_565,节约一半内存。
-    
-    
-    (2).设置Options.inSampleSize 缩放比例，对大图片进行压缩 。
-    
-    
-    (3).设置Options.inPurgeable和inInputShareable：让系统能及时回 收内存。
-    
-    A：inPurgeable：设置为True时，表示系统内存不足时可以被回 收，设置为False时，表示不能被回收。
-    
-    B：inInputShareable：设置是否深拷贝，与inPurgeable结合使用，inPurgeable为false时，该参数无意义。
-    
-    
-    (4).使用decodeStream代替其他方法。
-    
-    decodeResource,setImageResource,setImageBitmap等方法
-
-##### LRUCache算法是怎样实现的。
-
-    内部存在一个LinkedHashMap和maxSize，把最近使用的对象用强引用存储在 LinkedHashMap中，给出来put和get方法，每次put图片时计算缓存中所有图片总大小，跟maxSize进行比较，大于maxSize，就将最久添加的图片移除；反之小于maxSize就添加进来。
-    
-    
-    之前，我们会使用内存缓存技术实现，也就是软引用或弱引用，在Android 2.3（APILevel 9）开始，垃圾回收器会更倾向于回收持有软引用或弱引用的对象，这让软引用和弱引用变得不再可靠。
-    
-写个图片浏览器，说出你的思路
-
-##### Bitmap 压缩策略
-
-    加载 Bitmap 的方式：
-    BitmapFactory 四类方法：
-    decodeFile( 文件系统 )
-    decodeResourece( 资源 )
-    decodeStream( 输入流 ) 
-    decodeByteArray( 字节数 )
-    BitmapFactory.options 参数
-    inSampleSize 采样率，对图片高和宽进行缩放，以最小比进行缩放（一般取值为 2 的指数）。通常是根据图片宽高实际的大小/需要的宽高大小，分别计算出宽和高的缩放比。但应该取其中最小的缩放比，避免缩放图片太小，到达指定控件中不能铺满，需要拉伸从而导致模糊。
-    inJustDecodeBounds 获取图片的宽高信息，交给  inSampleSize 参数选择缩放比。通过 inJustDecodeBounds = true，然后加载图片就可以实现只解析图片的宽高信息，并不会真正的加载图片，所以这个操作是轻量级的。当获取了宽高信息，计算出缩放比后，然后在将 inJustDecodeBounds = false,再重新加载图片，就可以加载缩放后的图片。
-    高效加载 Bitmap 的流程
-    将 BitmapFactory.Options 的 inJustDecodeBounds 参数设为 true 并加载图片
-    从 BitmapFactory.Options 中取出图片原始的宽高信息，对应于 outWidth 和 outHeight 参数
-    根据采样率规则并结合目标 view 的大小计算出采样率 inSampleSize
-    将 BitmapFactory.Options 的 inJustDecodeBounds 设置为 false 重新加载图片
-
-##### Bitmap的处理：
-
-当使用ImageView的时候，可能图片的像素大于ImageView，此时就可以通过BitmapFactory.Option来对图片进行压缩，inSampleSize表示缩小2^(inSampleSize-1)倍。
-
-BitMap的缓存：
-
-1.使用LruCache进行内存缓存。
-
-2.使用DiskLruCache进行硬盘缓存。
-
-3.实现一个ImageLoader的流程：同步异步加载、图片压缩、内存硬盘缓存、网络拉取
-
-    1.同步加载只创建一个线程然后按照顺序进行图片加载
-    2.异步加载使用线程池，让存在的加载任务都处于不同线程
-    3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
-    
-##### [如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)
-
-
-#### 2、Glide
-
-##### [Glide源码解析](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
-
-##### Glide使用什么缓存？
-
-##### Glide内存缓存如何控制大小？
-
-##### Fresco与Glide的对比：
-
-Glide：相对轻量级，用法简单优雅，支持Gif动态图，适合用在那些对图片依赖不大的App中。
-Fresco：采用匿名共享内存来保存图片，也就是Native堆，有效的的避免了OOM，功能强大，但是库体积过大，适合用在对图片依赖比较大的App中。
-
-Fresco的整体架构如下图所示：
-
-![image](https://github.com/guoxiaoxing/android-open-framwork-analysis/raw/master/art/fresco/fresco_structure.png)
-
-DraweeView：继承于ImageView，只是简单的读取xml文件的一些属性值和做一些初始化的工作，图层管理交由Hierarchy负责，图层数据获取交由负责。
-DraweeHierarchy：由多层Drawable组成，每层Drawable提供某种功能（例如：缩放、圆角）。
-DraweeController：控制数据的获取与图片加载，向pipeline发出请求，并接收相应事件，并根据不同事件控制Hierarchy，从DraweeView接收用户的事件，然后执行取消网络请求、回收资源等操作。
-DraweeHolder：统筹管理Hierarchy与DraweeHolder。
-ImagePipeline：Fresco的核心模块，用来以各种方式（内存、磁盘、网络等）获取图像。
-Producer/Consumer：Producer也有很多种，它用来完成网络数据获取，缓存数据获取、图片解码等多种工作，它产生的结果由Consumer进行消费。
-IO/Data：这一层便是数据层了，负责实现内存缓存、磁盘缓存、网络缓存和其他IO相关的功能。
-纵观整个Fresco的架构，DraweeView是门面，和用户进行交互，DraweeHierarchy是视图层级，管理图层，DraweeController是控制器，管理数据。它们构成了整个Fresco框架的三驾马车。当然还有我们 幕后英雄Producer，所有的脏活累活都是它干的，最佳劳模👍
-
-理解了Fresco整体的架构，我们还有了解在这套矿建里发挥重要作用的几个关键角色，如下所示：
-
-Supplier：提供一种特定类型的对象，Fresco里有很多以Supplier结尾的类都实现了这个接口。
-SimpleDraweeView：这个我们就很熟悉了，它接收一个URL，然后调用Controller去加载图片。该类继承于GenericDraweeView，GenericDraweeView又继承于DraweeView，DraweeView是Fresco的顶层View类。
-PipelineDraweeController：负责图片数据的获取与加载，它继承于AbstractDraweeController，由PipelineDraweeControllerBuilder构建而来。AbstractDraweeController实现了DraweeController接口，DraweeController 是Fresco的数据大管家，所以的图片数据的处理都是由它来完成的。
-GenericDraweeHierarchy：负责SimpleDraweeView上的图层管理，由多层Drawable组成，每层Drawable提供某种功能（例如：缩放、圆角），该类由GenericDraweeHierarchyBuilder进行构建，该构建器 将placeholderImage、retryImage、failureImage、progressBarImage、background、overlays与pressedStateOverlay等 xml文件或者Java代码里设置的属性信息都传入GenericDraweeHierarchy中，由GenericDraweeHierarchy进行处理。
-DraweeHolder：该类是一个Holder类，和SimpleDraweeView关联在一起，DraweeView是通过DraweeHolder来统一管理的。而DraweeHolder又是用来统一管理相关的Hierarchy与Controller
-DataSource：类似于Java里的Futures，代表数据的来源，和Futures不同，它可以有多个result。
-DataSubscriber：接收DataSource返回的结果。
-ImagePipeline：用来调取获取图片的接口。
-Producer：加载与处理图片，它有多种实现，例如：NetworkFetcherProducer，LocalAssetFetcherProducer，LocalFileFetchProducer。从这些类的名字我们就可以知道它们是干什么的。 Producer由ProducerFactory这个工厂类构建的，而且所有的Producer都是像Java的IO流那样，可以一层嵌套一层，最终只得到一个结果，这是一个很精巧的设计👍
-Consumer：用来接收Producer产生的结果，它与Producer组成了生产者与消费者模式。
-注：Fresco源码里的类的名字都比较长，但是都是按照一定的命令规律来的，例如：以Supplier结尾的类都实现了Supplier接口，它可以提供某一个类型的对象（factory, generator, builder, closure等）。 以Builder结尾的当然就是以构造者模式创建对象的类。
-
-
-### 二、网络和安全机制
-
-#### 1、网络
-
-##### http怎么知道文件过大是否传输完毕的响应
-
-##### Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）
-
-https://www.jianshu.com/p/050c6db5af5a
-
-
-##### 自己去设计网络请求框架，怎么做？
-
-##### [OkHttp源码](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
-
-##### 网络请求缓存处理，okhttp如何处理网络缓存的
-
-##### [Retrofit源码](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
-
-##### Volley与OkHttp的对比：
-
-Volley：支持HTTPS。缓存、异步请求，不支持同步请求。协议类型是Http/1.0, Http/1.1，网络传输使用的是 HttpUrlConnection/HttpClient，数据读写使用的IO。
-OkHttp：支持HTTPS。缓存、异步请求、同步请求。协议类型是Http/1.0, Http/1.1, SPDY, Http/2.0, WebSocket，网络传输使用的是封装的Socket，数据读写使用的NIO（Okio）。
-SPDY协议类似于HTTP，但旨在缩短网页的加载时间和提高安全性。SPDY协议通过压缩、多路复用和优先级来缩短加载时间。
-
-Okhttp的子系统层级结构图如下所示：
-
-![image](https://github.com/guoxiaoxing/android-open-framwork-analysis/raw/master/art/okhttp/okhttp_structure.png)
-
-网络配置层：利用Builder模式配置各种参数，例如：超时时间、拦截器等，这些参数都会由Okhttp分发给各个需要的子系统。
-重定向层：负责重定向。
-Header拼接层：负责把用户构造的请求转换为发送给服务器的请求，把服务器返回的响应转换为对用户友好的响应。
-HTTP缓存层：负责读取缓存以及更新缓存。
-连接层：连接层是一个比较复杂的层级，它实现了网络协议、内部的拦截器、安全性认证，连接与连接池等功能，但这一层还没有发起真正的连接，它只是做了连接器一些参数的处理。
-数据响应层：负责从服务器读取响应的数据。
-在整个Okhttp的系统中，我们还要理解以下几个关键角色：
-
-OkHttpClient：通信的客户端，用来统一管理发起请求与解析响应。
-Call：Call是一个接口，它是HTTP请求的抽象描述，具体实现类是RealCall，它由CallFactory创建。
-Request：请求，封装请求的具体信息，例如：url、header等。
-RequestBody：请求体，用来提交流、表单等请求信息。
-Response：HTTP请求的响应，获取响应信息，例如：响应header等。
-ResponseBody：HTTP请求的响应体，被读取一次以后就会关闭，所以我们重复调用responseBody.string()获取请求结果是会报错的。
-Interceptor：Interceptor是请求拦截器，负责拦截并处理请求，它将网络请求、缓存、透明压缩等功能都统一起来，每个功能都是一个Interceptor，所有的Interceptor最 终连接成一个Interceptor.Chain。典型的责任链模式实现。
-StreamAllocation：用来控制Connections与Streas的资源分配与释放。
-RouteSelector：选择路线与自动重连。
-RouteDatabase：记录连接失败的Route黑名单。
-
-##### 从网络加载一个10M的图片，说下注意事项
-
-##### 谈谈你对WebSocket的理解
-
-##### WebSocket与socket的区别
-
-#### 2、安全机制
-
-##### 怎么考虑数据传输的安全性
-
-    如果应用对传输的数据没有任何安全措施，攻击者设置的钓鱼网络中更改DNS服务器。这台服务器可以获取用户信息，或充当中间人与原服务器交换数据。在SSL/TLS通信中，客户端通过数字证书判断服务器是否可信，并采用证书的公钥与服务器进行加密通信。
-
-##### 访问网络如何加密
-
-1：对称加密（DES,AES）和非对称（公钥与私钥）。（支付宝里的商户的公钥和私钥）
-
-2：MD5（算法）
-
-3：Base64
-
-
-##### 如何验证证书的合法性?
-
-##### client如何确定自己发送的消息被server收到?
-
-##### 谈谈你对安卓签名的理解。
-
-##### 请解释安卓为啥要加签名机制?
-
-##### 视频加密传输
-
-##### App 是如何沙箱化，为什么要这么做？
-
-##### 权限管理系统（底层的权限是如何进行 grant 的）？
-
-##### 提高app安全性的方法
-
-##### 安卓的app加固如何做？
-
-##### 安卓的混淆原理是什么？
-
-
-### 三、数据库
-
-##### 数据库框架对比
-
-##### [GreenDao源码分析](https://jsonchao.github.io/2018/12/22/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%9B%9B%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3GreenDao%E6%BA%90%E7%A0%81%EF%BC%89/)
-
-##### 数据库的优化
-
-##### 数据库数据迁移问题
-
-
-### 四、热修复、插件化、模块化、组件化、Gradle
-
-#### 1、热修复和插件化
-
-##### 插件化相关技术，热修补技术是怎样实现的，和插件化有什么区别？
+#### 热修补技术是怎样实现的，和插件化有什么区别？
 
 http://www.liuguangli.win/archives/366
+
 http://www.liuguangli.win/archives/387
+
 http://www.liuguangli.win/archives/452
 
 
-插件化：
-    动态加载主要解决3个技术问题：
-    1，使用ClassLoader加载类。
-    2，资源访问。
-    3，生命周期管理。
-    插件化是体现在功能拆分方面的，它将某个功能独立提取出来，独立开发，独立测试，再插入到主应用中。依次来较少主应用的规模。
+插件化：动态加载主要解决3个技术问题：
+
+- 1、使用ClassLoader加载类。
+- 2、资源访问。
+- 3、生命周期管理。
+
+插件化是体现在功能拆分方面的，它将某个功能独立提取出来，独立开发，独立测试，再插入到主应用中。依次来较少主应用的规模。
+
 热修复：
-    原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个
-    原理：将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。使用Dexclassloader。
-    热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。
-利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在 热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
+
+原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个。
+
+原理：将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。使用Dexclassloader：热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
 
 目前热修复框架主要分为两大类：
 
-Sophix：修改方法指针。
-Tinker：修改dex数组元素。
+- Sophix：修改方法指针。
+- Tinker：修改dex数组元素。
 
-    相同点:
+相同点:
     
+都使用ClassLoader来实现加载的新的功能类，都可以使用PathClassLoader与DexClassLoader。
     
-    都使用ClassLoader来实现的加载的新的功能类，都可以使用PathClassLoader与DexClassLoader
+不同点：
     
+热修复因为是为了修复Bug的，所以要将新的同名类替代同名的Bug类，要抢先加载新的类而不是Bug类，所以多做两件事：在原先的app打包的时候，阻止相关类去打上CLASS_ISPREVERIFIED标志，还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements，这样才能抢先代替Bug类，完成系统不加载旧的Bug类.
     
-    不同点：
+而插件化只是增加新的功能类或者是资源文件，所以不涉及抢先加载旧的类这样的使命，就避过了阻止相关类去打上CLASS_ISPREVERIFIED标志和还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements.
     
-    
-    热修复因为是为了修复Bug的，所以要将新的同名类替代同名的Bug类，要抢先加载新的类而不是Bug类，所以多做两件事：在原先的app打包的时候，阻止相关类去打上CLASS_ISPREVERIFIED标志，还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements，这样才能抢先代替Bug类，完成系统不加载旧的Bug类.
-    
-    
-    而插件化只是增肌新的功能类或者是资源文件，所以不涉及抢先加载旧的类这样的使命，就避过了阻止相关类去打上CLASS_ISPREVERIFIED标志和还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements.
-    
-    所以插件化比热修复简单，热修复是在插件化的基础上在进行替旧的Bug类
+所以插件化比热修复简单，热修复是在插件化的基础上在进行替旧的Bug类
     
 
-##### 热修复相关的原理，框架熟悉么
+#### 为什么选用插件化，插件化框架的比较，梳理插件化的架构？
 
 
-##### 为什么选用插件化，插件化框架的比较，梳理插件化的架构
-
-##### 插件化原理分析
+#### 插件化原理分析
 
 
-#### 2、模块化和组件化
+### 2、模块化和组件化
 
 
-##### 模块化的好处
+#### 模块化的好处
 
 https://www.jianshu.com/p/376ea8a19a17
 
 
-##### 组件化原理，组件化中路由（ARouter）的实现
+#### 组件化原理，组件化中路由（ARouter）的实现
 
 
 
-##### Android 组件化的原理，还有一些组件化平时使用的问题。
+#### Android 组件化的原理，还有一些组件化平时使用的问题。
 
 
-##### 项目组件化的理解
+#### 项目组件化的理解
 
 
-#### 3、gradle
+### 3、gradle
+
+#### gradle熟悉么，自动打包知道么？
+
+#### 如何加快 Gradle 的编译速度？
 
 
-##### 描述清点击 Android Studio 的 build 按钮后发生了什么
-
-##### gradle熟悉么，自动打包知道么
-
-##### 如何加快 Gradle 的编译速度
+## 五、设计模式与架构设计
 
 
-### 五、设计模式与架构设计
+### 1、设计模式
 
 
-#### 1、设计模式
+#### 谈谈你对Android设计模式的理解
 
 
-##### 谈谈你对Android设计模式的理解
+#### 项目中常用的设计模式
 
 
-##### 项目中常用的设计模式
+#### 手写生产者/消费者模式
 
 
-##### 手写生产者/消费者模式
+#### 适配器模式，装饰者模式，外观模式的异同？
 
 
-##### 适配器模式，装饰者模式，外观模式的异同？
+### 2、架构设计
 
 
-#### 2、架构设计
+#### [MVC MVP MVVM原理和区别](http://www.tianmaying.com/tutorial/AndroidMVC)
 
 
-##### [MVC MVP MVVM原理和区别](http://www.tianmaying.com/tutorial/AndroidMVC)
+#### 从0设计一款App整体架构，如何去做？
 
 
-##### 从0设计一款App整体架构，如何去做？
+#### 说一款你认为当前比较火的应用并设计(比如：直播APP，P2P金融，小视频等)
 
 
-##### 说一款你认为当前比较火的应用并设计(比如：直播APP，P2P金融，小视频等)
+#### Fragment如果在Adapter中使用应该如何解耦？
 
 
-##### Fragment如果在Adapter中使用应该如何解耦？
+## 六、性能优化
 
 
-### 六、性能优化
+### 1、做过哪些性能优化？是怎么评测和具体优化的？
 
-
-#### 1、做过哪些性能优化？是怎么评测和具体优化的？
-
-##### 一、App启动速度优化
+#### 一、App启动速度优化
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E4%BC%98%E5%8C%96.png?raw=true)
 
-#### [开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题](https://blog.csdn.net/dd864140130/article/details/53558011)
+### [开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题](https://blog.csdn.net/dd864140130/article/details/53558011)
 
 
-##### 二、App绘制优化
+#### 二、App绘制优化
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png?raw=true)
 
 
-##### 三、App内存优化
+#### 三、App内存优化
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96.png?raw=true)
 
-##### [Bitmap如何处理大图，如一张30M的大图，如何预防OOM](https://blog.csdn.net/lmj623565791/article/details/493009890)?
+#### [Bitmap如何处理大图，如一张30M的大图，如何预防OOM](https://blog.csdn.net/lmj623565791/article/details/493009890)?
 
 使用BitmapRegionDecoder动态加载图片的显示区域。
 
-##### [LeakCanary 实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### [LeakCanary 实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
 
 
-##### 四、App瘦身
+#### 四、App瘦身
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%98%A6%E8%BA%AB.png?raw=true)
 
 
-##### 五、App电量优化
+#### 五、App电量优化
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%94%B5%E9%87%8F%E4%BC%98%E5%8C%96.png?raw=true)
 
 
-##### 六、网络优化
+### 六、网络优化
     
-##### 移动端获取网络数据优化的几个点
+#### 移动端获取网络数据优化的几个点
 
 - 1、连接复用：节省连接建立时间，如开启 keep-alive。于Android来说默认情况下HttpURLConnection和HttpClient都开启了keep-alive。只是2.2之前HttpURLConnection存在影响连接池的Bug。
     
@@ -401,8 +161,21 @@ https://www.jianshu.com/p/376ea8a19a17
 
 - 4、根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）。
 
+#### 七、安卓的安全优化
 
-#### 2、为什么WebView加载会慢呢？
+#### 提高app安全性的方法？
+
+
+#### 安卓的app加固如何做？
+
+
+#### 安卓的混淆原理是什么？
+
+
+#### 谈谈你对安卓签名的理解。
+
+
+### 2、为什么WebView加载会慢呢？
 
 这是因为在客户端中，加载H5页面之前，需要先初始化WebView，在WebView完全初始化完成之前，后续的界面加载过程都是被阻塞的。
 
@@ -424,7 +197,7 @@ https://www.jianshu.com/p/376ea8a19a17
 - React框架代码执行慢，可以将这部分代码拆分出来，提前进行解析。
 
 
-#### 3、如何优化自定义View
+### 3、如何优化自定义View
 
 为了加速你的view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里做内存分配的事情，因为它会导致GC，从而导致卡顿。在初始化或者动画间隙期间做分配内存的动作。不要在动画正在执行的时候做内存分配的事情。
 
@@ -435,7 +208,7 @@ https://www.jianshu.com/p/376ea8a19a17
 如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置的view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。
 
 
-#### 4、FC(Force Close)什么时候会出现？
+### 4、FC(Force Close)什么时候会出现？
 
 Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 
@@ -445,14 +218,133 @@ Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 - 使用Thread.UncaughtExceptionHandler接口
 
 
-#### 5、[Java多线程引发的性能问题，怎么解决](https://blog.csdn.net/luofenghan/article/details/78596950)？
+### 5、[Java多线程引发的性能问题，怎么解决](https://blog.csdn.net/luofenghan/article/details/78596950)？
 
     
-### 七、Android Framework相关
+## 七、Android Framework相关
 
-#### 1、跨进程通信
+### 1、Android系统架构
 
-##### [AIDL使用](http://blog.csdn.net/singwhatiwanna/article/details/17041691)
+![image](https://developer.android.com/guide/platform/images/android-stack_2x.png?hl=zh-cn)
+
+Android 是一种基于 Linux 的开放源代码软件栈，为广泛的设备和机型而创建。下图所示为 Android 平台的五大组件：
+    
+1.应用程序 
+
+Android 随附一套用于电子邮件、短信、日历、互联网浏览和联系人等的核心应用。平台随附的应用与用户可以选择安装的应用一样，没有特殊状态。因此第三方应用可成为用户的默认网络浏览器、短信 Messenger 甚至默认键盘（有一些例外，例如系统的“设置”应用）。
+
+系统应用可用作用户的应用，以及提供开发者可从其自己的应用访问的主要功能。例如，如果您的应用要发短信，您无需自己构建该功能，可以改为调用已安装的短信应用向您指定的接收者发送消息。
+      
+2、Java API 框架  
+
+您可通过以 Java 语言编写的 API 使用 Android OS 的整个功能集。这些 API 形成创建 Android 应用所需的构建块，它们可简化核心模块化系统组件和服务的重复使用，包括以下组件和服务：
+
+- 丰富、可扩展的视图系统，可用以构建应用的 UI，包括列表、网格、文本框、按钮甚至可嵌入的网络浏览器
+- 资源管理器，用于访问非代码资源，例如本地化的字符串、图形和布局文件
+- 通知管理器，可让所有应用在状态栏中显示自定义提醒
+- Activity 管理器，用于管理应用的生命周期，提供常见的导航返回栈
+- 内容提供程序，可让应用访问其他应用（例如“联系人”应用）中的数据或者共享其自己的数据
+
+开发者可以完全访问 Android 系统应用使用的框架 API。
+      
+3、系统运行库 
+
+1)原生 C/C++ 库 
+
+许多核心 Android 系统组件和服务（例如 ART 和 HAL）构建自原生代码，需要以 C 和 C++ 编写的原生库。Android 平台提供 Java 框架 API 以向应用显示其中部分原生库的功能。例如，您可以通过 Android 框架的 Java OpenGL API 访问 OpenGL ES，以支持在应用中绘制和操作 2D 和 3D 图形。如果开发的是需要 C 或 C++ 代码的应用，可以使用 Android NDK 直接从原生代码访问某些原生平台库。
+
+2)Android Runtime
+
+对于运行 Android 5.0（API 级别 21）或更高版本的设备，每个应用都在其自己的进程中运行，并且有其自己的 Android Runtime (ART) 实例。ART 编写为通过执行 DEX 文件在低内存设备上运行多个虚拟机，DEX 文件是一种专为 Android 设计的字节码格式，经过优化，使用的内存很少。编译工具链（例如 Jack）将 Java 源代码编译为 DEX 字节码，使其可在 Android 平台上运行。
+
+ART 的部分主要功能包括：
+
+- 预先 (AOT) 和即时 (JIT) 编译
+- 优化的垃圾回收 (GC)
+- 更好的调试支持，包括专用采样分析器、详细的诊断异常和崩溃报告，并且能够设置监视点以监控特定字段
+
+在 Android 版本 5.0（API 级别 21）之前，Dalvik 是 Android Runtime。如果您的应用在 ART 上运行效果很好，那么它应该也可在 Dalvik 上运行，但反过来不一定。
+
+Android 还包含一套核心运行时库，可提供 Java API 框架使用的 Java 编程语言大部分功能，包括一些 Java 8 语言功能。
+      
+4、硬件抽象层 (HAL) 
+
+硬件抽象层 (HAL) 提供标准界面，向更高级别的 Java API 框架显示设备硬件功能。HAL 包含多个库模块，其中每个模块都为特定类型的硬件组件实现一个界面，例如相机或蓝牙模块。当框架 API 要求访问设备硬件时，Android 系统将为该硬件组件加载库模块。
+      
+5、Linux 内核 
+
+Android 平台的基础是 Linux 内核。例如，Android Runtime (ART) 依靠 Linux 内核来执行底层功能，例如线程和低层内存管理。使用 Linux 内核可让 Android 利用主要安全功能，并且允许设备制造商为著名的内核开发硬件驱动程序。
+
+#### 对于Android应用开发来说，最好能手绘下面的系统架构图：
+    
+![image](https://raw.githubusercontent.com/BeesAndroid/BeesAndroid/master/art/android_system_structure.png)
+
+
+### 2、View的事件分发机制？滑动冲突怎么解决？
+
+[更全面的了解请移步到此处](https://jsonchao.github.io/2018/10/17/Android%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92%E6%9C%BA%E5%88%B6/)
+
+1).Android事件分发机制的本质是要解决：点击事件由个对象发出，经过哪些对象，最终达到哪个对象并最终到处理。这里的对象是指Activity、ViewGroup、View.
+
+2).Android中事件分发顺序：Activity（Window） ->ViewGroup -> View.
+
+3).事件分发过程由dispatchTouchEvent()、onInterceptTouchEvent()和onTouchEvent()三个方协助完成
+
+设置Button按钮来响应点击事件事件传递情况：（如下图）
+
+布局如下:
+
+![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfaed36b0e?imageslim)
+    
+最外层：Activiy A，包含两个子View：ViewGroupB、View C
+
+中间层：ViewGroup B，包含一个子View：View C
+
+最内层：View C
+
+假设用户首先触摸到屏幕上ViewC上的某个点（如图中黄色区域），那么Action_DOWN事就在该点产生，然后用户移动手指并最后离开屏幕。
+
+按钮点击事件:
+
+DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理这个事件;
+
+因为C正在处理这个事件，那么DOWN事件将不再往上传给B和A的onTouchEvent()；
+
+该事件列的其他事件（Move、Up）也将传递给C的onToucEvent();
+
+![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd00ab478?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+
+![image](https://upload-images.jianshu.io/upload_images/2911038-5349d6ebb32372da)
+
+(记住这个图的传递顺序,面试的时候能够画出来,就很详细了)
+
+请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理   
+
+
+### 3、View的绘制流程？
+
+1.ViewRootImpl会调用performTraversals(),其内部会用performMeasure()、performLayout、performDraw()。
+
+2.performMeasure()会调用最外层的ViewGroup的measur()-->onMeasure(),ViewGroup的onMeasure()是抽象方，但其提供了measureChildren()，这之中会遍历子Vie然后循环调用measureChild()这之中会用getChildMeasueSpec()+父View的MeasureSpec+子View的LayoutParam起获取本View的MeasureSpec，然后调用子View的measur()到View的onMeasure()-->setMeasureDimension(getDeaultSize(),getDefaultSize()),getDefaultSize()默认返回measureSpec的测量数值，所以继承View进行自定义的wrap_content需要重写。
+
+3.performLayout()会调用最外层的ViewGroup的layout(,t,r,b),本View在其中使用setFrame()设置本View的四顶点位置。在onLayout(抽象方法)中确定子View的位置如LinearLayout会遍历子View，循环调用setChildFrame-->子View.layout()。
+
+4.performDraw()会调用最外层ViewGroup的draw():其会先后调用background.draw()(绘制背景)、onDraw()(制自己)、dispatchDraw()(绘制子View)、onDrawScrollars()(绘制装饰)。
+
+5.MeasureSpec由2位SpecMode(UNSPECIFIED、EXACTLY(应精确值和match_parent)、AT_MOST(对应warp_content)和30位SpecSize组成一个int,DecorView的MeasureSpe由窗口大小和其LayoutParams决定，其他View由父ViewMeasureSpec和本View的LayoutParams决定。ViewGroup有getChildMeasureSpec()来获取子View的MeasureSpec。
+
+6.三种方式获取measure()后的宽高：
+
+- Activity#onWindowFocusChange()中调用获取
+- view.post(Runnable)将获取的代码投递到消息队列尾部。
+- ViewTreeObservable.
+
+[全面的了解请点击此处](https://jsonchao.github.io/2018/10/28/Android%20View%E7%9A%84%E7%BB%98%E5%88%B6%E6%B5%81%E7%A8%8B/)
+
+
+### 4、跨进程通信。
+
+#### [AIDL使用](http://blog.csdn.net/singwhatiwanna/article/details/17041691)
 
 AIDL (Android Interface Definition Language) 是一种AIDL 语言，用于生成可以在Android设备上两个进程之间进行进程间通信(interprocess communication, IPC)的代码。如果在一个进程中（例如Activity）要调用另一个进程中（例如Service）对象的操作，就可以使用AIDL生成可序列化的参数。 AIDL IPC机制是面向接口的，像COM或Corba一样，但是更加轻量级。它是使用代理类在客户端和实现端传递数据。如果要使用AIDL, 需要完成2件事情: 1. 引入AIDL的相关类.; 2. 调用aidl产生的class.
 
@@ -492,7 +384,7 @@ IPC的调用步骤:
     调用这些方法
 
 
-##### Binder机制
+#### Binder机制
 
 IPC:
 
@@ -603,11 +495,209 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
 [老罗Binder机制分析系列或Android系统源代码情景分析Binder章节](https://blog.csdn.net/luoshengyang/article/details/6618363)
 
 
-##### 请介绍一下NDK
+### 5、系统启动流程是什么？（提示：Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程）
 
-##### 如何在jni中注册native函数，有几种注册方式
 
-##### Java调用C++
+### 6、启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？
+
+是因为启动程序（主界面也是一个app），发现了在这个程序中存在一个设置为<category android:name="android.intent.category.LAUNCHER" />的activity,
+所以这个launcher会把icon提出来，放在主界面上。当用户点击icon的时候，发出一个Intent：
+    
+    Intent intent = mActivity.getPackageManager().getLaunchIntentForPackage(packageName);
+    mActivity.startActivity(intent);   
+    
+跳过去可以跳到任意允许的页面，如一个程序可以下载，那么真正下载的页面可能不是首页（也有可能是首页），这时还是构造一个Intent，startActivity。这个intent中的action可能有多种view，download都有可能。系统会根据第三方程序向系统注册的功能，为你的Intent选择可以打开的程序或者页面。所以唯一的一点
+不同的是从icon的点击启动的intent的action是相对单一的，从程序中跳转或者启动可能样式更多一些。本质是相同的。
+
+
+### 7、AMS家族重要术语解释。
+
+1.ActivityManagerServices，简称AMS，服务端对象，负责系统中所有Activity的生命周期。
+
+2.ActivityThread，App的真正入口。当开启App之后，调用main()开始运行，开启消息循环队列，这就是传说的UI线程或者叫主线程。与ActivityManagerService一起完成Activity的管理工作。
+
+3.ApplicationThread，用来实现ActivityManagerServie与ActivityThread之间的交互。在ActivityManagerSevice需要管理相关Application中的Activity的生命周期时，通过ApplicationThread的代理对象与ActivityThread通信。
+
+4.ApplicationThreadProxy，是ApplicationThread在服务器端的代理，负责和客户端的ApplicationThread通信。AMS就是通过该代理与ActivityThread进行通信的。
+
+5.Instrumentation，每一个应用程序只有一个Instrumetation对象，每个Activity内都有一个对该对象的引用，Instrumentation可以理解为应用进程的管家，ActivityThread要创建或暂停某个Activity时，都需要通过Instrumentation来进行具体的操作。
+
+6.ActivityStack，Activity在AMS的栈管理，用来记录经启动的Activity的先后关系，状态信息等。通过ActivtyStack决定是否需要启动新的进程。
+
+7.ActivityRecord，ActivityStack的管理对象，每个Acivity在AMS对应一个ActivityRecord，来记录Activity状态以及其他的管理信息。其实就是服务器端的Activit对象的映像。
+
+8.TaskRecord，AMS抽象出来的一个“任务”的概念，是记录ActivityRecord的栈，一个“Task”包含若干个ActivityRecord。AMS用TaskRecord确保Activity启动和退出的顺序。如果你清楚Activity的4种launchMode，那么对这概念应该不陌生。
+
+
+### 8、App启动流程（Activity的冷启动流程）。
+
+整个应用程序的启动过程要执行很多步骤，但是整体来看，主要分为以下五个阶段：
+
+一.Launcher通过Binder进程间通信机制通知ActityManagerService，它要启动一个Activity；
+
+二.ActivityManagerService通过Binder进程间机制通知Launcher进入Paused状态；
+
+三.Launcher通过Binder进程间通信机制通知ActityManagerService，它已经准备就绪进入Paused状态，于是ActivityManagerService就创建一个新的进程，用来启动一个ActivityThread实例，即将要启动的Activity就是在这个ActivityThread实例中运行；
+    
+四.ActivityThread通过Binder进程间通信机制将一个ApplicationThread类型的Binder对象传递给ActivityManagerService，以便以后ActivityManagerService能够通过这个Binder对象和它进行通信；
+    
+五 ：ActivityManagerService通过Binder进程间通信机制通知ActivityThread，现在一切准备就绪，它可以真正执行Activity的启动操作了。
+
+点击应用图标后会去启动应用的LauncherActivity，如果LancerActivity所在的进程没有创建，还会创建新进程，整体的流程就是一个Activity的启动流程。
+
+Activity的启动流程图（放大可查看）如下所示：
+
+![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/app/component/activity_start_flow.png)
+
+整个流程涉及的主要角色有：
+
+Instrumentation: 监控应用与系统相关的交互行为。
+
+AMS：组件管理调度中心，什么都不干，但是什么都管。
+
+ActivityStarter：Activity启动的控制器，处理Intent与Flag对Activity启动的影响，具体说来有：1 寻找符合启动条件的Activity，如果有多个，让用户选择；2 校验启动参数的合法性；3 返回int参数，代表Activity是否启动成功。
+
+ActivityStackSupervisior：这个类的作用你从它的名字就可以看出来，它用来管理任务栈。
+
+ActivityStack：用来管理任务栈里的Activity。
+
+ActivityThread：最终干活的人，Activity、Service、BroadcastReceiver的启动、切换、调度等各种操作都在这个类里完成。
+
+注：这里单独提一下ActivityStackSupervisior，这是高版本才有的类，它用来管理多个ActivityStack，早期的版本只有一个ActivityStack对应着手机屏幕，后来高版本支持多屏以后，就有了多个ActivityStack，于是就引入了ActivityStackSupervisior用来管理多个ActivityStack。
+
+整个流程主要涉及四个进程：
+
+- 调用者进程，如果是在桌面启动应用就是Launcher应用进程。
+- ActivityManagerService等待所在的System Server进程，该进程主要运行着系统服务组件。
+- Zygote进程，该进程主要用来fork新进程。
+- 新启动的应用进程，该进程就是用来承载应用运行的进程了，它也是应用的主线程（新创建的进程就是主线程），处理组件生命周期、界面绘制等相关事情。
+
+有了以上的理解，整个流程可以概括如下：
+
+- 1、点击桌面应用图标，Launcher进程将启动Activity（MainActivity）的请求以Binder的方式发送给了AMS。
+- 2、AMS接收到启动请求后，交付ActivityStarter处理Intent和Flag等信息，然后再交给ActivityStackSupervisior/ActivityStack 处理Activity进栈相关流程。同时以Socket方式请求Zygote进程fork新进程。
+- 3、Zygote接收到新进程创建请求后fork出新进程。
+- 4、在新进程里创建ActivityThread对象，新创建的进程就是应用的主线程，在主线程里开启Looper消息循环，开始处理创建Activity。
+- 5、ActivityThread利用ClassLoader去加载Activity、创建Activity实例，并回调Activity的onCreate()方法，这样便完成了Activity的启动。
+
+最后，再看看另一幅启动流程图来加深理解：
+
+![image](http://img.mp.itc.cn/upload/20170329/ca9567ce3bf04c4abdb4d124cebfee76_th.jpeg)
+
+
+### 9、ActivityThread工作原理。
+
+
+### 10、说下四大组件的启动过程，四大组件的启动与销毁的方式。
+
+
+### 11、AMS是如何管理Activity的？
+
+
+### 12、理解Window和WindowManager。
+
+1.Window用于显示View和接收各种事件，Window有三种型：应用Window(每个Activity对应一个Window)、子Widow(不能单独存在，附属于特定Window)、系统window(toast和状态栏)
+
+2.Window分层级，应用Window在1-99、子Window在1000-999、系统Window在2000-2999.WindowManager提供了增改View的三个功能。
+
+3.Window是个抽象概念：每一个Window对应着一个ViewRootImpl，Window通过ViewRootImpl来和View建立联系，View是Window存在的实体，只能通过WindowManager来访问Window。
+
+4.WindowManager的实现是WindowManagerImpl，其再委托WindowManagerGlobal来对Window进行操作，其中有四种List分别储存对应的View、ViewRootImpl、WindowManger.LayoutParams和正在被删除的View。
+
+5.Window的实体是存在于远端的WindowMangerService，所以增删改Window在本端是修改上面的几个List然后过ViewRootImpl重绘View，通过WindowSession(每个对应一个)在远端修改Window。
+
+6.Activity创建Window：Activity会在attach()中创建Wndow并设置其回调(onAttachedToWindow()、dispatchTouchEvent())，Activity的Window是由Policy类创建PhoneWindow实现的。然后通过Activity#setContentView()调用PhoneWindow的setContentView。
+
+
+### 13、WMS是如何管理Window的？
+
+
+### 14、大体说清一个应用程序安装到手机上时发生了什么？
+
+APK的安装流程如下所示：
+
+![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/app/package/apk_install_structure.png)
+
+复制APK到/data/app目录下，解压并扫描安装包。
+
+资源管理器解析APK里的资源文件。
+
+解析AndroidManifest文件，并在/data/data/目录下创建对应的应用数据目录。
+
+然后对dex文件进行优化，并保存在dalvik-cache目录下。
+
+将AndroidManifest文件解析出的四大组件信息注册到PackageManagerService中。
+
+安装完成后，发送广播。
+
+
+### 15、说说 apk 打包流程，签名算法的原理？
+
+Android的包文件APK分为两个部分：代码和资源，所以打包方面也分为资源打包和代码打包两个方面，这篇文章就来分析资源和代码的编译打包原理。
+
+APK整体的的打包流程如下图所示：
+
+![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/native/vm/apk_package_flow.png)
+
+具体说来：
+
+- 通过AAPT工具进行资源文件（包括AndroidManifest.xml、布局文件、各种xml资源等）的打包，生成R.java文件。
+- 通过AIDL工具处理AIDL文件，生成相应的Java文件。
+- 通过Javac工具编译项目源码，生成Class文件。
+- 通过DX工具将所有的Class文件转换成DEX文件，该过程主要完成Java字节码转换成Dalvik字节码，压缩常量池以及清除冗余信息等工作。
+- 通过ApkBuilder工具将资源文件、DEX文件打包生成APK文件。
+- 利用KeyStore对生成的APK文件进行签名。
+- 如果是正式版的APK，还会利用ZipAlign工具进行对齐处理，对齐的过程就是将APK文件中所有的资源文件举例文件的起始距离都偏移4字节的整数倍，这样通过内存映射访问APK文件 的速度会更快。
+
+
+### 16、描述清点击 Android Studio 的 build 按钮后发生了什么？
+
+
+### 17、[说下安卓虚拟机和java虚拟机的原理和不同点](https://blog.csdn.net/jason0539/article/details/50440669)?（JVM、Davilk、ART三者的原理和区别） 
+
+#### JVM 和Dalvik虚拟机的区别
+
+JVM:.java -> javac -> .class -> jar -> .jar
+    
+架构: 堆和栈的架构.
+
+DVM:.java -> javac -> .class -> dx.bat -> .dex
+
+架构: 寄存器(cpu上的一块高速缓存)
+
+#### Android2个虚拟机的区别（一个5.0之前，一个5.0之后）
+
+art上应用启动快，运行快，但是耗费更多存储空间，安装时间长，总的来说ART的功效就是”空间换时间”。
+
+- ART: Ahead of Time
+- Dalvik: Just in Time
+
+什么是Dalvik：Dalvik是Google公司自己设计用于Android平台的Java虚拟机。Dalvik虚拟机是Google等厂商合作开发的Android移动设备平台的核心组成部分之一，它可以支持已转换为.dex(即Dalvik Executable)格式的Java应用程序的运行，.dex格式是专为Dalvik应用设计的一种压缩格式，适合内存和处理器速度有限的系统。Dalvik经过优化，允许在有限的内存中同时运行多个虚拟机的实例，并且每一个Dalvik应用作为独立的Linux进程执行。独立的进程可以防止在虚拟机崩溃的时候所有程序都被关闭。
+
+什么是ART:Android操作系统已经成熟，Google的Android团队开始将注意力转向一些底层组件，其中之一是负责应用程序运行的Dalvik运行时。Google开发者已经花了两年时间开发更快执行效率更高更省电的替代ART运行时。ART代表Android Runtime,其处理应用程序执行的方式完全不同于Dalvik，Dalvik是依靠一个Just-In-Time(JIT)编译器去解释字节码。开发者编译后的应用代码需要通过一个解释器在用户的设备上运行，这一机制并不高效，但让应用能更容易在不同硬件和架构上运行。ART则完全改变了这套做法，在应用安装的时候就预编译字节码为机器语言，这一机制叫Ahead-Of-Time(AOT)编译。在移除解释代码这一过程后，应用程序执行将更有效率，启动更快。
+
+ART优点：
+
+- 系统性能的显著提升。
+- 应用启动更快、运行更快、体验更流畅、触感反馈更及时。
+- 更长的电池续航能力。
+- 支持更低的硬件。
+
+ART缺点：
+
+- 更大的存储空间占用，可能会增加10%-20%。
+- 更长的应用安装时间。
+
+
+### 18、安卓采用自动垃圾回收机制，请说下安卓内存管理的原理？
+
+### 19、Android中App是如何沙箱化的,为何要这么做？
+
+### 20、[一个图片在app中调用R.id后是如何找到的](https://my.oschina.net/u/255456/blog/608229)？
+
+### 21、JNI
+
+#### Java调用C++
 
 在Java中声明Native方法（即需要调用的本地方法）
 编译上述 Java源文件javac（得到 .class文件） 3。 通过 javah 命令导出JNI的头文件（.h文件）
@@ -615,7 +705,7 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
 编译.so库文件
 通过Java命令执行 Java程序，最终实现Java调用本地代码
 
-##### C++调用Java
+#### C++调用Java
 
 从classpath路径下搜索ClassMethod这个类，并返回该类的Class对象。
 获取类的默认构造方法ID。
@@ -668,355 +758,223 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
         (*env)->DeleteLocalRef(env,str_arg);  
     }  
     
-
-##### 启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？
-
-    是因为启动程序（主界面也是一个app），发现了在这个程序中存在一个设置为
-    
-    <category android:name="android.intent.category.LAUNCHER" />
-    的activity,
-    所以这个launcher会把icon提出来，放在主界面上。当用户点击icon的时候，发出一个Intent：
-    
-    Intent intent = mActivity.getPackageManager().getLaunchIntentForPackage(packageName);
-    mActivity.startActivity(intent);   
-    跳过去可以跳到任意允许的页面，如一个程序可以下载，那么真正下载的页面可能不是首页（也有可能是首页），这时还是构造一个Intent，startActivity.
-    这个intent中的action可能有多种view,download都有可能。系统会根据第三方程序向系统注册的功能，为你的Intent选择可以打开的程序或者页面。所以唯一的一点
-    不同的是从icon的点击启动的intent的action是相对单一的，从程序中跳转或者启动可能样式更多一些。本质是相同的。
-
-##### Android系统的架构
-
-![image](https://upload-images.jianshu.io/upload_images/2893137-1047c70c15c1589b.png?imageMogr2/auto-orient)
-
-    android的系统架构和其操作系统一样，采用了分层的架构。从架构图看，android分为四个层，从高层到低层分别是应用程序层、应用程序框架层、系统运行库层和linux核心层。
-    　　1.应用程序 
-    　　Android会同一系列核心应用程序包一起发布，该应用程序包包括email客户端，SMS短消息程序，日历，地图，浏览器，联系人管理程序等。所有的应用程序都是使用JAVA语言编写的。
-    　　2.应用程序框架 
-    　　开发人员也可以完全访问核心应用程序所使用的API框架。该应用程序的架构设计简化了组件的重用;任何一个应用程序都可以发布它的功能块并且任何其它的应用程序都可以使用其所发布的功能块(不过得遵循框架的安全性限制)。同样，该应用程序重用机制也使用户可以方便的替换程序组件。
-    　　隐藏在每个应用后面的是一系列的服务和系统, 其中包括;
-    　　* 丰富而又可扩展的视图(Views)，可以用来构建应用程序， 它包括列表(lists)，网格(grids)，文本框(text boxes)，按钮(buttons)， 甚至可嵌入的web浏览器。
-    　　* 内容提供器(Content Providers)使得应用程序可以访问另一个应用程序的数据(如联系人数据库)， 或者共享它们自己的数据
-    　　* 资源管理器(Resource Manager)提供 非代码资源的访问，如本地字符串，图形，和布局文件( layout files )。
-    　　* 通知管理器 (Notification Manager) 使得应用程序可以在状态栏中显示自定义的提示信息。
-    　　* 活动管理器( Activity Manager) 用来管理应用程序生命周期并提供常用的导航回退功能。
-    　　有关更多的细节和怎样从头写一个应用程序，请参考 如何编写一个 Android 应用程序.
-    3.系统运行库 
-    　　1)程序库
-    　　Android 包含一些C/C++库，这些库能被Android系统中不同的组件使用。它们通过 Android 应用程序框架为开发者提供服务。以下是一些核心库：
-    　　系统 C 库 - 一个从 BSD 继承来的标准 C 系统函数库( libc )， 它是专门为基于 embedded linux 的设备定制的。
-    　　 媒体库 - 基于 PacketVideo OpenCORE;该库支持多种常用的音频、视频格式回放和录制，同时支持静态图像文件。编码格式包括MPEG4, H.264, MP3, AAC, AMR, JPG, PNG 。
-    　　 Surface Manager - 对显示子系统的管理，并且为多个应用程序提 供了2D和3D图层的无缝融合。
-    　　 LibWebCore - 一个最新的web浏览器引擎用，支持Android浏览器和一个可嵌入的web视图。
-    　　SGL- 底层的2D图形引擎
-    　　 3D libraries - 基于OpenGL ES 1.0 APIs实现;该库可以使用硬件 3D加速(如果可用)或者使用高度优化的3D软加速。
-    　　 FreeType -位图(bitmap)和矢量(vector)字体显示。
-    　　* SQLite - 一个对于所有应用程序可用，功能强劲的轻型关系型数据库引擎。
-    　　2)Android 运行库
-    　　Android 包括了一个核心库，该核心库提供了JAVA编程语言核心库的大多数功能。
-    　　每一个Android应用程序都在它自己的进程中运行，都拥有一个独立的Dalvik虚拟机实例。Dalvik被设计成一个设备可以同时高效地运行多个虚拟系统。 Dalvik虚拟机执行(.dex)的Dalvik可执行文件，该格式文件针对小内存使用做了优化。同时虚拟机是基于寄存器的，所有的类都经由JAVA编译器编译，然后通过SDK中 的 “dx” 工具转化成.dex格式由虚拟机执行。
-    　　Dalvik虚拟机依赖于linux内核的一些功能，比如线程机制和底层内存管理机制。
-    　　4.Linux 内核 
-    Android 的核心系统服务依赖于 Linux 2.6 内核，如安全性，内存管理，进程管理， 网络协议栈和驱动模型。 Linux 内核也同时作为硬件和软件栈之间的抽象层。
-    
-![image](https://raw.githubusercontent.com/BeesAndroid/BeesAndroid/master/art/android_system_structure.png)
-
-从上到下依次分为四层：
-
-Android应用框架层
-Java系统框架层
-C++系统框架层
-Linux内核层
-
-##### activty的加载过程 请详细介绍下
-
-##### 安卓采用自动垃圾回收机制，请说下安卓内存管理的原理
-
-##### 说下安卓虚拟机和java虚拟机的原理和不同点 
-
-##### android重要术语解释
-
-1.ActivityManagerServices，简称AMS，服务端对象，责系统中所有Activity的生命周期
-
-2.ActivityThread，App的真正入口。当开启App之后，调用main()开始运行，开启消息循环队列，这就是传说的UI线程或者叫主线程。与ActivityManagerServices合，一起完成Activity的管理工作
-
-3.ApplicationThread，用来实现ActivityManagerServie与ActivityThread之间的交互。在ActivityManagerSevice需要管理相关Application中的Activity的生命周时，通过ApplicationThread的代理对象与ActivityThrad通讯。
-
-4.ApplicationThreadProxy，是ApplicationThread在务器端的代理，负责和客户端的ApplicationThread通讯。AMS就是通过该代理与ActivityThread进行通信的。
-
-5.Instrumentation，每一个应用程序只有一个Instrumetation对象，每个Activity内都有一个对该对象的引用Instrumentation可以理解为应用进程的管家，Activityhread要创建或暂停某个Activity时，都需要通过Instruentation来进行具体的操作。
-
-6.ActivityStack，Activity在AMS的栈管理，用来记录经启动的Activity的先后关系，状态信息等。通过ActivtyStack决定是否需要启动新的进程。
-
-7.ActivityRecord，ActivityStack的管理对象，每个Acivity在AMS对应一个ActivityRecord，来记录Activity状态以及其他的管理信息。其实就是服务器端的Activit对象的映像。
-
-8.TaskRecord，AMS抽象出来的一个“任务”的概念，是录ActivityRecord的栈，一个“Task”包含若干个ActivitRecord。AMS用TaskRecord确保Activity启动和退出的序。如果你清楚Activity的4种launchMode，那么对这概念应该不陌生。
-    
-##### 理解Window和WindowManager
-
-1.Window用于显示View和接收各种事件，Window有三种型：应用Window(每个Activity对应一个Window)、子Widow(不能单独存在，附属于特定Window)、系统window(oast和状态栏)
-
-2.Window分层级，应用Window在1-99、子Window在1000-999、系统Window在2000-2999.WindowManager提供了增改View三个功能。
-
-3.Window是个抽象概念：每一个Window对应着一个ViewViewRootImpl，Window通过ViewRootImpl来和View建立系，View是Window存在的实体，只能通过WindowManage来访问Window。
-
-4.WindowManager的实现是WindowManagerImpl其再委托WindowManagerGlobal来对Window进行操作，其中有四List分别储存对应的View、ViewRootImpl、WindowMange.LayoutParams和正在被删除的View
-
-5.Window的实体是存在于远端的WindowMangerService，所以增删改Window在本端是修改上面的几个List然后过ViewRootImpl重绘View，通过WindowSession(每个应一个)在远端修改Window。
-
-6.Activity创建Window：Activity会在attach()中创建Wndow并设置其回调(onAttachedToWindow()、dispatchTochEvent()),Activity的Window是由Policy类创建PhoneWndow实现的。然后通过Activity#setContentView()调用honeWindow的setContentView。
-
-##### 说下四大组件的启动过程，四大组件的启动与销毁的方式。
-
-##### Android Framework层有没有了解过，说说 Window 窗口添加的过程；
-
-##### ActivityThread工作原理
-
-##### Android dalvik虚拟机和Art虚拟机的优化升级点
-
-##### Android2个虚拟机的区别（一个5.0之前，一个5.0之后）
-
-art上应用启动快，运行快，但是耗费更多存储空间，安装时间长，总的来说ART的功效就是”空间换时间”。
-
-ART: Ahead of Time
-Dalvik: Just in Time
-
-什么是Dalvik：Dalvik是Google公司自己设计用于Android平台的Java虚拟机。Dalvik虚拟机是Google等厂商合作开发的Android移动设备平台的核心组成部分之一，它可以支持已转换为.dex(即Dalvik Executable)格式的Java应用程序的运行，.dex格式是专为Dalvik应用设计的一种压缩格式，适合内存和处理器速度有限的系统。Dalvik经过优化，允许在有限的内存中同时运行多个虚拟机的实例，并且每一个Dalvik应用作为独立的Linux进程执行。独立的进程可以防止在虚拟机崩溃的时候所有程序都被关闭。
-
-什么是ART:Android操作系统已经成熟，Google的Android团队开始将注意力转向一些底层组件，其中之一是负责应用程序运行的Dalvik运行时。Google开发者已经花了两年时间开发更快执行效率更高更省电的替代ART运行时。ART代表Android Runtime,其处理应用程序执行的方式完全不同于Dalvik，Dalvik是依靠一个Just-In-Time(JIT)编译器去解释字节码。开发者编译后的应用代码需要通过一个解释器在用户的设备上运行，这一机制并不高效，但让应用能更容易在不同硬件和架构上运行。ART则完全改变了这套做法，在应用安装的时候就预编译字节码到机器语言，这一机制叫Ahead-Of-Time(AOT)编译。在移除解释代码这一过程后，应用程序执行将更有效率，启动更快。
-
-ART优点：
-
-系统性能的显著提升
-应用启动更快、运行更快、体验更流畅、触感反馈更及时。
-更长的电池续航能力
-支持更低的硬件
-
-ART缺点：
-更大的存储空间占用，可能会增加10%-20%
-更长的应用安装时间
-
-https://blog.csdn.net/jason0539/article/details/50440669
-
-http://www.jackywang.tech/2017/08/21/%E5%85%B3%E4%BA%8EDalvik%EF%BC%8C%E6%88%91%E4%BB%AC%E8%AF%A5%E7%9F%A5%E9%81%93%E4%BA%9B%E4%BB%80%E4%B9%88%EF%BC%9F/
-
-##### Android中App 是如何沙箱化的,为何要这么做
-
-##### 权限管理系统
-
-https://juejin.im/entry/57a99fba5bbb500064418fc0
-
-##### 说说 apk 打包流程，签名算法的原理？
-
-Android的包文件APK分为两个部分：代码和资源，所以打包方面也分为资源打包和代码打包两个方面，这篇文章就来分析资源和代码的编译打包原理。
-
-APK整体的的打包流程如下图所示：
-
-![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/native/vm/apk_package_flow.png)
-
-具体说来：
-
-通过AAPT工具进行资源文件（包括AndroidManifest.xml、布局文件、各种xml资源等）的打包，生成R.java文件。
-通过AIDL工具处理AIDL文件，生成相应的Java文件。
-通过Javac工具编译项目源码，生成Class文件。
-通过DX工具将所有的Class文件转换成DEX文件，该过程主要完成Java字节码转换成Dalvik字节码，压缩常量池以及清除冗余信息等工作。
-通过ApkBuilder工具将资源文件、DEX文件打包生成APK文件。
-利用KeyStore对生成的APK文件进行签名。
-如果是正式版的APK，还会利用ZipAlign工具进行对齐处理，对齐的过程就是将APK文件中所有的资源文件举例文件的起始距离都偏移4字节的整数倍，这样通过内存映射访问APK文件 的速度会更快。
-
-##### 介绍下Android应用程序启动过程
-
-整个应用程序的启动过程要执行很多步骤，但是整体来看，主要分为以下五个阶段：
-
-一. ：Launcher通过Binder进程间通信机制通知ActityManagerService，它要启动一个Activity；
-
-二.：ActivityManagerService通过Binder进程间机制通知Launcher进入Paused状态；
-
-三.：Launcher通过Binder进程间通信机制通知ActityManagerService，它已经准备就绪进入Paused状态，于是ActivityManagerService就创建一个新的进程，用来启动一个ActivityThread实例，即将要启动的Activity就是在这个ActivityThread实例中运行；
-    
-四. ：ActivityThread通过Binder进程间通信机制将一个ApplicationThread类型的Binder对象传递给ActivityManagerService，以便以后ActivityManagerService能够通过这个Binder对象和它进行通信；
-    
-五 ：ActivityManagerService通过Binder进程间通信机制通知ActivityThread，现在一切准备就绪，它可以真正执行Activity的启动操作了。
-
-点击应用图标后会去启动应用的LauncherActivity，如果LancerActivity所在的进程没有创建，还会创建新进程，整体的流程就是一个Activity的启动流程。
-
-Activity的启动流程图（放大可查看）如下所示：
-
-![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/app/component/activity_start_flow.png)
-
-整个流程涉及的主要角色有：
-
-Instrumentation: 监控应用与系统相关的交互行为。
-AMS：组件管理调度中心，什么都不干，但是什么都管。
-ActivityStarter：Activity启动的控制器，处理Intent与Flag对Activity启动的影响，具体说来有：1 寻找符合启动条件的Activity，如果有多个，让用户选择；2 校验启动参数的合法性；3 返回int参数，代表Activity是否启动成功。
-ActivityStackSupervisior：这个类的作用你从它的名字就可以看出来，它用来管理任务栈。
-ActivityStack：用来管理任务栈里的Activity。
-ActivityThread：最终干活的人，是ActivityThread的内部类，Activity、Service、BroadcastReceiver的启动、切换、调度等各种操作都在这个类里完成。
-注：这里单独提一下ActivityStackSupervisior，这是高版本才有的类，它用来管理多个ActivityStack，早期的版本只有一个ActivityStack对应着手机屏幕，后来高版本支持多屏以后，就 有了多个ActivityStack，于是就引入了ActivityStackSupervisior用来管理多个ActivityStack。
-
-整个流程主要涉及四个进程：
-
-调用者进程，如果是在桌面启动应用就是Launcher应用进程。
-ActivityManagerService等所在的System Server进程，该进程主要运行着系统服务组件。
-Zygote进程，该进程主要用来fork新进程。
-新启动的应用进程，该进程就是用来承载应用运行的进程了，它也是应用的主线程（新创建的进程就是主线程），处理组件生命周期、界面绘制等相关事情。
-有了以上的理解，整个流程可以概括如下：
-
-点击桌面应用图标，Launcher进程将启动Activity（MainActivity）的请求以Binder的方式发送给了AMS。
-AMS接收到启动请求后，交付ActivityStarter处理Intent和Flag等信息，然后再交给ActivityStackSupervisior/ActivityStack 处理Activity进栈相关流程。同时以Socket方式请求Zygote进程fork新进程。
-Zygote接收到新进程创建请求后fork出新进程。
-在新进程里创建ActivityThread对象，新创建的进程就是应用的主线程，在主线程里开启Looper消息循环，开始处理创建Activity。
-ActivityThread利用ClassLoader去加载Activity、创建Activity实例，并回调Activity的onCreate()方法。这样便完成了Activity的启动。
-
-![image](http://img.mp.itc.cn/upload/20170329/ca9567ce3bf04c4abdb4d124cebfee76_th.jpeg)
-
-http://www.sohu.com/a/130814934_675634
-
-##### 一个应用程序安装到手机上时发生了什么
-
-http://www.androidchina.net/6667.html
-    
-##### JVM 和Dalvik虚拟机的区别
-
-JVM:.java -> javac -> .class -> jar -> .jar
-    
-架构: 堆和栈的架构.
-
-DVM:.java -> javac -> .class -> dx.bat -> .dex
-
-架构: 寄存器(cpu上的一块高速缓存)
-
-##### Zygote的启动过程
-
-在 Android 系统里面，zygote是一个进程的名字。Android 是基于 Linux System的，当你的手机开机的时候，Linux的内核加载完成之后就会启动一个叫 “init“ 的进程。在Linux System 里面，所有的进程都是由 init 进程 fork出来的，我们的zygote进程也不例外。
+#### 如何在jni中注册native函数，有几种注册方式？
 
     
-##### 安卓view绘制机制和加载过程，请详细说下整个流程
+### 22、请介绍一下NDK？
 
-[全面的了解请点击此处](https://jsonchao.github.io/2018/10/28/Android%20View%E7%9A%84%E7%BB%98%E5%88%B6%E6%B5%81%E7%A8%8B/)
-
-1.ViewRootImpl会调用performTraversals(),其内部会用performMeasure()、performLayout、performDraw()。
-
-2.performMeasure()会调用最外层的ViewGroup的measur()-->onMeasure(),ViewGroup的onMeasure()是抽象方，但其提供了measureChildren()，这之中会遍历子Vie然后循环调用measureChild()这之中会用getChildMeasueSpec()+父View的MeasureSpec+子View的LayoutParam起获取本View的MeasureSpec，然后调用子View的measur()到View的onMeasure()-->setMeasureDimension(getDeaultSize(),getDefaultSize()),getDefaultSize()默认返回measureSpec的测量数值，所以继承View进行自定义的wrap_content需要重写。
-
-3.performLayout()会调用最外层的ViewGroup的layout(,t,r,b),本View在其中使用setFrame()设置本View的四顶点位置。在onLayout(抽象方法)中确定子View的位置如LinearLayout会遍历子View，循环调用setChildFrame-->子View.layout()。
-
-4.performDraw()会调用最外层ViewGroup的draw():其会先后调用background.draw()(绘制背景)、onDraw()(制自己)、dispatchDraw()(绘制子View)、onDrawScrollars()(绘制装饰)。
-
-5.MeasureSpec由2位SpecMode(UNSPECIFIED、EXACTLY(应精确值和match_parent)、AT_MOST(对应warp_content)和30位SpecSize组成一个int,DecorView的MeasureSpe由窗口大小和其LayoutParams决定，其他View由父ViewMeasureSpec和本View的LayoutParams决定。ViewGroup有getChildMeasureSpec()来获取子View的MeasureSpec。
-
-6.三种方式获取measure()后的宽高：
-
-- Activity#onWindowFocusChange()中调用获取
-- view.post(Runnable)将获取的代码投递到消息队列尾部。
-- ViewTreeObservable.
-    
-##### activty的加载过程 请详细介绍下
-
-1.Activity中最终到startActivityForResult()（mMainhread.getApplicationThread()传入了一个Applicationhread检查APT）
-->Instrumentation#execStartActivity()和checkStartctivityResult()(这是在启动了Activity之后判断Activty是否启动成功，例如没有在AM中注册那么就会报错)
-->ActivityManagerNative.getDefault().startActivit()（类似AIDL，实现了IAM，实际是由远端的AMS实现statActivity()）
-->ActivityStackSupervisor#startActivityMayWait()
-->ActivityStack#resumeTopActivityInnerLocked
-->ActivityStackSupervisor#realStartActivityLocked（在这里调用APT的scheduleLaunchActivity,也是AID，不过是在远端调起了本进程Application线程）
-->ApplicationThread#scheduleLaunchActivity()（这本进程的一个线程，用于作为Service端来接受AMSclient端的调起）
-->ActivityThread#handleLaunchActivity()（接收内类H的消息，ApplicationThread线程发送LAUNCH_ACTIVTY消息给H）
-->最终在ActivityThread#performLaunchActivity()中现Activity的启动完成了以下几件事：
-
-2.从传入的ActivityClientRecord中获取待启动的Activty的组件信息
-
-3.创建类加载器，使用Instrumentation#newActivity(加载Activity对象
-
-4.调用LoadedApk.makeApplication方法尝试创建Appliction，由于单例所以不会重复创建。
-
-5.创建Context的实现类ContextImpl对象，并通过Activty#attach()完成数据初始化和Context建立联系，因为Ativity是Context的桥接类，
-最后就是创建和关联window，让Window接收的事件传给Ativity，在Window的创建过程中会调用ViewRootImpl的prformTraversals()初始化View。
-
-6.Instrumentation#callActivityOnCreate()->Activit#performCreate()->Activity#onCreate().onCreate()会通过Activity#setContentView()调用PhoneWindow的stContentView()
-更新界面。    
-
-##### 描述清点击 Android Studio 的 build 按钮后发生了什么
-
-##### 大体说清一个应用程序安装到手机上时发生了什么
-
-APK的安装流程如下所示：
-
-![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/app/package/apk_install_structure.png)
-
-复制APK到/data/app目录下，解压并扫描安装包。
-资源管理器解析APK里的资源文件。
-解析AndroidManifest文件，并在/data/data/目录下创建对应的应用数据目录。
-然后对dex文件进行优化，并保存在dalvik-cache目录下。
-将AndroidManifest文件解析出的四大组件信息注册到PackageManagerService中。
-安装完成后，发送广播。
-
-##### jni的算法提供都是主线程的？
-
-##### Android的签名机制，APK包含哪些东西
-
-##### 如何加载NDK库？如何在jni中注册native函数，有几种注册方法？
-
-##### 点击Launcher跟点击微信支付启动微信有什么区别
-
-##### adb install 和 pms scan 的区别有哪些？
-
-##### 一个图片在app中调用R.id后是如何找到的？
-
-##### Android权限管理的技术是什么？
-
-##### 开机流程和关机流程请描述下？
-
-##### Android ++ 智能指针相关使用介绍？
-
-##### PowerManagerService主要做了哪些相关的操作？系统亮灭屏都有哪些流程？
-
-##### AMS是如何管理Activity的
-
-##### Hook以及插桩技术
-
-##### 虚拟机原理，如何自己设计一个虚拟机(内存管理，类加载，双亲委派)
-
-##### 系统启动流程是什么？（提示：Zygote进程 –> SystemServer进程 –> 各种系统服务 –> 应用进程）
    
-### 八、其它高频面试题
+## 八、Android优秀三方库源码
 
-##### 事件传递机制
+### 1、你项目中用到哪些开源库？说说其实现原理？
 
-[更全面的了解请移步到此处](https://jsonchao.github.io/2018/10/17/Android%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92%E6%9C%BA%E5%88%B6/)
+#### 一、[网络底层框架：OkHttp实现原理](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-1).Android事件分发机制的本质是要解决：点击事件由个对象发出，经过哪些对象，最终达到哪个对象并最终到处理。这里的对象是指Activity、ViewGroup、View.
+#### 网络请求缓存处理，okhttp如何处理网络缓存的？
 
-2).Android中事件分发顺序：Activity（Window） ->ViewGroup -> View.
+#### Volley与OkHttp的对比：
 
-3).事件分发过程由dispatchTouchEvent()、onInterceptTouchEvent()和onTouchEvent()三个方协助完成
+Volley：支持HTTPS。缓存、异步请求，不支持同步请求。协议类型是Http/1.0, Http/1.1，网络传输使用的是 HttpUrlConnection/HttpClient，数据读写使用的IO。
+OkHttp：支持HTTPS。缓存、异步请求、同步请求。协议类型是Http/1.0, Http/1.1, SPDY, Http/2.0, WebSocket，网络传输使用的是封装的Socket，数据读写使用的NIO（Okio）。
+SPDY协议类似于HTTP，但旨在缩短网页的加载时间和提高安全性。SPDY协议通过压缩、多路复用和优先级来缩短加载时间。
 
-设置Button按钮来响应点击事件事件传递情况：（如下图）
+Okhttp的子系统层级结构图如下所示：
 
-布局如下:
+![image](https://github.com/guoxiaoxing/android-open-framwork-analysis/raw/master/art/okhttp/okhttp_structure.png)
 
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfaed36b0e?imageslim)
+网络配置层：利用Builder模式配置各种参数，例如：超时时间、拦截器等，这些参数都会由Okhttp分发给各个需要的子系统。
+重定向层：负责重定向。
+Header拼接层：负责把用户构造的请求转换为发送给服务器的请求，把服务器返回的响应转换为对用户友好的响应。
+HTTP缓存层：负责读取缓存以及更新缓存。
+连接层：连接层是一个比较复杂的层级，它实现了网络协议、内部的拦截器、安全性认证，连接与连接池等功能，但这一层还没有发起真正的连接，它只是做了连接器一些参数的处理。
+数据响应层：负责从服务器读取响应的数据。
+在整个Okhttp的系统中，我们还要理解以下几个关键角色：
+
+OkHttpClient：通信的客户端，用来统一管理发起请求与解析响应。
+Call：Call是一个接口，它是HTTP请求的抽象描述，具体实现类是RealCall，它由CallFactory创建。
+Request：请求，封装请求的具体信息，例如：url、header等。
+RequestBody：请求体，用来提交流、表单等请求信息。
+Response：HTTP请求的响应，获取响应信息，例如：响应header等。
+ResponseBody：HTTP请求的响应体，被读取一次以后就会关闭，所以我们重复调用responseBody.string()获取请求结果是会报错的。
+Interceptor：Interceptor是请求拦截器，负责拦截并处理请求，它将网络请求、缓存、透明压缩等功能都统一起来，每个功能都是一个Interceptor，所有的Interceptor最 终连接成一个Interceptor.Chain。典型的责任链模式实现。
+StreamAllocation：用来控制Connections与Streas的资源分配与释放。
+RouteSelector：选择路线与自动重连。
+RouteDatabase：记录连接失败的Route黑名单。
+
+#### 自己去设计网络请求框架，怎么做？
+
+#### 从网络加载一个10M的图片，说下注意事项？
+
+#### http怎么知道文件过大是否传输完毕的响应？
+
+#### 谈谈你对WebSocket的理解？
+
+#### WebSocket与socket的区别？
+
+
+#### 二、[网络封装框架：Retrofit实现原理](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+
+#### Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）
+
+https://www.jianshu.com/p/050c6db5af5a
+
+
+#### 三、[响应式编程框架：RxJava实现原理](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+
+#### 四、[图片加载框架：Glide实现原理](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+#### Glide使用什么缓存？
+
+
+#### Glide内存缓存如何控制大小？
+
+
+#### 怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。
+
+    计算一张图片的大小
     
-最外层：Activiy A，包含两个子View：ViewGroupB、View C
+    
+    图片占用内存的计算公式：图片高度 * 图片宽度 * 一个像素占用的内存大小.所以，计算图片占用内存大小的时候，要考虑图片所在的目录跟设备密度，这两个因素其实影响的是图片的高宽，android会对图片进行拉升跟压缩。
+    
+    
+    加载bitmap过程（怎样保证不产生内存溢出）
+    
+    
+    由于Android对图片使用内存有限制，若是加载几兆的大图片便内存溢出。Bitmap会将图片的所有像素（即长x宽）加载到内存中，如果图片分辨率过大，会直接导致内存OOM，只有在BitmapFactory加载图片时使用BitmapFactory.Options对相关参数进行配置来减少加载的像素。
+    
+    
+    BitmapFactory.Options相关参数详解
+    
+    
+    (1).Options.inPreferredConfig值来降低内存消耗。
+    
+    比如：默认值ARGB_8888改为RGB_565,节约一半内存。
+    
+    
+    (2).设置Options.inSampleSize 缩放比例，对大图片进行压缩 。
+    
+    
+    (3).设置Options.inPurgeable和inInputShareable：让系统能及时回 收内存。
+    
+    A：inPurgeable：设置为True时，表示系统内存不足时可以被回 收，设置为False时，表示不能被回收。
+    
+    B：inInputShareable：设置是否深拷贝，与inPurgeable结合使用，inPurgeable为false时，该参数无意义。
+    
+    
+    (4).使用decodeStream代替其他方法。
+    
+    decodeResource,setImageResource,setImageBitmap等方法
 
-中间层：ViewGroup B，包含一个子View：View C
+#### LRUCache算法是怎样实现的。
 
-最内层：View C
+    内部存在一个LinkedHashMap和maxSize，把最近使用的对象用强引用存储在 LinkedHashMap中，给出来put和get方法，每次put图片时计算缓存中所有图片总大小，跟maxSize进行比较，大于maxSize，就将最久添加的图片移除；反之小于maxSize就添加进来。
+    
+    
+    之前，我们会使用内存缓存技术实现，也就是软引用或弱引用，在Android 2.3（APILevel 9）开始，垃圾回收器会更倾向于回收持有软引用或弱引用的对象，这让软引用和弱引用变得不再可靠。
+    
+写个图片浏览器，说出你的思路
 
-假设用户首先触摸到屏幕上ViewC上的某个点（如图中黄色区域），那么Action_DOWN事就在该点产生，然后用户移动手指并最后离开屏幕。
+#### Bitmap 压缩策略
 
-按钮点击事件:
+    加载 Bitmap 的方式：
+    BitmapFactory 四类方法：
+    decodeFile( 文件系统 )
+    decodeResourece( 资源 )
+    decodeStream( 输入流 ) 
+    decodeByteArray( 字节数 )
+    BitmapFactory.options 参数
+    inSampleSize 采样率，对图片高和宽进行缩放，以最小比进行缩放（一般取值为 2 的指数）。通常是根据图片宽高实际的大小/需要的宽高大小，分别计算出宽和高的缩放比。但应该取其中最小的缩放比，避免缩放图片太小，到达指定控件中不能铺满，需要拉伸从而导致模糊。
+    inJustDecodeBounds 获取图片的宽高信息，交给  inSampleSize 参数选择缩放比。通过 inJustDecodeBounds = true，然后加载图片就可以实现只解析图片的宽高信息，并不会真正的加载图片，所以这个操作是轻量级的。当获取了宽高信息，计算出缩放比后，然后在将 inJustDecodeBounds = false,再重新加载图片，就可以加载缩放后的图片。
+    高效加载 Bitmap 的流程
+    将 BitmapFactory.Options 的 inJustDecodeBounds 参数设为 true 并加载图片
+    从 BitmapFactory.Options 中取出图片原始的宽高信息，对应于 outWidth 和 outHeight 参数
+    根据采样率规则并结合目标 view 的大小计算出采样率 inSampleSize
+    将 BitmapFactory.Options 的 inJustDecodeBounds 设置为 false 重新加载图片
 
-DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理这个事件;
+#### Bitmap的处理：
 
-因为C正在处理这个事件，那么DOWN事件将不再往上传给B和A的onTouchEvent()；
+当使用ImageView的时候，可能图片的像素大于ImageView，此时就可以通过BitmapFactory.Option来对图片进行压缩，inSampleSize表示缩小2^(inSampleSize-1)倍。
 
-该事件列的其他事件（Move、Up）也将传递给C的onToucEvent();
+BitMap的缓存：
 
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd00ab478?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
+1.使用LruCache进行内存缓存。
 
-![image](https://upload-images.jianshu.io/upload_images/2911038-5349d6ebb32372da)
+2.使用DiskLruCache进行硬盘缓存。
 
-(记住这个图的传递顺序,面试的时候能够画出来,就很详细了)
+3.实现一个ImageLoader的流程：同步异步加载、图片压缩、内存硬盘缓存、网络拉取
 
-请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理   
+    1.同步加载只创建一个线程然后按照顺序进行图片加载
+    2.异步加载使用线程池，让存在的加载任务都处于不同线程
+    3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
+    
+#### 图片库对比
+
+http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
+
+http://www.trinea.cn/android/android-image-cache-compare/
+
+#### Fresco与Glide的对比：
+
+Glide：相对轻量级，用法简单优雅，支持Gif动态图，适合用在那些对图片依赖不大的App中。
+Fresco：采用匿名共享内存来保存图片，也就是Native堆，有效的的避免了OOM，功能强大，但是库体积过大，适合用在对图片依赖比较大的App中。
+
+Fresco的整体架构如下图所示：
+
+![image](https://github.com/guoxiaoxing/android-open-framwork-analysis/raw/master/art/fresco/fresco_structure.png)
+
+DraweeView：继承于ImageView，只是简单的读取xml文件的一些属性值和做一些初始化的工作，图层管理交由Hierarchy负责，图层数据获取交由负责。
+DraweeHierarchy：由多层Drawable组成，每层Drawable提供某种功能（例如：缩放、圆角）。
+DraweeController：控制数据的获取与图片加载，向pipeline发出请求，并接收相应事件，并根据不同事件控制Hierarchy，从DraweeView接收用户的事件，然后执行取消网络请求、回收资源等操作。
+DraweeHolder：统筹管理Hierarchy与DraweeHolder。
+ImagePipeline：Fresco的核心模块，用来以各种方式（内存、磁盘、网络等）获取图像。
+Producer/Consumer：Producer也有很多种，它用来完成网络数据获取，缓存数据获取、图片解码等多种工作，它产生的结果由Consumer进行消费。
+IO/Data：这一层便是数据层了，负责实现内存缓存、磁盘缓存、网络缓存和其他IO相关的功能。
+纵观整个Fresco的架构，DraweeView是门面，和用户进行交互，DraweeHierarchy是视图层级，管理图层，DraweeController是控制器，管理数据。它们构成了整个Fresco框架的三驾马车。当然还有我们 幕后英雄Producer，所有的脏活累活都是它干的，最佳劳模👍
+
+理解了Fresco整体的架构，我们还有了解在这套矿建里发挥重要作用的几个关键角色，如下所示：
+
+Supplier：提供一种特定类型的对象，Fresco里有很多以Supplier结尾的类都实现了这个接口。
+SimpleDraweeView：这个我们就很熟悉了，它接收一个URL，然后调用Controller去加载图片。该类继承于GenericDraweeView，GenericDraweeView又继承于DraweeView，DraweeView是Fresco的顶层View类。
+PipelineDraweeController：负责图片数据的获取与加载，它继承于AbstractDraweeController，由PipelineDraweeControllerBuilder构建而来。AbstractDraweeController实现了DraweeController接口，DraweeController 是Fresco的数据大管家，所以的图片数据的处理都是由它来完成的。
+GenericDraweeHierarchy：负责SimpleDraweeView上的图层管理，由多层Drawable组成，每层Drawable提供某种功能（例如：缩放、圆角），该类由GenericDraweeHierarchyBuilder进行构建，该构建器 将placeholderImage、retryImage、failureImage、progressBarImage、background、overlays与pressedStateOverlay等 xml文件或者Java代码里设置的属性信息都传入GenericDraweeHierarchy中，由GenericDraweeHierarchy进行处理。
+DraweeHolder：该类是一个Holder类，和SimpleDraweeView关联在一起，DraweeView是通过DraweeHolder来统一管理的。而DraweeHolder又是用来统一管理相关的Hierarchy与Controller
+DataSource：类似于Java里的Futures，代表数据的来源，和Futures不同，它可以有多个result。
+DataSubscriber：接收DataSource返回的结果。
+ImagePipeline：用来调取获取图片的接口。
+Producer：加载与处理图片，它有多种实现，例如：NetworkFetcherProducer，LocalAssetFetcherProducer，LocalFileFetchProducer。从这些类的名字我们就可以知道它们是干什么的。 Producer由ProducerFactory这个工厂类构建的，而且所有的Producer都是像Java的IO流那样，可以一层嵌套一层，最终只得到一个结果，这是一个很精巧的设计👍
+Consumer：用来接收Producer产生的结果，它与Producer组成了生产者与消费者模式。
+注：Fresco源码里的类的名字都比较长，但是都是按照一定的命令规律来的，例如：以Supplier结尾的类都实现了Supplier接口，它可以提供某一个类型的对象（factory, generator, builder, closure等）。 以Builder结尾的当然就是以构造者模式创建对象的类。
+
+#### [如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)？
+
+#### 自己去实现图片库，怎么做？（对扩展开发，对修改封闭，同时又保持独立性，参考Android源码设计模式解析实战的图片加载库案例即可）
+
+
+#### 五、[事件总线框架：EventBus实现原理](https://jsonchao.github.io/2019/01/28/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B9%9D%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3EventBus%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+
+#### 六、[内存泄漏检测框架：LeakCanary实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+
+#### 七、[依赖注入框架：ButterKnife实现原理](https://jsonchao.github.io/2019/01/13/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%83%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3ButterKnife%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+
+#### 八、[依赖全局管理框架：Dagger2实现原理](https://jsonchao.github.io/2019/01/20/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AB%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Dagger2%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+
+#### 九、[数据库框架：GreenDao实现原理](https://jsonchao.github.io/2018/12/22/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%9B%9B%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3GreenDao%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+#### 数据库框架对比？
+
+#### 数据库的优化
+
+#### 数据库数据迁移问题
+
+   
+## 九、其它高频面试题
+
 
 ##### 广播发送和接收的原理了解吗？
 
