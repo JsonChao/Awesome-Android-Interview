@@ -818,4 +818,10 @@ JVM 加载类的class文件 此时所有的static变量和static代码块将被�
 
 #### 57、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
 
+#### 58、[深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)
+
+#### 59、[clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)
+
+
+
 
