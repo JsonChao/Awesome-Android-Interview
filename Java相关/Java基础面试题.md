@@ -136,7 +136,7 @@ List：和数组类似，List可以动态增长，查找元素效率高，插入
 
 5.线程安全集合类与非线程安全集合类
 
-LinkedList、ArrayList、HashSet是非线程安全的，Vectr是线程安全的;
+LinkedList、ArrayList、HashSet是非线程安全的，Vector是线程安全的;
 
 HashMap是非线程安全的，HashTable是线程安全的;
 
