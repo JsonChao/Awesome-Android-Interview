@@ -44,6 +44,9 @@
 
 - 4、根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）。
 
+##### [客户端网络安全实现](http://mrpeak.cn/blog/encrypt/)
+
+
 #### 七、安卓的安全优化
 
 ##### 提高app安全性的方法？
@@ -201,7 +204,15 @@ DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理
 
 (记住这个图的传递顺序,面试的时候能够画出来,就很详细了)
 
-请写出四种以上你知道的设计模式（例如Android中哪里使用了观察者模式，单例模式相关），并介绍下实现原理   
+#### ACTION_CANCEL什么时候触发，触摸button然后滑动到外部抬起会触发点击事件吗，在+ + 滑动回去抬起会么？
+
+
+##### 点击事件被拦截，但是想传到下面的View，如何操作？
+
+
+#### 如何解决ScrollView嵌套ListView和GridView产生的冲突？
+
+https://blog.csdn.net/btt2013/article/details/53447649
 
 
 ### 3、View的绘制流程？
@@ -677,6 +688,8 @@ ART缺点：
 
 #### 一、[网络底层框架：OkHttp实现原理](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
 
+##### 手写拦截器？
+
 ##### 网络请求缓存处理，okhttp如何处理网络缓存的？
 
 ##### HttpUrlConnection 和 okhttp关系？
@@ -731,10 +744,17 @@ https://www.jianshu.com/p/050c6db5af5a
 
 #### 三、[响应式编程框架：RxJava实现原理](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
 
+##### [RxJava中map和flatmap操作符的区别及底层实现](https://www.jianshu.com/p/af13a8278a05)
+
+##### 手写rxjava遍历数组。
+
 ##### 你认为Rxjava的线程池与你们自己实现任务管理框架有什么区别？
 
 
 #### 四、[图片加载框架：Glide实现原理](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+##### Glide如何确定图片加载完毕？
+
 
 ##### Glide使用什么缓存？
 
@@ -777,6 +797,67 @@ https://www.jianshu.com/p/050c6db5af5a
     (4).使用decodeStream代替其他方法。
     
     decodeResource,setImageResource,setImageBitmap等方法
+    
+
+
+### Android中软引用与弱引用的应用场景。
+
+Java 引用类型分类：
+
+![image](https://user-gold-cdn.xitu.io/2017/10/10/29c884389e96babb2759b95014628aae?imageslim)
+
+    在 Android 应用的开发中，为了防止内存溢出，在处理一些占用内存大而且声明周期较长的对象时候，可以尽量应用软引用和弱引用技术。
+    软/弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收器回收，Java 虚拟机就会把这个软引用加入到与之关联的引用队列中。利用这个队列可以得知被回收的软/弱引用的对象列表，从而为缓冲器清除已失效的软 / 弱引用。
+    如果只是想避免 OOM 异常的发生，则可以使用软引用。如果对于应用的性能更在意，想尽快回收一些占用内存比较大的对象，则可以使用弱引用。
+    可以根据对象是否经常使用来判断选择软引用还是弱引用。如果该对象可能会经常使用的，就尽量用软引用。如果该对象不被使用的可能性更大些，就可以用弱引用。
+
+##### Android里的内存缓存和磁盘缓存是怎么实现的。
+
+内存缓存基于LruCache实现，磁盘缓存基于DiskLruCache实现。这两个类都基于Lru算法和LinkedHashMap来实现。
+
+LRU算法可以用一句话来描述，如下所示：
+
+    LRU是Least Recently Used的缩写，最近最久未使用算法，从它的名字就可以看出，它的核心原则是如果一个数据在最近一段时间没有使用到，那么它在将来被 访问到的可能性也很小，则这类数据项会被优先淘汰掉。
+
+LruCache的原理是利用LinkedHashMap持有对象的强引用，按照Lru算法进行对象淘汰。具体说来假设我们从表尾访问数据，在表头删除数据，当访问的数据项在链表中存在时，则将该数据项移动到表尾，否则在表尾新建一个数据项。当链表容量超过一定阈值，则移除表头的数据。
+
+为什么会选择LinkedHashMap呢？
+
+这跟LinkedHashMap的特性有关，LinkedHashMap的构造函数里有个布尔参数accessOrder，当它为true时，LinkedHashMap会以访问顺序为序排列元素，否则以插入顺序为序排序元素。
+
+DiskLruCache与LruCache原理相似，只是多了一个journal文件来做磁盘文件的管理和迎神，如下所示：
+
+    libcore.io.DiskLruCache
+    1
+    1
+    1
+    
+    DIRTY 1517126350519
+    CLEAN 1517126350519 5325928
+    REMOVE 1517126350519
+注：这里的缓存目录是应用的缓存目录/data/data/pckagename/cache，未root的手机可以通过以下命令进入到该目录中或者将该目录整体拷贝出来：
+
+    //进入/data/data/pckagename/cache目录
+    adb shell
+    run-as com.your.packagename 
+    cp /data/data/com.your.packagename/
+    
+    //将/data/data/pckagename目录拷贝出来
+    adb backup -noapk com.your.packagename
+我们来分析下这个文件的内容：
+
+第一行：libcore.io.DiskLruCache，固定字符串。
+第二行：1，DiskLruCache源码版本号。
+第三行：1，App的版本号，通过open()方法传入进去的。
+第四行：1，每个key对应几个文件，一般为1.
+第五行：空行
+第六行及后续行：缓存操作记录。
+第六行及后续行表示缓存操作记录，关于操作记录，我们需要了解以下三点：
+
+DIRTY 表示一个entry正在被写入。写入分两种情况，如果成功会紧接着写入一行CLEAN的记录；如果失败，会增加一行REMOVE记录。注意单独只有DIRTY状态的记录是非法的。
+当手动调用remove(key)方法的时候也会写入一条REMOVE记录。
+READ就是说明有一次读取的记录。
+CLEAN的后面还记录了文件的长度，注意可能会一个key对应多个文件，那么就会有多个数字。
 
 ##### LRUCache算法是怎样实现的。
 
@@ -784,8 +865,6 @@ https://www.jianshu.com/p/050c6db5af5a
     
     
     之前，我们会使用内存缓存技术实现，也就是软引用或弱引用，在Android 2.3（APILevel 9）开始，垃圾回收器会更倾向于回收持有软引用或弱引用的对象，这让软引用和弱引用变得不再可靠。
-    
-写个图片浏览器，说出你的思路
 
 ##### Bitmap 压缩策略
 
@@ -871,8 +950,9 @@ https://blog.csdn.net/lmj623565791/article/details/493009890
 
 ##### Bitmap对象的理解
 
-
 ##### 自己去实现图片库，怎么做？（对扩展开发，对修改封闭，同时又保持独立性，参考Android源码设计模式解析实战的图片加载库案例即可）
+
+##### 写个图片浏览器，说出你的思路？
 
 
 #### 五、[事件总线框架：EventBus实现原理](https://jsonchao.github.io/2019/01/28/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B9%9D%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3EventBus%E6%BA%90%E7%A0%81%EF%BC%89/)
@@ -882,6 +962,11 @@ https://blog.csdn.net/lmj623565791/article/details/493009890
 
 
 #### 七、[依赖注入框架：ButterKnife实现原理](https://jsonchao.github.io/2019/01/13/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%83%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3ButterKnife%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+ButterKnife对性能的影响很小，因为没有使用使用反射，而是使用的Annotation Processing Tool(APT)，注解处理器，javac中用于编译时扫描和解析Java注解的工具。在编译阶段执行的，它的原理就是读入Java源代码，解析注解，然后生成新的Java代码。新生成的Java代码最后被编译成Java字节码，注解解析器不能改变读入的Java类，比如不能加入或删除Java方法。
+
+#### AOP IOC 的好处以及在 Android 开发中的应用
+
 
 
 #### 八、[依赖全局管理框架：Dagger2实现原理](https://jsonchao.github.io/2019/01/20/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AB%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Dagger2%E6%BA%90%E7%A0%81%EF%BC%89/)
@@ -965,6 +1050,10 @@ https://www.jianshu.com/p/376ea8a19a17
 #### 项目组件化的理解
 
 
+#### 多模块开发的时候不同的负责人可能会引入重复资源，相同的字符串，相同的icon等但是文件名并不一样，怎样去重？
+
+
+
 ### 3、gradle
 
 #### gradle熟悉么，自动打包知道么？
@@ -972,6 +1061,8 @@ https://www.jianshu.com/p/376ea8a19a17
 #### 如何加快 Gradle 的编译速度？
 
 #### Gradle的Flavor能否配置sourceset？
+
+#### Gradle生命周期
 
 
 ## 五、设计模式与架构设计
@@ -994,8 +1085,28 @@ https://www.jianshu.com/p/376ea8a19a17
 
 ### 2、架构设计
 
-
 #### [MVC MVP MVVM原理和区别](http://www.tianmaying.com/tutorial/AndroidMVC)
+
+
+#### MVC的情况下怎么把Activity的C和V抽离？
+
+
+##### MVP 架构中 Presenter 定义为接口有什么好处；
+
+
+#### MVP如何管理Presenter的生命周期，何时取消网络请求？
+
+
+#### aop思想
+
+
+#### Fragment如果在Adapter中使用应该如何解耦？
+
+
+#### 项目框架里有没有Base类，BaseActivity和BaseFragment这种封装导致的问题，以及解决方法？
+
+
+#### 设计一个音乐播放界面，你会如何实现，用到那些类，如何设计，如何定义接口，如何与后台交互，如何缓存与下载，如何优化(15分钟时间)
 
 
 #### 从0设计一款App整体架构，如何去做？
@@ -1004,176 +1115,13 @@ https://www.jianshu.com/p/376ea8a19a17
 #### 说一款你认为当前比较火的应用并设计(比如：直播APP，P2P金融，小视频等)
 
 
-#### Fragment如果在Adapter中使用应该如何解耦？
+#### 实现一个库，完成日志的实时上报和延迟上报两种功能，该从哪些方面考虑？
+
 
 
 ## 六、其它高频面试题
 
-### 1、Android动画框架实现原理。
-
-Animation 框架定义了透明度，旋转，缩放和位移几种常见的动画，而且控制的是整个View。实现原理：
-
-每次绘制视图时，View 所在的 ViewGroup 中的 drawChild 函数获取该View 的 Animation 的 Transformation 值，然后调用canvas.concat(transformToApply.getMatrix())，通过矩阵运算完成动画帧，如果动画没有完成，继续调用 invalidate() 函数，启动下次绘制来驱动动画，动画过程中的帧之间间隙时间是绘制函数所消耗的时间，可能会导致动画消耗比较多的CPU资源，最重要的是，动画改变的只是显示，并不能响应事件。
-
-
-### 2、Activity-Window-View三者的差别？
-
-
-### 3、低版本SDK如何实现高版本api？
-
-- 1、在使用了高版本API的方法前面加一个 @TargetApi(API号)。
-- 2、在代码上用版本判断来控制不同版本使用不同的代码。
-
-
-### 4、下拉状态栏是不是影响activity的生命周期，如果在onStop的时候做了网络请求，onResume的时候怎么恢复
-
-
-### 5、说说你对Context的理解？
-
-
-### 6、Android的生命周期和启动模式
-
-#### 由A启动BActivity，A为栈内复用模式，B为标准模式，然后再次启动A或者杀死B，说说A，B的生命周期变化，为什么
-
-
-### 7、ListView和RecyclerView？
-
-#### listview跟recyclerview上拉加载的时候分别应该如何处理
-
-
-##### 微信支付宝支付调用时上层是如何封装AIDL的
-
-##### 如何实现一个推送，极光推送原理
-
-##### Runtime permission,如何把一个预置的app默认给它权限，不要授权。
-
-##### MVC的情况下怎么把Activity的C和V抽离
-
-##### 各个网络框架之间的差异和优缺点，网络框架代替进化的原因
-
-##### 项目框架里有没有Base类，BaseActivity和BaseFragment这种封装导致的问题，以及解决方法
-
-##### 为什么不推荐软引用，软引用在dvm上的垃圾回收机制和jvm上一样吗？
-
-##### 网络图片怎么加载？Glide如何确定图片加载完毕
-
-##### 项目框架中对多View的支持
-
-##### Debug跟Release的APK的区别
-
-##### 对谷歌新推出的Room架构
-
-##### SplashActivity中进行初始化MainActivity的参数，Splash没有初始化，AMS直接启动了MainActivity怎么办
-
-##### 设计一个多线程，可以同时读，读的时候不能写，写的时候不能读(读写锁)
-
-##### 没有给权限如何定位，特定机型定位失败，如何解决
-
-##### Gradle生命周期
-
-##### ACTION_CANCEL什么时候触发，触摸button然后滑动到外部抬起会触发点击事件吗，在+ + 滑动回去抬起会么
-
-##### 怎么处理嵌套View的滑动冲突问题
-
-##### 任意提问环节：其实可以问之前面试中遇到的问题：比如，多模块开发的时候不同的负责人可能会引入重复资源，相同的字符串，相同的icon等但是文件名并不一样，怎样去重？
-
-##### Canvas的底层机制，绘制框架，硬件加速是什么原理，canvas lock的缓冲区是怎么回事
-
-##### surfaceview， suface，surfacetexture等相关的，以及底层原理
-
-##### android文件存储，各版本存储位置的权限控制的演进，外部存储，内部存储
-
-##### 上层业务activity和fragment的遇到什么坑？？页面展示上的一些坑和优化经验
-
-##### 网络请求的开源框架：OKHttp介绍，写过拦截器么
-
-##### 数据层有统一的管理么，数据缓存是怎么做的，http请求等有提供统一管理么？
-
-##### 有用什么模式么，逻辑什么的都在Activity层？怎么分离的
-
-##### 如果用了一些解耦的策略，怎么管理生命周期的？
-
-##### 有什么提高编译速度的方法？
-
-##### 对应用里的线程有做统一管理么？
-
-##### gradle打包流程熟悉么
-
-##### 上线后的app性能分析检测有做么
-
-##### 想改变listview的高度，怎么做
-
-##### Fragment的懒加载实现，参数传递与保存
-
-##### ViewPager的缓存实现
-
-##### Android里的内存缓存和磁盘缓存是怎么实现的。
-
-内存缓存基于LruCache实现，磁盘缓存基于DiskLruCache实现。这两个类都基于Lru算法和LinkedHashMap来实现。
-
-LRU算法可以用一句话来描述，如下所示：
-
-    LRU是Least Recently Used的缩写，最近最久未使用算法，从它的名字就可以看出，它的核心原则是如果一个数据在最近一段时间没有使用到，那么它在将来被 访问到的可能性也很小，则这类数据项会被优先淘汰掉。
-
-LruCache的原理是利用LinkedHashMap持有对象的强引用，按照Lru算法进行对象淘汰。具体说来假设我们从表尾访问数据，在表头删除数据，当访问的数据项在链表中存在时，则将该数据项移动到表尾，否则在表尾新建一个数据项。当链表容量超过一定阈值，则移除表头的数据。
-
-为什么会选择LinkedHashMap呢？
-
-这跟LinkedHashMap的特性有关，LinkedHashMap的构造函数里有个布尔参数accessOrder，当它为true时，LinkedHashMap会以访问顺序为序排列元素，否则以插入顺序为序排序元素。
-
-DiskLruCache与LruCache原理相似，只是多了一个journal文件来做磁盘文件的管理和迎神，如下所示：
-
-    libcore.io.DiskLruCache
-    1
-    1
-    1
-    
-    DIRTY 1517126350519
-    CLEAN 1517126350519 5325928
-    REMOVE 1517126350519
-注：这里的缓存目录是应用的缓存目录/data/data/pckagename/cache，未root的手机可以通过以下命令进入到该目录中或者将该目录整体拷贝出来：
-
-    //进入/data/data/pckagename/cache目录
-    adb shell
-    run-as com.your.packagename 
-    cp /data/data/com.your.packagename/
-    
-    //将/data/data/pckagename目录拷贝出来
-    adb backup -noapk com.your.packagename
-我们来分析下这个文件的内容：
-
-第一行：libcore.io.DiskLruCache，固定字符串。
-第二行：1，DiskLruCache源码版本号。
-第三行：1，App的版本号，通过open()方法传入进去的。
-第四行：1，每个key对应几个文件，一般为1.
-第五行：空行
-第六行及后续行：缓存操作记录。
-第六行及后续行表示缓存操作记录，关于操作记录，我们需要了解以下三点：
-
-DIRTY 表示一个entry正在被写入。写入分两种情况，如果成功会紧接着写入一行CLEAN的记录；如果失败，会增加一行REMOVE记录。注意单独只有DIRTY状态的记录是非法的。
-当手动调用remove(key)方法的时候也会写入一条REMOVE记录。
-READ就是说明有一次读取的记录。
-CLEAN的后面还记录了文件的长度，注意可能会一个key对应多个文件，那么就会有多个数字。
-
-##### RecyclerView和ListView有什么区别？局部刷新？前者使用时多重type场景下怎么避免滑动卡顿。懒加载怎么实现，怎么优化滑动体验。
-
-##### Scroller有什么方法，怎么使用的。
-
-##### webwiew了解？怎么实现和javascript的通信？相互双方的通信。@JavascriptInterface在？版本有bug，除了这个还有其他调用android方法的方案吗？
-
-##### 线程sleep对消息的影响
-
-##### 如果在当前线程内使用Handler postdelayed 两个消息，一个延迟5s，一个延迟10s，然后使当前线程sleep 5秒，以上消息的执行时间会如何变化？
-
-答：照常执行
-
-扩展：sleep时间<=5 对两个消息无影响，5< sleep时间 <=10 对第一个消息有影响，第一个消息会延迟到sleep后执行，sleep时间>10 对两个时间都有影响，都会延迟到sleep后执行。
-
-##### 逻辑地址与物理地址，为什么使用逻辑地址？
-
-##### Android中进程内存的分配，能不能自己分配定额内存？
-
-##### 如何保证一个后台服务不被杀死？（相同问题：如何保证service在后台不被kill？）比较省电的方式是什么？
+### 1、如何保证一个后台服务不被杀死？（相同问题：如何保证service在后台不被kill？）比较省电的方式是什么？
 
 一、onStartCommand方法，返回START_STICKY
 
@@ -1206,68 +1154,119 @@ service +broadcast 方式，就是当service走ondestory的时候，发送一个
 通过系统的一些广播，比如：手机重启、界面唤醒、应用状态改变等等监听并捕获到，然后判断我们的Service是否还存活，别忘记加权限啊。
 
 
-##### Activity的启动模式有哪些？栈里是A-B-C，先想直接到A，BC都清理掉，有几种方法可以做到？这几种方法产生的结果是有几个A的实例？
+### 2、Android动画框架实现原理。
 
-##### Android中软引用与弱引用的应用场景。
+Animation 框架定义了透明度，旋转，缩放和位移几种常见的动画，而且控制的是整个View。实现原理：
 
-Java 引用类型分类：
+每次绘制视图时，View 所在的 ViewGroup 中的 drawChild 函数获取该View 的 Animation 的 Transformation 值，然后调用canvas.concat(transformToApply.getMatrix())，通过矩阵运算完成动画帧，如果动画没有完成，继续调用 invalidate() 函数，启动下次绘制来驱动动画，动画过程中的帧之间间隙时间是绘制函数所消耗的时间，可能会导致动画消耗比较多的CPU资源，最重要的是，动画改变的只是显示，并不能响应事件。
 
-![image](https://user-gold-cdn.xitu.io/2017/10/10/29c884389e96babb2759b95014628aae?imageslim)
 
-    在 Android 应用的开发中，为了防止内存溢出，在处理一些占用内存大而且声明周期较长的对象时候，可以尽量应用软引用和弱引用技术。
-    软/弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收器回收，Java 虚拟机就会把这个软引用加入到与之关联的引用队列中。利用这个队列可以得知被回收的软/弱引用的对象列表，从而为缓冲器清除已失效的软 / 弱引用。
-    如果只是想避免 OOM 异常的发生，则可以使用软引用。如果对于应用的性能更在意，想尽快回收一些占用内存比较大的对象，则可以使用弱引用。
-    可以根据对象是否经常使用来判断选择软引用还是弱引用。如果该对象可能会经常使用的，就尽量用软引用。如果该对象不被使用的可能性更大些，就可以用弱引用。
+### 3、Activity-Window-View三者的差别？
+
+ Activity像一个工匠（控制单元），Window像窗户（承载模型），View像窗花（显示视图） LayoutInflater像剪刀，Xml配置像窗花图纸。
     
-##### Android长连接，怎么处理心跳机制。
+在Activity中调用attach，创建了一个Window，
+创建的window是其子类PhoneWindow，在attach中创建PhoneWindow。
+在Activity中调用setContentView(R.layout.xxx)，
+其中实际上是调用的getWindow().setContentView()，
+内部调用了PhoneWindow中的setContentView方法。
 
-    长连接：长连接是建立连接之后, 不主动断开. 双方互相发送数据, 发完了也不主动断开连接, 之后有需要发送的数据就继续通过这个连接发送.
-    心跳包：其实主要是为了防止NAT超时，客户端隔一段时间就主动发一个数据，探测连接是否断开
-    服务器处理心跳包：假如客户端心跳间隔是固定的, 那么服务器在连接闲置超过这个时间还没收到心跳时, 可以认为对方掉线, 关闭连接. 如果客户端心跳会动态改变,  应当设置一个最大值, 超过这个最大值才认为对方掉线. 还有一种情况就是服务器通过TCP连接主动给客户端发消息出现写超时, 可以直接认为对方掉线.
+创建ParentView：
 
-##### CrashHandler实现原理
-
-    获取app crash的信息保存在本地然后在下一次打开app的时候发送到服务器。
-
-##### 动态权限适配方案，权限组的概念
-
-##### [RxJava中map和flatmap操作符的区别及底层实现](https://www.jianshu.com/p/af13a8278a05)
-
-##### [RecyclerView与ListView缓存机制的不同](https://segmentfault.com/a/1190000007331249)
-
-##### ButterKnife原理
-
-ButterKnife对性能的影响很小，因为没有使用使用反射，而是使用的Annotation Processing Tool(APT),注解处理器，javac中用于编译时扫描和解析Java注解的工具。在编译阶段执行的，它的原理就是读入Java源代码，解析注解，然后生成新的Java代码。新生成的Java代码最后被编译成Java字节码，注解解析器不能改变读入的Java 类，比如不能加入或删除Java方法。
-
-##### Activity/Window/View三者的差别
-
-    Activity像一个工匠（控制单元），Window像窗户（承载模型），View像窗花（显示视图） LayoutInflater像剪刀，Xml配置像窗花图纸。
-    
-    在Activity中调用attach，创建了一个Window
-    创建的window是其子类PhoneWindow，在attach中创建PhoneWindow
-    在Activity中调用setContentView(R.layout.xxx)
-    其中实际上是调用的getWindow().setContentView()
-    调用PhoneWindow中的setContentView方法
-    创建ParentView：
-    作为ViewGroup的子类，实际是创建的DecorView(作为FramLayout的子类）
-    将指定的R.layout.xxx进行填充
-    通过布局填充器进行填充【其中的parent指的就是DecorView】
-    调用到ViewGroup
-    调用ViewGroup的removeAllView()，先将所有的view移除掉
-    添加新的view：addView()
+作为ViewGroup的子类，实际是创建的DecorView(作为FramLayout的子类），
+将指定的R.layout.xxx进行填充，
+通过布局填充器进行填充【其中的parent指的就是DecorView】，
+调用ViewGroup的removeAllView()，先将所有的view移除掉，添加新的view：addView()。
     
 [深入解析](https://mp.weixin.qq.com/s/oFVBrIAUwD0wnlSfm-95bQ)
 
-##### Scroller原理
 
-    Scroller执行流程里面的三个核心方法
+### 4、低版本SDK如何实现高版本api？
+
+- 1、在使用了高版本API的方法前面加一个 @TargetApi(API号)。
+- 2、在代码上用版本判断来控制不同版本使用不同的代码。
+
+
+### 5、说说你对Context的理解？
+
+
+### 6、Android的生命周期和启动模式
+
+#### 由A启动BActivity，A为栈内复用模式，B为标准模式，然后再次启动A或者杀死B，说说A，B的生命周期变化，为什么？
+
+#### Activity的启动模式有哪些？栈里是A-B-C，先想直接到A，BC都清理掉，有几种方法可以做到？这几种方法产生的结果是有几个A的实例？
+
+
+### 7、ListView和RecyclerView系列
+
+#### RecyclerView和ListView有什么区别？局部刷新？前者使用时多重type场景下怎么避免滑动卡顿。懒加载怎么实现，怎么优化滑动体验。
+
+#### [RecyclerView与ListView缓存机制的不同](https://segmentfault.com/a/1190000007331249)
+
+#### 想改变listview的高度，怎么做？
+
+#### listview跟recyclerview上拉加载的时候分别应该如何处理？
+
+#### 如何自己实现RecyclerView的侧滑删除？
+
+#### RecyclerView的ItemTouchHelper的实现原理
+
+
+
+### 8、如何实现一个推送，消息推送原理？推送到达率的问题？
+
+
+### 9、动态权限系列。
+
+#### 动态权限适配方案，权限组的概念
+
+#### Runtime permission，如何把一个预置的app默认给它权限？不要授权。
+
+
+### 10、自定义View系列。
+
+#### Canvas的底层机制，绘制框架，硬件加速是什么原理，canvas lock的缓冲区是怎么回事？
+
+#### 双指缩放拖动大图
+
+#### TabLayout中如何让当前标签永远位于屏幕中间
+
+#### TabLayout如何设置指示器的宽度包裹内容？
+
+#### 自定义View如何考虑机型适配
+
+
+### 11、对谷歌新推出的Room架构。
+
+
+### 12、没有给权限如何定位，特定机型定位失败，如何解决?
+
+
+### 13、Debug跟Release的APK的区别？
+
+
+### 14、android文件存储，各版本存储位置的权限控制的演进，外部存储，内部存储
+
+
+### 15、[有什么提高编译速度的方法？](https://juejin.im/post/5947b55eda2f600067894275)
+
+
+### 16、Scroller原理。
+
+Scroller执行流程里面的三个核心方法
     
-    mScroller.startScroll()
-    mScroller.computeScrollOffset()
-    view.computeScroll()
-    1、在mScroller.startScroll()中为滑动做了一些初始化准备，比如：起始坐标，滑动的距离和方向以及持续时间(有默认值)，动画开始时间等。
+    mScroller.startScroll()；
+    mScroller.computeScrollOffset()；
+    view.computeScroll()；
     
-    2、mScroller.computeScrollOffset()方法主要是根据当前已经消逝的时间来计算当前的坐标点。因为在mScroller.startScroll()中设置了动画时间，那么在computeScrollOffset()方法中依据已经消逝的时间就很容易得到当前时刻应该所处的位置并将其保存在变量mCurrX和mCurrY中。除此之外该方法还可判断动画是否已经结束。
+1、在mScroller.startScroll()中为滑动做了一些初始化准备，比如：起始坐标，滑动的距离和方向以及持续时间(有默认值)，动画开始时间等。
+    
+2、mScroller.computeScrollOffset()方法主要是根据当前已经消逝的时间来计算当前的坐标点。因为在mScroller.startScroll()中设置了动画时间，那么在computeScrollOffset()方法中依据已经消逝的时间就很容易得到当前时刻应该所处的位置并将其保存在变量mCurrX和mCurrY中。除此之外该方法还可判断动画是否已经结束。
+
+
+### 17、Hybrid系列。
+
+#### webwiew了解？怎么实现和javascript的通信？相互双方的通信。@JavascriptInterface在？版本有bug，除了这个还有其他调用android方法的方案吗？
 
 ##### Android中Java和JavaScript交互
 
@@ -1302,159 +1301,97 @@ ButterKnife对性能的影响很小，因为没有使用使用反射，而是使
             result.innerHTML = "<font color='red'>" + window.demo.process('data') + "</font>";
         }
 
-##### SurfaceView和View的最本质的区别
 
-    SurfaceView是在一个新起的单独线程中可以重新绘制画面，而view必须在UI的主线程中更新画面。
+### 18、如果在当前线程内使用Handler postdelayed 两个消息，一个延迟5s，一个延迟10s，然后使当前线程sleep 5秒，以上消息的执行时间会如何变化？
+
+答：照常执行
+
+扩展：sleep时间<=5 对两个消息无影响，5< sleep时间 <=10 对第一个消息有影响，第一个消息会延迟到sleep后执行，sleep时间>10 对两个时间都有影响，都会延迟到sleep后执行。
+
+
+### 19、Android中进程内存的分配，能不能自己分配定额内存？
+
+
+### 20、下拉状态栏是不是影响activity的生命周期，如果在onStop的时候做了网络请求，onResume的时候怎么恢复
+
+
+### 21、Android长连接，怎么处理心跳机制。
+
+长连接：长连接是建立连接之后, 不主动断开. 双方互相发送数据, 发完了也不主动断开连接, 之后有需要发送的数据就继续通过这个连接发送.
+
+心跳包：其实主要是为了防止NAT超时，客户端隔一段时间就主动发一个数据，探测连接是否断开。
+
+服务器处理心跳包：假如客户端心跳间隔是固定的, 那么服务器在连接闲置超过这个时间还没收到心跳时, 可以认为对方掉线, 关闭连接. 如果客户端心跳会动态改变, 应当设置一个最大值, 超过这个最大值才认为对方掉线. 还有一种情况就是服务器通过TCP连接主动给客户端发消息出现写超时, 可以直接认为对方掉线.
+
+
+### 22、CrashHandler实现原理？
+
+    获取app crash的信息保存在本地然后在下一次打开app的时候发送到服务器。
+   
+   
+### 23、SurfaceView和View的最本质的区别？
+
+SurfaceView是在一个新起的单独线程中可以重新绘制画面，而view必须在UI的主线程中更新画面。
     
-    在UI的主线程中更新画面可能会引发问题，比如你更新的时间过长，那么你的主UI线程就会被你正在画的函数阻塞。那么将无法响应按键、触屏等消息。当使用SurfaceView由于是在新的线程中更新画面所以不会阻塞你的UI主线程。但这也带来了另外一个问题，就是事件同步。比如你触屏了一下，你需要SurfaceView中thread处理，一般就需要有一个event queue的设计来保存touchevent，这会稍稍复杂一点，因为涉及到线程安全。
+在UI的主线程中更新画面可能会引发问题，比如你更新的时间过长，那么你的主UI线程就会被你正在画的函数阻塞。那么将无法响应按键、触屏等消息。当使用SurfaceView由于是在新的线程中更新画面所以不会阻塞你的UI主线程。但这也带来了另外一个问题，就是事件同步。比如你触屏了一下，你需要在SurfaceView中的thread处理，一般就需要有一个event queue的设计来保存touchevent，这会稍稍复杂一点，因为涉及到线程安全。
 
-##### Android程序运行时权限与文件系统权限
 
-1,Linux 文件系统权限。不同的用户对文件有不同的读写执行权限。在android系统中，system和应用程序是分开的，system里的数据是不可更改的。
+### 24、Android程序运行时权限与文件系统权限
 
-2，Android中有3种权限，进程权限UserID，签名，应用申明权限。每次安装时，系统根据包名为应用分配唯一的userID，不同的userID运行在不同的进程里，进程间的内存是独立的，不可以相互访问，除非通过特定的Binder机制。
+1、Linux 文件系统权限。不同的用户对文件有不同的读写执行权限。在android系统中，system和应用程序是分开的，system里的数据是不可更改的。
+
+2、Android中有3种权限，进程权限UserID，签名，应用申明权限。每次安装时，系统根据包名为应用分配唯一的userID，不同的userID运行在不同的进程里，进程间的内存是独立的，不可以相互访问，除非通过特定的Binder机制。
 
 Android提供了如下的一种机制，可以使两个apk打破前面讲的这种壁垒。
 
 在AndroidManifest.xml中利用sharedUserId属性给不同的package分配相同的userID，通过这样做，两个package可以被当做同一个程序，系统会分配给两个程序相同的UserID。当然，基于安全考虑，两个package需要有相同的签名，否则没有验证也就没有意义了。
-    
-##### 如何让程序自动启动
 
-定义一个Braodcastreceiver，action为BOOT——COMPLETE，接受到广播后启动程序。
 
-##### [app如何保证后台服务不被杀死](https://segmentfault.com/a/1190000006251859#articleHeader1)
+### 25、曲面屏的适配。
 
-##### [深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)
 
-##### [clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)
+### 26、TextView调用setText方法的内部执行流程。
 
-##### 如何实现圆形ImageView；
 
-##### 如何自己实现RecyclerView的侧滑删除；
+### 27、怎么控制另外一个进程的View显示（RemoteView）？
 
-##### TabLayout中如何让当前标签永远位于屏幕中间；
 
-##### TextView调用setText方法的内部执行流程；
+### 28、如何实现右滑finish activity？
 
-##### Activity启动模式，allowReparent的特点和栈亲和性
 
-##### 怎么控制另外一个进程的View显示
+### 29、如何在整个系统层面实现界面的圆角效果。（即所有的APP打开界面都会是圆角）
 
-##### 双指缩放拖动大图
 
-##### 客户端网络安全实现
+### 30、非UI线程可以更新UI吗?
 
-##### 曲面屏的适配
+可以，当访问UI时，ViewRootImpl会调用checkThread方法去检查当前访问UI的线程是哪个，如果不是UI线程则会抛出异常。执行onCreate方法的那个时候ViewRootImpl还没创建，无法去检查当前线程.ViewRootImpl的创建在onResume方法回调之后。
 
-##### 能不能动态add同一个布局
-
-##### 手写rxjava遍历数组
-
-##### aop思想
-
-##### 实现一个库，完成日志的实时上报和延迟上报两种功能，该从哪些方面考虑
-
-##### RecyclerView的ItemTouchHelper的实现原理
-
-##### 7.0 8.0 p特性及兼容
-
-##### Bitmap的四种属性，如何加载大图（inJustDecodeBounds）。
-
-##### TabLayout如何设置指示器的宽度包裹内容？
-
-##### 最大一次线上Bug处理措施
-
-##### MVP如何管理Presenter的生命周期，何时取消网络请求
-
-##### 如何实现右滑finish activity
-
-##### 如何在整个系统层面实现界面的圆角效果（即所有的APP打开界面都会是圆角，我承认，当时我懵逼了）
-
-##### Android 界面刷新原理
-
-##### 非UI线程可以更新UI吗?
-
-    可以
-    当访问UI时，ViewRootImpl会调用checkThread方法去检查当前访问UI的线程是哪个，如果不是UI线程则会抛出异常
-    执行onCreate方法的那个时候ViewRootImpl还没创建，无法去检查当前线程.ViewRootImpl的创建在onResume方法回调之后.
     void checkThread() {
         if (mThread != Thread.currentThread()) {
             throw new CalledFromWrongThreadException(
                     "Only the original thread that created a view hierarchy can touch its views.");
         }
     }
-    非UI线程是可以刷新UI的，前提是它要拥有自己的ViewRoot,即更新UI的线程和创建ViewRoot是同一个,或者在执行checkThread()前更新UI.
+    
+非UI线程是可以刷新UI的，前提是它要拥有自己的ViewRoot,即更新UI的线程和创建ViewRoot的线程是同一个，或者在执行checkThread()前更新UI。
 
-##### 解决ScrollView嵌套ListView和GridView冲突的方法
 
-https://blog.csdn.net/btt2013/article/details/53447649
+### 31、如何解决git冲突？
 
-##### 自定义View优化策略
 
-    为了加速你的view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里做内存分配的事情，因为它会导致GC，从而导致卡顿。在初始化或者动画间隙期间做分配内存的动作。不要在动画正在执行的时候做内存分配的事情。
-    你还需要尽可能的减少onDraw被调用的次数，大多数时候导致onDraw都是因为调用了invalidate().因此请尽量减少调用invaildate()的次数。如果可能的话，尽量调用含有4个参数的invalidate()方法而不是没有参数的invalidate()。没有参数的invalidate会强制重绘整个view。
-    另外一个非常耗时的操作是请求layout。任何时候执行requestLayout()，会使得Android UI系统去遍历整个View的层级来计算出每一个view的大小。如果找到有冲突的值，它会需要重新计算好几次。另外需要尽量保持View的层级是扁平化的，这样对提高效率很有帮助。
-    如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置的view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。这个PieChart 例子展示了如何继承ViewGroup作为自定义view的一部分。PieChart 有子views，但是它从来不测量它们。而是根据他自身的layout法则，直接设置它们的大小。
+### 32、单元测试有没有做过，说说熟悉的单元测试框架？
 
-##### Android Studio 3.0 中 Gradle 的 api 和 implementation 有什么区别；
 
-##### 消息推送有没有做过，推送到达率的问题；
+### 33、实现一个Json解析器(可以通过正则提高速度)。
 
-##### 如何解决git冲突
 
-##### 设计一个音乐播放界面，你会如何实现，用到那些类，如何设计，如何定义接口，如何与后台交互，如何缓存与下载，如何优化(15分钟时间)
+### 34、Jenkins持续集成。
 
-##### Android Native 和 JS通信有几种方式，有没有用到什么框架之类的；
 
-##### 单元测试有没有做过，说说熟悉的单元测试框架；
+### 35、为什么 Google 会推出Fragment ，有什么好处和用途？ 直接用 View 代替不行么？
 
-##### 嵌套滑动实现原理 
 
-##### Fragment 在 ViewPager 里面的生命周期，滑动 ViewPager 的页面时 Fragment 的生命周期的变化；
-
-##### Gradle 打包；
-
-##### 谈谈对java状态机理解
-
-##### 对于应用更新这块是如何做的？(解答：灰度，强制更新，分区域更新)？
-
-##### 实现一个Json解析器(可以通过正则提高速度)
-
-##### RxJava的作用，与平时使用的异步操作来比的优缺点
-
-##### [RxJava原理实现](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
-
-##### 说说EventBus作用，实现方式，代替EventBus的方式
-
-##### AOP IOC 的好处以及在 Android 开发中的应用；
-
-##### Dagger2 框架中 @module 和 @component 的区别；
-
-##### MVP 架构中 Presenter 定义为接口有什么好处；
-
-##### Jenkins持续集成；
-
-##### Java动态代理的使用，InvocationHandler 有什么用；
-
-##### 为什么 Google 会推出Fragment ，有什么好处和用途？ 直接用 View 代替不行么？
-
-##### 安卓安全方面了解过吗，反编译、加壳之类的；
-
-##### 点击事件被拦截，但是想传到下面的View，如何操作？
-
-##### 微信主页面的实现方式
-
-##### 微信上消息小红点的原理
-
-##### 介绍下先前的app架构和通信
-
-##### 推送消息有富文本么？
-
-##### 工作中有没有用过或者写过什么工具？脚本，插件等等；比如：多人协同开发可能对一些相同资源都各自放了一份，有没有方法自动检测这种重复之类的
-
-##### 自定义View如何考虑机型适配；
-
-##### 自定义View如何提供获取View属性的接口；
+### 36、工作中有没有用过或者写过什么工具？脚本，插件等等；比如：多人协同开发可能对一些相同资源都各自放了一份，有没有方法自动检测这种重复之类的。
 
 
 
