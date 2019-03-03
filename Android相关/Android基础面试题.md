@@ -1488,9 +1488,12 @@ Material design其实是单纯的一种设计语言，它包含了系统界面�
 4.Material design的交互设计上采用的是响应式交互，这样的交互设计能把一个应用从简单展现用户所请求的信息，提升至能与用户产生更强烈、更具体化交互的工具。
 
 
-#### 90、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
+#### 90、如何让程序自动启动？
 
-#### 91、说下你对服务的理解，如何杀死一个服务。
+定义一个Braodcastreceiver，action为BOOT——COMPLETE，接受到广播后启动程序。
+
+
+#### 91、Fragment 在 ViewPager 里面的生命周期，滑动 ViewPager 的页面时 Fragment 的生命周期的变化。
 
 #### 92、如何查看模拟器中的SP与SQList文件。如何可视化查看布局嵌套层数与加载时间。
 
@@ -1544,7 +1547,9 @@ Material design其实是单纯的一种设计语言，它包含了系统界面�
 
 #### 116、[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)
 
+#### 117、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
 
+#### 118、说下你对服务的理解，如何杀死一个服务。
 
 
 
