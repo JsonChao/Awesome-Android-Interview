@@ -1541,7 +1541,7 @@ Material design其实是单纯的一种设计语言，它包含了系统界面�
 
 #### 113、adb常用命令行 
 
-#### 114.Android中如何查看一个对象的回收情况？
+#### 114、Android中如何查看一个对象的回收情况？
 
 #### 115、[Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)
 
