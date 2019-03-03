@@ -224,6 +224,20 @@ DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理
 
 [全面的了解请点击此处](https://jsonchao.github.io/2018/10/28/Android%20View%E7%9A%84%E7%BB%98%E5%88%B6%E6%B5%81%E7%A8%8B/)
 
+#### View刷新机制
+
+##### Requestlayout，onlayout，onDraw，DrawChild区别与联系
+
+requestLayout()方法 ：会导致调用measure()过程 和 layout()过程 。 将会根据标志位判断是否需要ondraw
+
+onLayout()方法(如果该View是ViewGroup对象，需要实现该方法，对每个子视图进行布局)
+
+调用onDraw()方法绘制视图本身 (每个View都需要重载该方法，ViewGroup不需要实现该方法)
+
+drawChild()去重新回调每个子视图的draw()方法
+
+##### invalidate和postInvalidate的区别及使用
+
 
 ### 4、跨进程通信。
 
@@ -474,6 +488,16 @@ ActivityThread：最终干活的人，Activity、Service、BroadcastReceiver的�
 ### 10、说下四大组件的启动过程，四大组件的启动与销毁的方式。
 
 
+#### 广播发送和接收的原理了解吗？
+
+- 继承BroadcastReceiver，重写onReceive()方法。
+- 通过Binder机制向ActivityManagerService注册广播。
+- 通过Binder机制向ActivityMangerService发送广播。
+- ActivityManagerService查找符合相应条件的广播（IntentFilter/Permission）的BroadcastReceiver，将广播发送到BroadcastReceiver所在的消息队列中。
+- BroadcastReceiver所在消息队列拿到此广播后，回调它的onReceive()方法。
+
+
+
 ### 11、AMS是如何管理Activity的？
 
 
@@ -655,6 +679,8 @@ ART缺点：
 
 ##### 网络请求缓存处理，okhttp如何处理网络缓存的？
 
+##### HttpUrlConnection 和 okhttp关系？
+
 ##### Volley与OkHttp的对比：
 
 Volley：支持HTTPS。缓存、异步请求，不支持同步请求。协议类型是Http/1.0, Http/1.1，网络传输使用的是 HttpUrlConnection/HttpClient，数据读写使用的IO。
@@ -704,6 +730,8 @@ https://www.jianshu.com/p/050c6db5af5a
 
 
 #### 三、[响应式编程框架：RxJava实现原理](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+##### 你认为Rxjava的线程池与你们自己实现任务管理框架有什么区别？
 
 
 #### 四、[图片加载框架：Glide实现原理](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
@@ -792,6 +820,8 @@ BitMap的缓存：
     2.异步加载使用线程池，让存在的加载任务都处于不同线程
     3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
     
+##### Bitmap在decode的时候申请的内存如何复用，释放时机
+    
 ##### 图片库对比
 
 http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
@@ -837,6 +867,10 @@ http://blog.csdn.net/guolin_blog/article/details/9316683
 https://blog.csdn.net/lmj623565791/article/details/493009890
 
 使用BitmapRegionDecoder动态加载图片的显示区域。
+
+
+##### Bitmap对象的理解
+
 
 ##### 自己去实现图片库，怎么做？（对扩展开发，对修改封闭，同时又保持独立性，参考Android源码设计模式解析实战的图片加载库案例即可）
 
@@ -937,6 +971,8 @@ https://www.jianshu.com/p/376ea8a19a17
 
 #### 如何加快 Gradle 的编译速度？
 
+#### Gradle的Flavor能否配置sourceset？
+
 
 ## 五、设计模式与架构设计
 
@@ -973,106 +1009,37 @@ https://www.jianshu.com/p/376ea8a19a17
 
 ## 六、其它高频面试题
 
+### 1、Android动画框架实现原理。
 
-##### 广播发送和接收的原理了解吗？
+Animation 框架定义了透明度，旋转，缩放和位移几种常见的动画，而且控制的是整个View。实现原理：
 
-- 继承BroadcastReceiver，重写onReceive()方法。
-- 通过Binder机制向ActivityManagerService注册广播。
-- 通过Binder机制向ActivityMangerService发送广播。
-- ActivityManagerService查找符合相应条件的广播（IntentFilter/Permission）的BroadcastReceiver，将广播发送到BroadcastReceiver所在的消息队列中。
-- BroadcastReceiver所在消息队列拿到此广播后，回调它的onReceive()方法。
+每次绘制视图时，View 所在的 ViewGroup 中的 drawChild 函数获取该View 的 Animation 的 Transformation 值，然后调用canvas.concat(transformToApply.getMatrix())，通过矩阵运算完成动画帧，如果动画没有完成，继续调用 invalidate() 函数，启动下次绘制来驱动动画，动画过程中的帧之间间隙时间是绘制函数所消耗的时间，可能会导致动画消耗比较多的CPU资源，最重要的是，动画改变的只是显示，并不能响应事件。
 
-##### View刷新机制
 
-##### HttpUrlConnection 和 okhttp关系
+### 2、Activity-Window-View三者的差别？
 
-##### Bitmap对象的理解
 
-##### AstncTask+HttpClient 与 AsyncHttpClient有什么区别？
+### 3、低版本SDK如何实现高版本api？
 
-##### Android代码中实现WAP方式联网
+- 1、在使用了高版本API的方法前面加一个 @TargetApi(API号)。
+- 2、在代码上用版本判断来控制不同版本使用不同的代码。
 
-##### AsyncTask机制，原理及不足，如何取消AsyncTask？
 
-##### 你认为Rxjava的线程池与你们自己实现任务管理框架有什么区别？
+### 4、下拉状态栏是不是影响activity的生命周期，如果在onStop的时候做了网络请求，onResume的时候怎么恢复
 
-##### 处理有序数组为什么比无序数组更快 
 
-参考StackOverflow
+### 5、说说你对Context的理解？
 
-##### Integer类是不是线程安全的，为什么
 
-##### Android动画框架实现原理
+### 6、Android的生命周期和启动模式
 
-##### Android各个版本API的区别
+#### 由A启动BActivity，A为栈内复用模式，B为标准模式，然后再次启动A或者杀死B，说说A，B的生命周期变化，为什么
 
-##### Requestlayout，onlayout，onDraw，DrawChild区别与联系
 
-requestLayout()方法 ：会导致调用measure()过程 和 layout()过程 。 将会根据标志位判断是否需要ondraw
+### 7、ListView和RecyclerView？
 
-onLayout()方法(如果该View是ViewGroup对象，需要实现该方法，对每个子视图进行布局)
+#### listview跟recyclerview上拉加载的时候分别应该如何处理
 
-调用onDraw()方法绘制视图本身 (每个View都需要重载该方法，ViewGroup不需要实现该方法)
-
-drawChild()去重新回调每个子视图的draw()方法
-
-##### invalidate和postInvalidate的区别及使用
-
-##### Activity-Window-View三者的差别
-
-##### 低版本SDK如何实现高版本api？
-
-##### 计算一个view的嵌套层级
-
-##### SP是进程同步的吗?有什么方法做到同步
-
-##### 线程间 操作 List
-
-##### 进程和 Application 的生命周期；
-
-##### 数据库数据迁移问题
-
-##### Android系统为什么会设计ContentProvider，进程共享和线程安全问题
-
-##### EventBus作用，实现方式，EventBus实现原理,代替EventBus的方式
-
-##### 封装view的时候怎么知道view的大小
-
-##### 下拉状态栏是不是影响activity的生命周期，如果在onStop的时候做了网络请求，onResume的时候怎么恢复
-
-##### 逻辑地址与物理地址，为什么使用逻辑地址
-
-##### App中唤醒其他进程的实现方式
-
-##### 软键盘顶起布局
-
-##### ViewHolder有什么用？
-
-##### Gradle的Flavor能否配置sourceset？
-
-##### 线程池核心线程数一般定义多少，为什么？
-
-##### View在屏幕中的移动底层是如何实现的
-
-##### Bitmap在decode的时候申请的内存如何复用，释放时机
-
-##### 注解如何实现一个findViewById
-
-##### 说说你对Context的理解
-
-##### 由A启动BActivity，A为栈内复用模式，B为标准模式，然后再次启动A或者杀死B，说说A，B的生命周期变化，为什么
-
-##### 区别Animation和Animator的用法，概述其原理
-
-##### 操作系统中进程和线程有什么联系和区别？系统会在什么情况下会在用户态好内核态中切换。
-
-##### 对于Android APP闪退，可能的原因有哪些？请针对每种情况简述分析过程。
-
-##### listview跟recyclerview上拉加载的时候分别应该如何处理
-
-##### 不用锁如何保证int自增安全
-
-##### 如何自动化部署打包发包流程
 
 ##### 微信支付宝支付调用时上层是如何封装AIDL的
 
