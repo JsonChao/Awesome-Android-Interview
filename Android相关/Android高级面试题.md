@@ -1,117 +1,7 @@
 # Android高级面试题 （⭐⭐⭐）
 
 
-## 一、热修复、插件化、模块化、组件化、Gradle
-
-### 1、热修复和插件化
-
-#### 热修补技术是怎样实现的，和插件化有什么区别？
-
-http://www.liuguangli.win/archives/366
-
-http://www.liuguangli.win/archives/387
-
-http://www.liuguangli.win/archives/452
-
-
-插件化：动态加载主要解决3个技术问题：
-
-- 1、使用ClassLoader加载类。
-- 2、资源访问。
-- 3、生命周期管理。
-
-插件化是体现在功能拆分方面的，它将某个功能独立提取出来，独立开发，独立测试，再插入到主应用中。依次来较少主应用的规模。
-
-热修复：
-
-原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个。
-
-原理：将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。使用Dexclassloader：热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
-
-目前热修复框架主要分为两大类：
-
-- Sophix：修改方法指针。
-- Tinker：修改dex数组元素。
-
-相同点:
-    
-都使用ClassLoader来实现加载的新的功能类，都可以使用PathClassLoader与DexClassLoader。
-    
-不同点：
-    
-热修复因为是为了修复Bug的，所以要将新的同名类替代同名的Bug类，要抢先加载新的类而不是Bug类，所以多做两件事：在原先的app打包的时候，阻止相关类去打上CLASS_ISPREVERIFIED标志，还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements，这样才能抢先代替Bug类，完成系统不加载旧的Bug类.
-    
-而插件化只是增加新的功能类或者是资源文件，所以不涉及抢先加载旧的类这样的使命，就避过了阻止相关类去打上CLASS_ISPREVERIFIED标志和还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements.
-    
-所以插件化比热修复简单，热修复是在插件化的基础上在进行替旧的Bug类
-    
-
-#### 为什么选用插件化，插件化框架的比较，梳理插件化的架构？
-
-
-#### 插件化原理分析
-
-
-### 2、模块化和组件化
-
-
-#### 模块化的好处
-
-https://www.jianshu.com/p/376ea8a19a17
-
-
-#### 组件化原理，组件化中路由（ARouter）的实现
-
-
-
-#### Android 组件化的原理，还有一些组件化平时使用的问题。
-
-
-#### 项目组件化的理解
-
-
-### 3、gradle
-
-#### gradle熟悉么，自动打包知道么？
-
-#### 如何加快 Gradle 的编译速度？
-
-
-## 五、设计模式与架构设计
-
-
-### 1、设计模式
-
-
-#### 谈谈你对Android设计模式的理解
-
-
-#### 项目中常用的设计模式
-
-
-#### 手写生产者/消费者模式
-
-
-#### 适配器模式，装饰者模式，外观模式的异同？
-
-
-### 2、架构设计
-
-
-#### [MVC MVP MVVM原理和区别](http://www.tianmaying.com/tutorial/AndroidMVC)
-
-
-#### 从0设计一款App整体架构，如何去做？
-
-
-#### 说一款你认为当前比较火的应用并设计(比如：直播APP，P2P金融，小视频等)
-
-
-#### Fragment如果在Adapter中使用应该如何解耦？
-
-
-## 六、性能优化
-
+## 一、性能优化
 
 ### 1、做过哪些性能优化？是怎么评测和具体优化的？
 
@@ -220,8 +110,8 @@ Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 
 ### 5、[Java多线程引发的性能问题，怎么解决](https://blog.csdn.net/luofenghan/article/details/78596950)？
 
-    
-## 七、Android Framework相关
+
+## 二、Android Framework相关
 
 ### 1、Android系统架构
 
@@ -763,16 +653,16 @@ ART缺点：
     
 ### 22、请介绍一下NDK？
 
-   
-## 八、Android优秀三方库源码
+
+## 三、Android优秀三方库源码
 
 ### 1、你项目中用到哪些开源库？说说其实现原理？
 
 #### 一、[网络底层框架：OkHttp实现原理](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-#### 网络请求缓存处理，okhttp如何处理网络缓存的？
+##### 网络请求缓存处理，okhttp如何处理网络缓存的？
 
-#### Volley与OkHttp的对比：
+##### Volley与OkHttp的对比：
 
 Volley：支持HTTPS。缓存、异步请求，不支持同步请求。协议类型是Http/1.0, Http/1.1，网络传输使用的是 HttpUrlConnection/HttpClient，数据读写使用的IO。
 OkHttp：支持HTTPS。缓存、异步请求、同步请求。协议类型是Http/1.0, Http/1.1, SPDY, Http/2.0, WebSocket，网络传输使用的是封装的Socket，数据读写使用的NIO（Okio）。
@@ -801,21 +691,21 @@ StreamAllocation：用来控制Connections与Streas的资源分配与释放。
 RouteSelector：选择路线与自动重连。
 RouteDatabase：记录连接失败的Route黑名单。
 
-#### 自己去设计网络请求框架，怎么做？
+##### 自己去设计网络请求框架，怎么做？
 
-#### 从网络加载一个10M的图片，说下注意事项？
+##### 从网络加载一个10M的图片，说下注意事项？
 
-#### http怎么知道文件过大是否传输完毕的响应？
+##### http怎么知道文件过大是否传输完毕的响应？
 
-#### 谈谈你对WebSocket的理解？
+##### 谈谈你对WebSocket的理解？
 
-#### WebSocket与socket的区别？
+##### WebSocket与socket的区别？
 
 
 #### 二、[网络封装框架：Retrofit实现原理](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
 
 
-#### Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）
+##### Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）
 
 https://www.jianshu.com/p/050c6db5af5a
 
@@ -825,13 +715,13 @@ https://www.jianshu.com/p/050c6db5af5a
 
 #### 四、[图片加载框架：Glide实现原理](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-#### Glide使用什么缓存？
+##### Glide使用什么缓存？
 
 
-#### Glide内存缓存如何控制大小？
+##### Glide内存缓存如何控制大小？
 
 
-#### 怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。
+##### 怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。
 
     计算一张图片的大小
     
@@ -867,7 +757,7 @@ https://www.jianshu.com/p/050c6db5af5a
     
     decodeResource,setImageResource,setImageBitmap等方法
 
-#### LRUCache算法是怎样实现的。
+##### LRUCache算法是怎样实现的。
 
     内部存在一个LinkedHashMap和maxSize，把最近使用的对象用强引用存储在 LinkedHashMap中，给出来put和get方法，每次put图片时计算缓存中所有图片总大小，跟maxSize进行比较，大于maxSize，就将最久添加的图片移除；反之小于maxSize就添加进来。
     
@@ -876,7 +766,7 @@ https://www.jianshu.com/p/050c6db5af5a
     
 写个图片浏览器，说出你的思路
 
-#### Bitmap 压缩策略
+##### Bitmap 压缩策略
 
     加载 Bitmap 的方式：
     BitmapFactory 四类方法：
@@ -893,7 +783,7 @@ https://www.jianshu.com/p/050c6db5af5a
     根据采样率规则并结合目标 view 的大小计算出采样率 inSampleSize
     将 BitmapFactory.Options 的 inJustDecodeBounds 设置为 false 重新加载图片
 
-#### Bitmap的处理：
+##### Bitmap的处理：
 
 当使用ImageView的时候，可能图片的像素大于ImageView，此时就可以通过BitmapFactory.Option来对图片进行压缩，inSampleSize表示缩小2^(inSampleSize-1)倍。
 
@@ -909,13 +799,13 @@ BitMap的缓存：
     2.异步加载使用线程池，让存在的加载任务都处于不同线程
     3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
     
-#### 图片库对比
+##### 图片库对比
 
 http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
 
 http://www.trinea.cn/android/android-image-cache-compare/
 
-#### Fresco与Glide的对比：
+##### Fresco与Glide的对比：
 
 Glide：相对轻量级，用法简单优雅，支持Gif动态图，适合用在那些对图片依赖不大的App中。
 Fresco：采用匿名共享内存来保存图片，也就是Native堆，有效的的避免了OOM，功能强大，但是库体积过大，适合用在对图片依赖比较大的App中。
@@ -947,9 +837,9 @@ Producer：加载与处理图片，它有多种实现，例如：NetworkFetcherP
 Consumer：用来接收Producer产生的结果，它与Producer组成了生产者与消费者模式。
 注：Fresco源码里的类的名字都比较长，但是都是按照一定的命令规律来的，例如：以Supplier结尾的类都实现了Supplier接口，它可以提供某一个类型的对象（factory, generator, builder, closure等）。 以Builder结尾的当然就是以构造者模式创建对象的类。
 
-#### [如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)？
+##### [如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)？
 
-#### 自己去实现图片库，怎么做？（对扩展开发，对修改封闭，同时又保持独立性，参考Android源码设计模式解析实战的图片加载库案例即可）
+##### 自己去实现图片库，怎么做？（对扩展开发，对修改封闭，同时又保持独立性，参考Android源码设计模式解析实战的图片加载库案例即可）
 
 
 #### 五、[事件总线框架：EventBus实现原理](https://jsonchao.github.io/2019/01/28/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B9%9D%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3EventBus%E6%BA%90%E7%A0%81%EF%BC%89/)
@@ -966,14 +856,123 @@ Consumer：用来接收Producer产生的结果，它与Producer组成了生产�
 
 #### 九、[数据库框架：GreenDao实现原理](https://jsonchao.github.io/2018/12/22/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%9B%9B%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3GreenDao%E6%BA%90%E7%A0%81%EF%BC%89/)
 
-#### 数据库框架对比？
+##### 数据库框架对比？
 
-#### 数据库的优化
+##### 数据库的优化
 
-#### 数据库数据迁移问题
+##### 数据库数据迁移问题
 
-   
-## 九、其它高频面试题
+
+## 四、热修复、插件化、模块化、组件化、Gradle
+
+### 1、热修复和插件化
+
+#### 热修补技术是怎样实现的，和插件化有什么区别？
+
+http://www.liuguangli.win/archives/366
+
+http://www.liuguangli.win/archives/387
+
+http://www.liuguangli.win/archives/452
+
+
+插件化：动态加载主要解决3个技术问题：
+
+- 1、使用ClassLoader加载类。
+- 2、资源访问。
+- 3、生命周期管理。
+
+插件化是体现在功能拆分方面的，它将某个功能独立提取出来，独立开发，独立测试，再插入到主应用中。依次来较少主应用的规模。
+
+热修复：
+
+原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个。
+
+原理：将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。使用Dexclassloader：热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
+
+目前热修复框架主要分为两大类：
+
+- Sophix：修改方法指针。
+- Tinker：修改dex数组元素。
+
+相同点:
+    
+都使用ClassLoader来实现加载的新的功能类，都可以使用PathClassLoader与DexClassLoader。
+    
+不同点：
+    
+热修复因为是为了修复Bug的，所以要将新的同名类替代同名的Bug类，要抢先加载新的类而不是Bug类，所以多做两件事：在原先的app打包的时候，阻止相关类去打上CLASS_ISPREVERIFIED标志，还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements，这样才能抢先代替Bug类，完成系统不加载旧的Bug类.
+    
+而插件化只是增加新的功能类或者是资源文件，所以不涉及抢先加载旧的类这样的使命，就避过了阻止相关类去打上CLASS_ISPREVERIFIED标志和还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements.
+    
+所以插件化比热修复简单，热修复是在插件化的基础上在进行替旧的Bug类
+    
+
+#### 为什么选用插件化，插件化框架的比较，梳理插件化的架构？
+
+
+#### 插件化原理分析
+
+
+### 2、模块化和组件化
+
+
+#### 模块化的好处
+
+https://www.jianshu.com/p/376ea8a19a17
+
+
+#### 组件化原理，组件化中路由（ARouter）的实现
+
+
+
+#### Android 组件化的原理，还有一些组件化平时使用的问题。
+
+
+#### 项目组件化的理解
+
+
+### 3、gradle
+
+#### gradle熟悉么，自动打包知道么？
+
+#### 如何加快 Gradle 的编译速度？
+
+
+## 五、设计模式与架构设计
+
+
+### 1、设计模式
+
+
+#### 谈谈你对Android设计模式的理解
+
+
+#### 项目中常用的设计模式
+
+
+#### 手写生产者/消费者模式
+
+
+#### 适配器模式，装饰者模式，外观模式的异同？
+
+
+### 2、架构设计
+
+
+#### [MVC MVP MVVM原理和区别](http://www.tianmaying.com/tutorial/AndroidMVC)
+
+
+#### 从0设计一款App整体架构，如何去做？
+
+
+#### 说一款你认为当前比较火的应用并设计(比如：直播APP，P2P金融，小视频等)
+
+
+#### Fragment如果在Adapter中使用应该如何解耦？
+
+
+## 六、其它高频面试题
 
 
 ##### 广播发送和接收的原理了解吗？
@@ -1491,7 +1490,6 @@ https://blog.csdn.net/btt2013/article/details/53447649
 
 ##### 自定义View如何提供获取View属性的接口；
 
-##### 说下冷启动与热启动是什么，区别，如何优化，使用场景等。
 
 
 
