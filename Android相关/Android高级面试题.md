@@ -9,7 +9,7 @@
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E4%BC%98%E5%8C%96.png?raw=true)
 
-### [开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题](https://blog.csdn.net/dd864140130/article/details/53558011)
+##### [开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题](https://blog.csdn.net/dd864140130/article/details/53558011)
 
 
 #### 二、App绘制优化
@@ -21,13 +21,6 @@
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96.png?raw=true)
 
-#### [Bitmap如何处理大图，如一张30M的大图，如何预防OOM](https://blog.csdn.net/lmj623565791/article/details/493009890)?
-
-使用BitmapRegionDecoder动态加载图片的显示区域。
-
-#### [LeakCanary 实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
-
-
 #### 四、App瘦身
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%98%A6%E8%BA%AB.png?raw=true)
@@ -38,9 +31,9 @@
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%94%B5%E9%87%8F%E4%BC%98%E5%8C%96.png?raw=true)
 
 
-### 六、网络优化
+#### 六、网络优化
     
-#### 移动端获取网络数据优化的几个点
+##### 移动端获取网络数据优化的几个点
 
 - 1、连接复用：节省连接建立时间，如开启 keep-alive。于Android来说默认情况下HttpURLConnection和HttpClient都开启了keep-alive。只是2.2之前HttpURLConnection存在影响连接池的Bug。
     
@@ -53,16 +46,16 @@
 
 #### 七、安卓的安全优化
 
-#### 提高app安全性的方法？
+##### 提高app安全性的方法？
 
 
-#### 安卓的app加固如何做？
+##### 安卓的app加固如何做？
 
 
-#### 安卓的混淆原理是什么？
+##### 安卓的混淆原理是什么？
 
 
-#### 谈谈你对安卓签名的理解。
+##### 谈谈你对安卓签名的理解。
 
 
 ### 2、为什么WebView加载会慢呢？
@@ -837,7 +830,13 @@ Producer：加载与处理图片，它有多种实现，例如：NetworkFetcherP
 Consumer：用来接收Producer产生的结果，它与Producer组成了生产者与消费者模式。
 注：Fresco源码里的类的名字都比较长，但是都是按照一定的命令规律来的，例如：以Supplier结尾的类都实现了Supplier接口，它可以提供某一个类型的对象（factory, generator, builder, closure等）。 以Builder结尾的当然就是以构造者模式创建对象的类。
 
-##### [如何优雅的展示Bitmap大图](http://blog.csdn.net/guolin_blog/article/details/9316683)？
+##### Bitmap如何处理大图，如一张30M的大图，如何预防OOM?
+
+http://blog.csdn.net/guolin_blog/article/details/9316683
+
+https://blog.csdn.net/lmj623565791/article/details/493009890
+
+使用BitmapRegionDecoder动态加载图片的显示区域。
 
 ##### 自己去实现图片库，怎么做？（对扩展开发，对修改封闭，同时又保持独立性，参考Android源码设计模式解析实战的图片加载库案例即可）
 
