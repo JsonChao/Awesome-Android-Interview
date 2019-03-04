@@ -1086,13 +1086,114 @@ https://www.jianshu.com/p/376ea8a19a17
 
 ### 2、架构设计
 
-#### [MVC MVP MVVM原理和区别](http://www.tianmaying.com/tutorial/AndroidMVC)
+#### [MVC MVP MVVM原理和区别？](http://www.tianmaying.com/tutorial/AndroidMVC)
+
+##### 架构设计的目的
+
+通过设计是模块程序化，从而做到高内聚低耦合，让开发者能更专注于功能实现本身，提供程序开发效率、更容易进行测试、维护和定位问题等等。而且，不同的规模的项目应该选用不同的架构设计。
+
+##### MVC
+
+MVC是模型(model)－视图(view)－控制器(controller)的缩写，其中M层处理数据，业务逻辑等；V层处理界面的显示结果；C层起到桥梁的作用，来控制V层和M层通信以此来达到分离视图显示和业务逻辑层。在Android中的MVC划分是这样的：
+
+- 视图层(View)：一般采用XML文件进行界面的描述，也可以在界面中使用动态布局的方式。
+- 控制层(Controller)：由Activity承担。
+- 模型层(Model)：数据库的操作、对网络等的操作，复杂业务计算等等。
+
+##### MVC缺点
+
+在Android开发中，Activity并不是一个标准的MVC模式中的Controller，它的首要职责是加载应用的布局和初始化用户界面，并接受和处理来自用户的操作请求，进而作出响应。随着界面及其逻辑的复杂度不断提升，Activity类的职责不断增加，以致变得庞大臃肿。
+
+##### MVP
+
+MVP框架由3部分组成：View负责显示，Presenter负责逻辑处理，Model提供数据。
+
+- View:负责绘制UI元素、与用户进行交互(在Android中体现为Activity)。
+- Model:负责存储、检索、操纵数据(有时也实现一个Model interface用来降低耦合)。
+- Presenter:作为View与Model交互的中间纽带，处理与用户交互的逻辑。
+- View interface:需要View实现的接口，View通过View interface与Presenter进行交互，降低耦合，方便使用MOCK对Presenter进行单元测试。
+
+MVP的Presenter是框架的控制者，承担了大量的逻辑操作，而MVC的Controller更多时候承担一种转发的作用。因此在App中引入MVP的原因，是为了将此前在Activty中包含的大量逻辑操作放到控制层中，避免Activity的臃肿。
+
+##### MVP与MVC的主要区别:
+
+- 1、（最主要区别）View与Model并不直接交互，而是通过与Presenter交互来与Model间接交互。而在MVC中View可以与Model直接交互。
+- 2、Presenter与View的交互是通过接口来进行的，更有利于添加单元测试。
+
+##### MVP的优点
+
+- 1、模型与视图完全分离，我们可以修改视图而不影响模型。
+- 2、可以更高效地使用模型，因为所有的交互都发生在一个地方——Presenter内部。
+- 3、我们可以将一个Presenter用于多个视图，而不需要改变Presenter的逻辑。这个特性非常的有用，因为视图的变化总是比模型的变化频繁。
+- 4、如果我们把逻辑放在Presenter中，那么我们就可以脱离用户接口来测试这些逻辑（单元测试）。
+
+UI层一般包括Activity，Fragment，Adapter等直接和UI相关的类，UI层的Activity在启动之后实例化相应的Presenter，App的控制权后移，由UI转移到Presenter，两者之间的通信通过BroadCast、Handler、事件总线机制或者接口完成，只传递事件和结果。
+
+MVP的执行流程：首先V层通知P层用户发起了一个网络请求，P层会决定使用负责网络相关的M层去发起请求网络，最后，P层将完成的结果更新到V层。
+
+##### MVP的变种：Passive View
+
+View直接依赖Presenter，但是Presenter间接依赖View，它直接依赖的是View实现的接口。相对于View的被动，那Presenter就是主动的一方。对于Presenter的主动，有如下的理解：
+
+- Presenter是整个MVP体系的控制中心，而不是单纯的处理View请求的人。
+- View仅仅是用户交互请求的汇报者，对于响应用户交互相关的逻辑和流程，View不参与决策，真正的决策者是Presenter。
+- View向Presenter发送用户交互请求应该采用这样的口吻：“我现在将用户交互请求发送给你，你看着办，需要我的时候我会协助你”。
+- 对于绑定到View上的数据，不应该是View从Presenter上“拉”回来的，应该是Presenter主动“推”给View的。（这里借鉴了IOC做法）
+- View尽可能不维护数据状态，因为其本身仅仅实现单纯的、独立的UI操作；Presenter才是整个体系的协调者，它根据处理用于交互的逻辑给View和Model安排工作。
+
+##### MVP架构存在的问题与解决办法
+
+- 1、加入模板方法
+
+将逻辑操作从V层转移到P层后，可能有一些Activity还是比较膨胀，此时，可以通过继承BaseActivity的方式加入模板方法。注意，最好不要超过3层继承。
+
+- 2、Model内部分层
+
+模型层（Model）中的整体代码量是最大的，此时可以进行模块的划分和接口隔离。
+
+- 3、使用中介者和代理
+
+在UI层和Presenter之间设置中介者Mediator，将例如数据校验、组装在内的轻量级逻辑操作放在Mediator中；在Presenter和Model之间使用代理Proxy；通过上述两者分担一部分Presenter的逻辑操作，但整体框架的控制权还是在Presenter手中。
+
+##### MVVM 
+
+MVVM可以算是MVP的升级版，其中的VM是ViewModel的缩写，ViewModel可以理解成是View的数据模型和Presenter的合体，ViewModel和View之间的交互通过Data Binding完成，而Data Binding可以实现双向的交互，这就使得视图和控制层之间的耦合程度进一步降低，关注点分离更为彻底，同时减轻了Activity的压力。
+
+##### MVC->MVP->MVVM演进过程
+
+MVC -> MVP -> MVVM 这几个软件设计模式是一步步演化发展的，MVVM 是从 MVP 的进一步发展与规范，MVP 隔离了MVC中的 M 与 V 的直接联系后，靠 Presenter 来中转，所以使用 MVP 时 P 是直接调用 View 的接口来实现对视图的操作的，这个 View 接口的东西一般来说是 showData、showLoading等等。M 与 V已经隔离了，方便测试了，但代码还不够优雅简洁，所以 MVVM 就弥补了这些缺陷。在 MVVM 中就出现的 Data Binding 这个概念，意思就是 View 接口的 showData 这些实现方法可以不写了，通过 Binding 来实现。
+
+##### 三种模式的相同点
+
+M层和V层的实现是一样的。
+
+##### 三种模式的不同点
+
+三者的差异在于如何粘合View和Model，实现用户的交互操作以及变更通知。
+
+- Controller：接收View的命令，对Model进行操作，一个Controller可以对应多个View。
+- Presenter：Presenter与Controller一样，接收View的命令，对Model进行操作；与Controller不同的是Presenter会反作用于View，Model的变更通知首先被Presenter获得，然后Presenter再去更新View。通常一个Presenter只对应于一个View。据Presenter和View对逻辑代码分担的程度不同，这种模式又有两种情况：普通的MVP模式和Passive View模式。
+- ViewModel：注意这里的“Model”指的是View的Model，跟MVVM中的一个Model不是一回事。所谓View的Model就是包含View的一些数据属性和操作的这么一个东东，这种模式的关键技术就是数据绑定（data binding），View的变化会直接影响ViewModel，ViewModel的变化或者内容也会直接体现在View上。这种模式实际上是框架替应用开发者做了一些工作，开发者只需要较少的代码就能实现比较复杂的交互。
+
+##### 补充：基于AOP的架构设计
+
+AOP(Aspect-Oriented Programming, 面向切面编程)，诞生于上个世纪90年代，是对OOP(Object-Oriented Programming, 面向对象编程)的补充和完善。OOP引入封装、继承和多态性等概念来建立一种从上道下的对象层次结构，用以模拟公共行为的一个集合。当我们需要为分散的对象引入公共行为的时候，即定义从左到右的关系时，OOP则显得无能为力。例如日志功能。日志代码往往水平地散布在所有对象层次中，而与它所散布到的对象的核心功能毫无关系。对于其他类型的代码，如安全性、异常处理和透明的持续性也是如此。这种散布在各处的无关的代码被称为横切（Cross-Cutting）代码，在OOP设计中，它导致了大量代码的重复，而不利于各个模块的重用。而AOP技术则恰恰相反，它利用一种称为“横切”的技术，剖解开封装的对象内部，并将那些影响了多个类的公共行为封装到一个可重用模块，并将其名为“Aspect”，即方面。所谓“方面”，简单地说，就是将那些与业务无关，却为业务模块所共同调用的逻辑或责任封装起来，便于减少系统的重复代码，降低模块间的耦合度，并有利于未来的可操作性和可维护性。
+
+在Android App中的横切关注点有Http, SharedPreferences, Log, Json, Xml, File, Device, System, 格式转换等。Android App的需求差别很大，不同的需求横切关注点必然是不一样的。一般的App工程中应该有一个Util Package来存放相关的切面操作，在项目多了之后可以将其中使用较多的Util封装为一个Jar包/aar文件/远程依赖的方式供工程调用。
+
+在使用MVP和AOP对App进行纵向和横向的切割之后，能够使得App整体的结构更清晰合理，避免局部的代码臃肿，方便开发、测试以及后续的维护。这样纵，横两次对于App代码的分割已经能使得程序不会过多堆积在一个Java文件里，但靠一次开发过程就写出高质量的代码是很困难的，趁着项目的间歇期，对代码进行重构很有必要。
+
+##### 最后的建议
+
+如果“从零开始”，用什么设计架构的问题属于想得太多做得太少的问题。
+从零开始意味着一个项目的主要技术难点是基本功能实现。当每一个功能都需要考虑如何做到的时候，我觉得一般人都没办法考虑如何做好。
+因为，所有的优化都是站在最上层进行统筹规划。在这之前，你必须对下层的每一个模块都非常熟悉，进而提炼可复用的代码、规划逻辑流程。
 
 
 #### MVC的情况下怎么把Activity的C和V抽离？
 
 
-##### MVP 架构中 Presenter 定义为接口有什么好处；
+#### MVP 架构中 Presenter 定义为接口有什么好处；
 
 
 #### MVP如何管理Presenter的生命周期，何时取消网络请求？
@@ -1122,37 +1223,60 @@ https://www.jianshu.com/p/376ea8a19a17
 
 ## 六、其它高频面试题
 
-### 1、如何保证一个后台服务不被杀死？（相同问题：如何保证service在后台不被kill？）比较省电的方式是什么？
+### 1、[如何保证一个后台服务不被杀死？（相同问题：如何保证service在后台不被kill？）比较省电的方式是什么？](https://www.jianshu.com/p/b5371df6d7cb)
 
-一、onStartCommand方法，返回START_STICKY
+#### 保活方案
+
+1、AIDL方式单进程、双进程方式保活Service。（基于onStartCommand() return START_STICKY）
 
 START_STICKY 在运行onStartCommand后service进程被kill后，那将保留在开始状态，但是不保留那些传入的intent。不久后service就会再次尝试重新创建，因为保留在开始状态，在创建 service后将保证调用onstartCommand。如果没有传递任何开始命令给service，那将获取到null的intent。
 
-START_NOT_STICKY 在运行onStartCommand后service进程被kill后，并且没有新的intent传递给它。Service将移出开始状态，并且直到新的明显的方法（startService）调用才重新创建。因为如果没有传递任何未决定的intent那么service是不会启动，也就是期间onstartCommand不会接收到任何null的intent。
+除了华为此方案无效以及未更改底层的厂商不起作用外（START_STICKY字段就可以保持Service不被杀）。此方案可以与其他方案混合使用
 
-START_REDELIVER_INTENT 在运行onStartCommand后service进程被kill后，系统将会再次启动service，并传入最后一个intent给onstartCommand。直到调用stopSelf(int)才停止传递intent。如果在被kill后还有未处理好的intent，那被kill后服务还是会自动启动。因此onstartCommand不会接收到任何null的intent。
-
-二、提升service进程优先级
+2、降低oom_adj的值（提升service进程优先级）：
 
 Android中的进程是托管的，当系统进程空间紧张的时候，会依照优先级自动进行进程的回收。Android将进程分为6个等级,它们按优先级顺序由高到低依次是:
 
-前台进程( FOREGROUND_APP)
-可视进程(VISIBLE_APP )
-次要服务进程(SECONDARY_SERVER )
-后台进程 (HIDDEN_APP)
-内容供应节点(CONTENT_PROVIDER)
-空进程(EMPTY_APP)
+- 1.前台进程 (Foreground process)
+- 2.可见进程 (Visible process)
+- 3.服务进程 (Service process)
+- 4.后台进程 (Background process)
+- 5.空进程 (Empty process)
+
 当service运行在低内存的环境时，将会kill掉一些存在的进程。因此进程的优先级将会很重要，可以使用startForeground 将service放到前台状态。这样在低内存时被kill的几率会低一些。
 
-三、onDestroy方法里重启service
+- 常驻通知栏（可通过启动另外一个服务关闭Notification，不对oom_adj值有影响）。
 
-service +broadcast 方式，就是当service走ondestory的时候，发送一个自定义的广播，当收到广播的时候，重新启动service；
+- 使用”1像素“的Activity覆盖在getWindow()的view上。
 
-四、Application加上Persistent属性
+此方案无效果
 
-五、监听系统广播判断Service状态
+- 循环播放无声音频（黑科技，7.0下杀不掉）。
 
-通过系统的一些广播，比如：手机重启、界面唤醒、应用状态改变等等监听并捕获到，然后判断我们的Service是否还存活，别忘记加权限啊。
+成功对华为手机保活。小米8下也成功突破20分钟
+
+- 3、监听锁屏广播：使Activity始终保持前台。
+- 4、使用自定义锁屏界面：覆盖了系统锁屏界面。
+- 5、通过android:process属性来为Service创建一个进程。
+- 6、跳转到系统白名单界面让用户自己添加app进入白名单。
+
+#### 复活方案
+
+1、onDestroy方法里重启service
+
+service + broadcast 方式，就是当service走onDestory的时候，发送一个自定义的广播，当收到广播的时候，重新启动service。
+
+2、JobScheduler：原理类似定时器，5.0,5.1,6.0作用很大，7.0时候有一定影响（可以在电源管理中给APP授权）。
+
+只对5.0，5.1、6.0起作用。
+
+3、推送互相唤醒复活：极光、友盟、以及各大厂商的推送。
+
+4、同派系APP广播互相唤醒：比如今日头条系、阿里系。
+
+此外还可以监听系统广播判断Service状态，通过系统的一些广播，比如：手机重启、界面唤醒、应用状态改变等等监听并捕获到，然后判断我们的Service是否还存活。
+
+#### 结论：高版本情况下可以使用弹出通知栏、双进程、无声音乐提高后台服务的保活概率。
 
 
 ### 2、Android动画框架实现原理。
