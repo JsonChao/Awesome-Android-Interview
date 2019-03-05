@@ -719,19 +719,20 @@ ART缺点：
 
 #### Java调用C++
 
-在Java中声明Native方法（即需要调用的本地方法）
-编译上述 Java源文件javac（得到 .class文件） 3。 通过 javah 命令导出JNI的头文件（.h文件）
-使用 Java需要交互的本地代码 实现在 Java中声明的Native方法
-编译.so库文件
-通过Java命令执行 Java程序，最终实现Java调用本地代码
+- 在Java中声明Native方法（即需要调用的本地方法）
+- 编译上述 Java源文件javac（得到 .class文件） 3。 通过 javah 命令导出JNI的头文件（.h文件）
+- 使用 Java需要交互的本地代码 实现在 Java中声明的Native方法
+- 编译.so库文件
+- 通过Java命令执行 Java程序，最终实现Java调用本地代码
 
 #### C++调用Java
 
-从classpath路径下搜索ClassMethod这个类，并返回该类的Class对象。
-获取类的默认构造方法ID。
-查找实例方法的ID。
-创建该类的实例。
-调用对象的实例方法。
+- 从classpath路径下搜索ClassMethod这个类，并返回该类的Class对象。
+- 获取类的默认构造方法ID。
+- 查找实例方法的ID。
+- 创建该类的实例。
+- 调用对象的实例方法。
+
     JNIEXPORT void JNICALL Java_com_study_jnilearn_AccessMethod_callJavaInstaceMethod  
     (JNIEnv *env, jclass cls)  
     {  
@@ -777,6 +778,7 @@ ART缺点：
         (*env)->DeleteLocalRef(env,jobj);  
         (*env)->DeleteLocalRef(env,str_arg);  
     }  
+    
     
 #### 如何在jni中注册native函数，有几种注册方式？
 
