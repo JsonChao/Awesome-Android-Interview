@@ -247,24 +247,24 @@ onLayout()方法(如果该View是ViewGroup对象，需要实现该方法，对�
 
 drawChild()去重新回调每个子视图的draw()方法
 
-##### invalidate和postInvalidate的区别及使用
+##### invalidate和postInvalidate的区别及使用？
 
 
 ### 4、跨进程通信。
 
 #### [AIDL使用](http://blog.csdn.net/singwhatiwanna/article/details/17041691)
 
-AIDL (Android Interface Definition Language) 是一种AIDL 语言，用于生成可以在Android设备上两个进程之间进行进程间通信(interprocess communication, IPC)的代码。如果在一个进程中（例如Activity）要调用另一个进程中（例如Service）对象的操作，就可以使用AIDL生成可序列化的参数。 AIDL IPC机制是面向接口的，像COM或Corba一样，但是更加轻量级。它是使用代理类在客户端和实现端传递数据。如果要使用AIDL, 需要完成2件事情: 1. 引入AIDL的相关类.; 2. 调用aidl产生的class.
+AIDL (Android Interface Definition Language) 是一种AIDL 语言，用于生成可以在Android设备上两个进程之间进行进程间通信(interprocess communication, IPC)的代码。如果在一个进程中（例如Activity）要调用另一个进程中（例如Service）对象的操作，就可以使用AIDL生成可序列化的参数。 AIDL IPC机制是面向接口的，轻量级的。它是使用代理类在客户端和实现端传递数据。如果要使用AIDL, 需要完成2件事情: 1. 引入AIDL的相关类.; 2. 调用aidl产生的class。
 
-理论上, 参数可以传递基本数据类型和String, 还有就是Bundle的派生类, 不过在Eclipse中,目前的ADT不支持Bundle做为参数，具体实现步骤如下:
+理论上, 参数可以传递基本数据类型和String, 还有就是Bundle的派生类, 具体实现步骤如下:
 
 - 1、创建AIDL文件, 在这个文件里面定义接口, 该接口定义了可供客户端访问的方法和属性。
-- 2、编译AIDL文件, 用Ant的话, 可能需要手动, 使用Eclipse plugin的话,可以根据adil文件自动生产java文件并编译, 不需要人为介入.
-- 3、在Java文件中, 实现AIDL中定义的接口. 编译器会根据AIDL接口, 产生一个JAVA接口。这个接口有一个名为Stub的内部抽象类，它继承扩展了接口并实现了远程调用需要的几个方法。接下来就需要自己去实现自定义的几个接口了.
+- 2、编译AIDL文件, 可以根据aidl文件自动生产java文件。
+- 3、在Java文件中, 实现了AIDL中定义的接口. 编译器会根据AIDL接口, 产生一个JAVA接口。这个接口有一个名为Stub的内部抽象类，它继承扩展了接口并实现了远程调用需要的几个方法。接下来就需要自己去实现自定义的几个接口了.
 - 4、向客户端提供接口ITaskBinder, 如果写的是service，扩展该Service并重载onBind ()方法来返回一个实现上述接口的类的实例。
-- 5、在服务器端回调客户端的函数. 前提是当客户端获取的IBinder接口的时候,要去注册回调函数, 只有这样, 服务器端才知道该调用那些函数
+- 5、在服务器端回调客户端的函数. 前提是当客户端获取IBinder接口的时候,要去注册回调函数, 只有这样, 服务器端才知道该调用那些函数
     
-AIDL语法很简单,可以用来声明一个带一个或多个方法的接口，也可以传递参数和返回值。 由于远程调用的需要, 这些参数和返回值并不是任何类型.下面是些AIDL支持的数据类型:
+AIDL语法很简单,可以用来声明一个带一个或多个方法的接口，也可以传递参数和返回值。 由于远程调用的需要, 这些参数和返回值并不是任何类型.下面是AIDL支持的数据类型:
     
 - 不需要import声明的简单Java编程语言类型(int,boolean等)
 - String, CharSequence不需要特殊声明
@@ -312,14 +312,14 @@ Binder 四个角色：
 
 - Client 进程：使用服务的进程
 - Server 进程：提供服务的进程
-- ServiceManager 进程：将字符型是的 Binder 名字转为 Client 中对该 Binder 的引用，使得 Client 能够通过 Binder 名字获取到 Server 中 Binder 实体的引用。
-- Binder 驱动：进程间 Binder 通信的建立，Binder 在进程间的传递，Binder 引用计数管理，数据包在进程间传递和交互等一系列底层支持。
+- ServiceManager 进程：将字符型的 Binder 名字转为 Client 中对该 Binder 的引用，使得 Client 能够通过 Binder 名字获取到 Server 中 Binder 实体的引用。
+- Binder 驱动：负责进程间 Binder 通信的建立，Binder 在进程间的传递，Binder 引用计数管理，数据包在进程间传递和交互等一系列底层支持。
 
 Binder 运行机制：
 
 - 注册服务：Server 在 ServiceManager 注册服务
 - 获取服务：Client 从 ServiceManager 获取相应的 Service
-- 使用服务：Client 根据得到的 Service 信息建立与 Service 所在的 Server 进程通信的通路可与 Server 进行交互。
+- 使用服务：Client 根据得到的 Service 信息建立与 Service 所在的 Server 进程通信的通路，可与 Server 进行交互。
     
 Android Binder是用来做进程通信的，Android的各个应用以及系统服务都运行在独立的进程中，它们的通信都依赖于Binder。
 
@@ -329,40 +329,35 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
 
 消息队列：信息复制两次，额外的CPU消耗；不合适频繁或信息量大的通信；
 
-共享内存：无须复制，共享缓冲区直接付附加到进程虚拟地址空间，速度快；但进程间的同步问题操作系统无法实现，必须各进程利用同步工具解决；
+共享内存：无须复制，共享缓冲区直接附加到进程虚拟地址空间，速度快；但进程间的同步问题操作系统无法实现，必须各进程利用同步工具解决；
 
-套接字：作为更通用的接口，传输效率低，主要用于不通机器或跨网络的通信；
+套接字：作为更通用的接口，传输效率低，主要用于不同机器或跨网络的通信；
 
-信号量：常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。6. 信号: 不适用于信息交换，更适用于进程中断控制，比如非法内存访问，杀死某个进程等；
+信号量：常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。 不适用于信息交换，更适用于进程中断控制，比如非法内存访问，杀死某个进程等；
 
 既然有现有的IPC方式，为什么重新设计一套Binder机制呢。主要是出于以上三个方面的考量：
 
 高性能：从数据拷贝次数来看Binder只需要进行一次内存拷贝，而管道、消息队列、Socket都需要两次，共享内存不需要拷贝，Binder的性能仅次于共享内存。
 
-稳定性：上面说到共享内存的性能优于Binder，那为什么不适用共享内存呢，因为共享内存需要处理并发同步问题，控制负责，容易出现死锁和资源竞争，稳定性较差。而Binder基于C/S架构，客户端与服务端彼此独立，稳定性较好。
+稳定性：上面说到共享内存的性能优于Binder，那为什么不采用共享内存呢，因为共享内存需要处理并发同步问题，容易出现死锁和资源竞争，稳定性较差。而Binder基于C/S架构，客户端与服务端彼此独立，稳定性较好。
 
-安全性：我们知道Android为每个应用分配了UID，用来作为鉴别进程的重要标志，Android内部也依赖这个UID进行权限管理，包括6.0以前的固定权限和6.0以后的动态权限，传荣IPC只能由用户在数据包里填入UID/PID，这个标记完全 是在用户空间控制的，没有放在内核空间，因此有被恶意篡改的可能，因此Binder的安全性更高。
+安全性：我们知道Android为每个应用分配了UID，用来作为鉴别进程的重要标志，Android内部也依赖这个UID进行权限管理，包括6.0以前的固定权限和6.0以后的动态权限，传统IPC只能由用户在数据包里填入UID/PID，这个标记完全是在用户空间控制的，没有放在内核空间，因此有被恶意篡改的可能，因此Binder的安全性更高。
 
 1).首先，Binder分为Client和Server两个进程。
 
-
-    注意，Client和Server是相对的。谁发消息，谁就是Client，谁接收消息，谁就是Server。
+注意，Client和Server是相对的。谁发消息，谁就是Client，谁接收消息，谁就是Server。
     
-    
-    举个例子，两个进程A和B之间使用Binder通信，进程A发消息给进程B，那么这时候A是Binder Client，B是Binder Server；进程B发消息给进程A，那么这时候B是Binder Client，A是Binder Server——其实这么说虽然简单了，但还是不太严谨，我们先这么理解着。
+举个例子，两个进程A和B之间使用Binder通信，进程A发消息给进程B，那么这时候A是Binder Client，B是Binder Server；进程B发消息给进程A，那么这时候B是Binder Client，A是Binder Server，其实这么说虽然简单了，但还是不太严谨，我们先这么理解着。
 
-
-2).其次，我们看下面这个图（摘自田维术的博客），基本说明白了Binder的组成解构：
+2).其次，我们看下面这个图（摘自田维术的博客），基本说明白了Binder的组成架构：
 
 ![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd565735a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-图中的IPC就是进程间通信的意思。
 
 图中的ServiceManager，负责把Binder Server注册到一个容器中。
 
 有人把ServiceManager比喻成电话局，存储着每个住宅的座机电话，还是很恰当的。张三给李四打电话，拨打电话号码，会先转接到电话局，电话局的接线员查到这个电话号码的地址，因为李四的电话号码之前在电话局注册过，所以就能拨通；没注册，就会提示该号码不存在。
     
-对照着Android Binder机制，对着上面这图，张三就是Binder Client，李四就是Binder Server，电话局就是ServiceManager，电话局的接线员在这个过程中做了很多事情，对应着图中的Binder驱动.
+对照着Android Binder机制，张三就是Binder Client，李四就是Binder Server，电话局就是ServiceManager，电话局的接线员在这个过程中做了很多事情，对应着图中的Binder驱动.
 
 3).接下来我们看Binder通信的过程，还是摘自田维术博客的一张图：
 
@@ -374,7 +369,7 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
     
 首先是Server在SM这个容器中注册。
     
-其次，Client想要调用Server的add方法，就需要先获取Server对象， 但是SM不会把真正的Server对象返回给Client，而是把Server的一个代理对象返回给Client，也就是Proxy。
+其次，Client想要调用Server的add方法，就需要先获取Server对象，但是SM不会把真正的Server对象返回给Client，而是把Server的一个代理对象返回给Client，也就是Proxy。
     
 然后，Client调用Proxy的add方法，SM会帮他去调用Server的add方法，并把结果返回给Client。
     
@@ -577,10 +572,12 @@ APK整体的的打包流程如下图所示：
 - asserts：额外建立的资源文件夹。
 - lib：如果存在的话，存放的是ndk编出来的so库。   
 - META-INF：存放签名信息
-- MANIFEST.MF：其中每一个资源文件都有一个SHA-256-Digest签名，MANIFEST.MF文件的SHA256（SHA1）并base64编码的结果即为CERT.SF中的SHA256-Digest-Manifest值。
 
-CERT.SF：除了开头处定义的SHA256（SHA1）-Digest-Manifest值，后面几项的值是对MANIFEST.MF文件中的每项再次SHA256并base64编码后的值。
-CERT.RSA：其中包含了公钥、加密算法等信息。首先对前一步生成的MANIFEST.MF使用了SHA256（SHA1）-RSA算法，用开发者私钥签名，然后在安装时使用公钥解密。最后，将其与未加密的摘要信息（MANIFEST.MF文件）进行对比，如果相符，则表明内容没有被修改。
+MANIFEST.MF（清单文件）：其中每一个资源文件都有一个SHA-256-Digest签名，MANIFEST.MF文件的SHA256（SHA1）并base64编码的结果即为CERT.SF中的SHA256-Digest-Manifest值。
+
+CERT.SF（待签名文件）：除了开头处定义的SHA256（SHA1）-Digest-Manifest值，后面几项的值是对MANIFEST.MF文件中的每项再次SHA256并base64编码后的值。
+
+CERT.RSA（签名结果文件）：其中包含了公钥、加密算法等信息。首先对前一步生成的MANIFEST.MF使用了SHA256（SHA1）-RSA算法，用开发者私钥签名，然后在安装时使用公钥解密。最后，将其与未加密的摘要信息（MANIFEST.MF文件）进行对比，如果相符，则表明内容没有被修改。
 
 - androidManifest：程序的全局清单配置文件。
 - resources.arsc：编译后的二进制资源文件。
@@ -605,7 +602,6 @@ CERT.RSA：其中包含了公钥、加密算法等信息。首先对前一步生
 - SHA-1：在密码学中，SHA-1（安全散列算法1）是一种加密散列函数，它接受输入并产生一个160 位（20 字节）散列值，称为消息摘要 。
 - MD5：MD5消息摘要算法（英语：MD5 Message-Digest Algorithm），一种被广泛使用的密码散列函数，可以产生出一个128位（16字节）的散列值（hash value），用于确保信息传输完整一致。
 - SHA-2：名称来自于安全散列算法2（英语：Secure Hash Algorithm 2）的缩写，一种密码散列函数算法标准，其下又可再分为六个不同的算法标准，包括了：SHA-224、SHA-256、SHA-384、SHA-512、SHA-512/224、SHA-512/256。
-- 
 
 特征：
 
@@ -667,10 +663,17 @@ Android提供了两种对Apk的签名方式，一种是基于JAR的签名方式�
 
 keystore是一个密钥库，也就是说它可以存储多对密钥和证书，keystore的密码是用于保护keystore本身的，一对密钥和证书是通过alias来区分的。所以jarsigner是支持使用多个证书对Apk进行签名的，apksigner也同样支持。
 
+##### Android Apk V1 签名原理
 
+- 1、解析出 CERT.RSA 文件中的证书、公钥，解密 CERT.RSA 中的加密数据。
+- 2、解密结果和 CERT.SF 的指纹进行对比，保证 CERT.SF 没有被篡改。
+- 3、而 CERT.SF 中的内容再和 MANIFEST.MF 指纹对比，保证 MANIFEST.MF 文件没有被篡改。
+- 4、MANIFEST.MF 中的内容和 APK 所有文件指纹逐一对比，保证 APK 没有被篡改。
 
 
 ### 16、描述清点击 Android Studio 的 build 按钮后发生了什么？
+
+
 
 
 ### 17、[说下安卓虚拟机和java虚拟机的原理和不同点](https://blog.csdn.net/jason0539/article/details/50440669)?（JVM、Davilk、ART三者的原理和区别） 
