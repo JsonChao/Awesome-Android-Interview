@@ -389,8 +389,6 @@ Android Binder是用来做进程通信的，Android的各个应用以及系统�
 
 请按顺序仔细阅读下列文章提升对Binder机制的理解程度：
 
-[Android跨进程通信：图文详解 Binder机制 原理](https://blog.csdn.net/carson_ho/article/details/73560642)
-
 [Binder学习指南](http://weishu.me/2016/01/12/binder-index-for-newer/)
 
 [Binder设计与实现](https://blog.csdn.net/universus/article/details/6211589)
