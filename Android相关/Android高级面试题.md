@@ -1185,9 +1185,6 @@ https://www.jianshu.com/p/376ea8a19a17
 #### 手写生产者/消费者模式
 
 
-#### 适配器模式，装饰者模式，外观模式的异同？
-
-
 ### 2、架构设计
 
 #### [MVC MVP MVVM原理和区别？](http://www.tianmaying.com/tutorial/AndroidMVC)
