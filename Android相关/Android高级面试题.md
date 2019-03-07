@@ -867,43 +867,31 @@ https://www.jianshu.com/p/050c6db5af5a
 ##### Glide内存缓存如何控制大小？
 
 
-##### 怎样计算一张图片的大小，加载bitmap过程（怎样保证不产生内存溢出），二级缓存，LRUCache算法。
-
-    计算一张图片的大小
+##### 计算一张图片的大小
+    
+图片占用内存的计算公式：图片高度 * 图片宽度 * 一个像素占用的内存大小。所以，计算图片占用内存大小的时候，要考虑图片所在的目录跟设备密度，这两个因素其实影响的是图片的宽高，android会对图片进行拉升跟压缩。
     
     
-    图片占用内存的计算公式：图片高度 * 图片宽度 * 一个像素占用的内存大小.所以，计算图片占用内存大小的时候，要考虑图片所在的目录跟设备密度，这两个因素其实影响的是图片的高宽，android会对图片进行拉升跟压缩。
+##### 加载bitmap过程（怎样保证不产生内存溢出）
     
+由于Android对图片使用内存有限制，若是加载几兆的大图片便内存溢出。Bitmap会将图片的所有像素（即长x宽）加载到内存中，如果图片分辨率过大，会直接导致内存OOM，只有在BitmapFactory加载图片时使用BitmapFactory.Options对相关参数进行配置来减少加载的像素。
     
-    加载bitmap过程（怎样保证不产生内存溢出）
+BitmapFactory.Options相关参数详解：
     
+(1).Options.inPreferredConfig值来降低内存消耗。
     
-    由于Android对图片使用内存有限制，若是加载几兆的大图片便内存溢出。Bitmap会将图片的所有像素（即长x宽）加载到内存中，如果图片分辨率过大，会直接导致内存OOM，只有在BitmapFactory加载图片时使用BitmapFactory.Options对相关参数进行配置来减少加载的像素。
+比如：默认值ARGB_8888改为RGB_565,节约一半内存。
     
+(2).设置Options.inSampleSize 缩放比例，对大图片进行压缩 。
     
-    BitmapFactory.Options相关参数详解
+(3).设置Options.inPurgeable和inInputShareable：让系统能及时回收内存。
     
-    
-    (1).Options.inPreferredConfig值来降低内存消耗。
-    
-    比如：默认值ARGB_8888改为RGB_565,节约一半内存。
-    
-    
-    (2).设置Options.inSampleSize 缩放比例，对大图片进行压缩 。
-    
-    
-    (3).设置Options.inPurgeable和inInputShareable：让系统能及时回 收内存。
-    
-    A：inPurgeable：设置为True时，表示系统内存不足时可以被回 收，设置为False时，表示不能被回收。
+    A：inPurgeable：设置为True时，表示系统内存不足时可以被回收，设置为False时，表示不能被回收。
     
     B：inInputShareable：设置是否深拷贝，与inPurgeable结合使用，inPurgeable为false时，该参数无意义。
     
-    
-    (4).使用decodeStream代替其他方法。
-    
-    decodeResource,setImageResource,setImageBitmap等方法
-    
-
+(4).使用decodeStream代替decodeResource等其他方法。
+  
 
 ### Android中软引用与弱引用的应用场景。
 
@@ -911,10 +899,11 @@ Java 引用类型分类：
 
 ![image](https://user-gold-cdn.xitu.io/2017/10/10/29c884389e96babb2759b95014628aae?imageslim)
 
-    在 Android 应用的开发中，为了防止内存溢出，在处理一些占用内存大而且声明周期较长的对象时候，可以尽量应用软引用和弱引用技术。
-    软/弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收器回收，Java 虚拟机就会把这个软引用加入到与之关联的引用队列中。利用这个队列可以得知被回收的软/弱引用的对象列表，从而为缓冲器清除已失效的软 / 弱引用。
-    如果只是想避免 OOM 异常的发生，则可以使用软引用。如果对于应用的性能更在意，想尽快回收一些占用内存比较大的对象，则可以使用弱引用。
-    可以根据对象是否经常使用来判断选择软引用还是弱引用。如果该对象可能会经常使用的，就尽量用软引用。如果该对象不被使用的可能性更大些，就可以用弱引用。
+在 Android 应用的开发中，为了防止内存溢出，在处理一些占用内存大而且生命周期较长的对象时候，可以尽量应用软引用和弱引用技术。
+
+- 1、软/弱引用可以和一个引用队列（ReferenceQueue）联合使用，如果软引用所引用的对象被垃圾回收器回收，Java 虚拟机就会把这个软引用加入到与之关联的引用队列中。利用这个队列可以得知被回收的软/弱引用的对象列表，从而为缓冲器清除已失效的软 / 弱引用。
+- 2、如果只是想避免 OOM 异常的发生，则可以使用软引用。如果对于应用的性能更在意，想尽快回收一些占用内存比较大的对象，则可以使用弱引用。
+- 3、可以根据对象是否经常使用来判断选择软引用还是弱引用。如果该对象可能会经常使用的，就尽量用软引用。如果该对象不被使用的可能性更大些，就可以用弱引用。
 
 ##### Android里的内存缓存和磁盘缓存是怎么实现的。
 
@@ -922,15 +911,21 @@ Java 引用类型分类：
 
 LRU算法可以用一句话来描述，如下所示：
 
-    LRU是Least Recently Used的缩写，最近最久未使用算法，从它的名字就可以看出，它的核心原则是如果一个数据在最近一段时间没有使用到，那么它在将来被 访问到的可能性也很小，则这类数据项会被优先淘汰掉。
+LRU是Least Recently Used的缩写，最近最少使用算法，从它的名字就可以看出，它的核心原则是如果一个数据在最近一段时间没有使用到，那么它在将来被访问到的可能性也很小，则这类数据项会被优先淘汰掉。
 
-LruCache的原理是利用LinkedHashMap持有对象的强引用，按照Lru算法进行对象淘汰。具体说来假设我们从表尾访问数据，在表头删除数据，当访问的数据项在链表中存在时，则将该数据项移动到表尾，否则在表尾新建一个数据项。当链表容量超过一定阈值，则移除表头的数据。
+##### LRUCache算法是怎样实现的？
+    
+之前，我们会使用内存缓存技术实现，也就是软引用或弱引用，在Android 2.3（APILevel 9）开始，垃圾回收器会更倾向于回收持有软引用或弱引用的对象，这让软引用和弱引用变得不再可靠。
+
+它的内部存在一个 LinkedHashMap 和 maxSize，把最近使用的对象用强引用存储在 LinkedHashMap 中，给出来 put 和 get 方法，每次 put 图片时计算缓存中所有图片总大小，跟 maxSize 进行比较，大于 maxSize，就将最久添加的图片移除，反之小于 maxSize 就添加进来。
+
+LruCache的原理就是利用LinkedHashMap持有对象的强引用，按照Lru算法进行对象淘汰。具体说来假设我们从表尾访问数据，在表头删除数据，当访问的数据项在链表中存在时，则将该数据项移动到表尾，否则在表尾新建一个数据项。当链表容量超过一定阈值，则移除表头的数据。
 
 为什么会选择LinkedHashMap呢？
 
 这跟LinkedHashMap的特性有关，LinkedHashMap的构造函数里有个布尔参数accessOrder，当它为true时，LinkedHashMap会以访问顺序为序排列元素，否则以插入顺序为序排序元素。
 
-DiskLruCache与LruCache原理相似，只是多了一个journal文件来做磁盘文件的管理和迎神，如下所示：
+DiskLruCache与LruCache原理相似，只是多了一个journal文件来做磁盘文件的管理，如下所示：
 
     libcore.io.DiskLruCache
     1
@@ -940,6 +935,7 @@ DiskLruCache与LruCache原理相似，只是多了一个journal文件来做磁�
     DIRTY 1517126350519
     CLEAN 1517126350519 5325928
     REMOVE 1517126350519
+    
 注：这里的缓存目录是应用的缓存目录/data/data/pckagename/cache，未root的手机可以通过以下命令进入到该目录中或者将该目录整体拷贝出来：
 
     //进入/data/data/pckagename/cache目录
@@ -949,6 +945,7 @@ DiskLruCache与LruCache原理相似，只是多了一个journal文件来做磁�
     
     //将/data/data/pckagename目录拷贝出来
     adb backup -noapk com.your.packagename
+    
 我们来分析下这个文件的内容：
 
 第一行：libcore.io.DiskLruCache，固定字符串。
@@ -964,29 +961,33 @@ DIRTY 表示一个entry正在被写入。写入分两种情况，如果成功会
 READ就是说明有一次读取的记录。
 CLEAN的后面还记录了文件的长度，注意可能会一个key对应多个文件，那么就会有多个数字。
 
-##### LRUCache算法是怎样实现的。
 
-    内部存在一个LinkedHashMap和maxSize，把最近使用的对象用强引用存储在 LinkedHashMap中，给出来put和get方法，每次put图片时计算缓存中所有图片总大小，跟maxSize进行比较，大于maxSize，就将最久添加的图片移除；反之小于maxSize就添加进来。
-    
-    
-    之前，我们会使用内存缓存技术实现，也就是软引用或弱引用，在Android 2.3（APILevel 9）开始，垃圾回收器会更倾向于回收持有软引用或弱引用的对象，这让软引用和弱引用变得不再可靠。
+
+
 
 ##### Bitmap 压缩策略
 
-    加载 Bitmap 的方式：
-    BitmapFactory 四类方法：
-    decodeFile( 文件系统 )
-    decodeResourece( 资源 )
-    decodeStream( 输入流 ) 
-    decodeByteArray( 字节数 )
-    BitmapFactory.options 参数
-    inSampleSize 采样率，对图片高和宽进行缩放，以最小比进行缩放（一般取值为 2 的指数）。通常是根据图片宽高实际的大小/需要的宽高大小，分别计算出宽和高的缩放比。但应该取其中最小的缩放比，避免缩放图片太小，到达指定控件中不能铺满，需要拉伸从而导致模糊。
-    inJustDecodeBounds 获取图片的宽高信息，交给  inSampleSize 参数选择缩放比。通过 inJustDecodeBounds = true，然后加载图片就可以实现只解析图片的宽高信息，并不会真正的加载图片，所以这个操作是轻量级的。当获取了宽高信息，计算出缩放比后，然后在将 inJustDecodeBounds = false,再重新加载图片，就可以加载缩放后的图片。
-    高效加载 Bitmap 的流程
-    将 BitmapFactory.Options 的 inJustDecodeBounds 参数设为 true 并加载图片
-    从 BitmapFactory.Options 中取出图片原始的宽高信息，对应于 outWidth 和 outHeight 参数
-    根据采样率规则并结合目标 view 的大小计算出采样率 inSampleSize
-    将 BitmapFactory.Options 的 inJustDecodeBounds 设置为 false 重新加载图片
+加载 Bitmap 的方式：
+
+BitmapFactory 四类方法：
+
+- decodeFile( 文件系统 )
+- decodeResourece( 资源 )
+- decodeStream( 输入流 ) 
+- decodeByteArray( 字节数 )
+
+BitmapFactory.options 参数:
+
+- inSampleSize 采样率，对图片高和宽进行缩放，以最小比进行缩放（一般取值为 2 的指数）。通常是根据图片宽高实际的大小/需要的宽高大小，分别计算出宽和高的缩放比。但应该取其中最小的缩放比，避免缩放图片太小，到达指定控件中不能铺满，需要拉伸从而导致模糊。  
+- inJustDecodeBounds 获取图片的宽高信息，交给  inSampleSize 参数选择缩放比。通过 inJustDecodeBounds = true，然后加载图片就可以实现只解析图片的宽高信息，并不会真正的加载图片，所以这个操作是轻量级的。当获取了宽高信息，计算出缩放比后，然后在将 inJustDecodeBounds = false,再重新加载图片，就可以加载缩放后的图片。
+
+高效加载 Bitmap 的流程:
+
+- 1、将 BitmapFactory.Options 的 inJustDecodeBounds 参数设为 true 并加载图片
+- 2、从 BitmapFactory.Options 中取出图片原始的宽高信息，对应于 outWidth 和 outHeight 参数
+- 3、根据采样率规则并结合目标 view 的大小计算出采样率 inSampleSize
+- 4、将 BitmapFactory.Options 的 inJustDecodeBounds 设置为 false 重新加载图片
+
 
 ##### Bitmap的处理：
 
@@ -998,19 +999,22 @@ BitMap的缓存：
 
 2.使用DiskLruCache进行硬盘缓存。
 
-3.实现一个ImageLoader的流程：同步异步加载、图片压缩、内存硬盘缓存、网络拉取
+实现一个ImageLoader的流程：同步异步加载、图片压缩、内存硬盘缓存、网络拉取
 
     1.同步加载只创建一个线程然后按照顺序进行图片加载
     2.异步加载使用线程池，让存在的加载任务都处于不同线程
     3.为了不开启过多的异步任务，只在列表静止的时候开启图片加载
     
+    
 ##### Bitmap在decode的时候申请的内存如何复用，释放时机
+    
     
 ##### 图片库对比
 
 http://stackoverflow.com/questions/29363321/picasso-v-s-imageloader-v-s-fresco-vs-glide
 
 http://www.trinea.cn/android/android-image-cache-compare/
+
 
 ##### Fresco与Glide的对比：
 
