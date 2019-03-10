@@ -118,7 +118,9 @@ Activity的 onSaveInstanceState() 和 onRestoreInstanceState()并不是生命周
 不包含任何应用程序的进程，这样的进程系统是一般不会让他存在的
     
     
-#### 7、Serializable和Parcelable
+#### 7、Bunder传递对象为什么需要序列化？Serialzable和Parcelable的区别？
+
+因为bundle传递数据时只支持基本数据类型，所以在传递对象时需要序列化转换成可存储或可传输的本质状态（字节流）。序列化后的对象可以在网络、IPC（比如启动另一个进程的Activity、Service和Reciver）之间进行传输，也可以存储到本地。
 
 ##### Serializable（Java自带）：
 
@@ -127,6 +129,10 @@ Serializable 是序列化的意思，表示将一个对象转换成存储或可�
 ##### Parcelable（android专用）：
 
 除了Serializable之外，使用Parcelable也可以实现相同的效果，不过不同于将对象进行序列化，Parcelable方式的实现原理是将一个完整的对象进行分解，而分解后的每一部分都是Intent所支持的数据类型，这也就实现传递对象的功能了。
+
+区别总结如下图所示：
+
+![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c349f019c41f?imageslim)
 
 
 #### 8、动画
