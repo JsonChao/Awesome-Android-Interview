@@ -440,9 +440,10 @@ Android消息循环流程图如下所示：
     
 主要涉及的角色如下所示：
 
+- message：消息。
 - MessageQueue：消息队列，负责消息的存储与管理，负责管理由 Handler 发送过来的 Message。读取会自动删除消息，单链表维护，插入和删除上有优势。在其next()中会无限循环，不断判断是否有消息，有就返回这条消息并移除。
 - Looper：消息循环器，负责关联线程以及消息的分发在该线程下**从 MessageQueue获取 Message，分发给Handler，**Looper创建的时候会创建一个
-- MessageQueue，调用loop()方法的时候消息循环开始，loop()也是一个循环，会不断调用messageQueue的next()，当有消息就处理，否则阻塞在messageQueue的next()中。当Looper的quit()被调用的时候会调用messageQueue的quit()，此时next()会返回null，然后loop()方法也跟着退出。
+MessageQueue，调用loop()方法的时候消息循环开始，loop()也是一个循环，会不断调用messageQueue的next()，当有消息就处理，否则阻塞在messageQueue的next()中。当Looper的quit()被调用的时候会调用messageQueue的quit()，此时next()会返回null，然后loop()方法也跟着退出。
 - Handler：消息处理器，负责发送并处理消息，面向开发者，提供 API，并隐藏背后实现的细节。
 
 整个消息的循环流程还是比较清晰的，具体说来：
