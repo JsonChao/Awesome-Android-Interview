@@ -440,19 +440,17 @@ Android消息循环流程图如下所示：
     
 主要涉及的角色如下所示：
 
-Message：消息，分为硬件产生的消息（例如：按钮、触摸）和软件产生的消息。
-
-MessageQueue：消息队列，主要用来向消息池添加消息和取走消息。
-
-Looper：消息循环器，主要用来把消息分发给相应的处理者。
-
-Handler：消息处理器，主要向消息队列发送各种消息以及处理各种消息。
+- MessageQueue：消息队列，负责消息的存储与管理，负责管理由 Handler 发送过来的 Message。读取会自动删除消息，单链表维护，插入和删除上有优势。在其next()中会无限循环，不断判断是否有消息，有就返回这条消息并移除。
+- Looper：消息循环器，负责关联线程以及消息的分发在该线程下**从 MessageQueue获取 Message，分发给Handler，**Looper创建的时候会创建一个
+- MessageQueue，调用loop()方法的时候消息循环开始，loop()也是一个循环，会不断调用messageQueue的next()，当有消息就处理，否则阻塞在messageQueue的next()中。当Looper的quit()被调用的时候会调用messageQueue的quit()，此时next()会返回null，然后loop()方法也跟着退出。
+- Handler：消息处理器，负责发送并处理消息，面向开发者，提供 API，并隐藏背后实现的细节。
 
 整个消息的循环流程还是比较清晰的，具体说来：
 
-Handler通过sendMessage()发送消息Message到消息队列MessageQueue。
-Looper通过loop()不断提取触发条件的Message，并将Message交给对应的target handler来处理。
-target handler调用自身的handleMessage()方法来处理Message。
+- 1、Handler通过sendMessage()发送消息Message到消息队列MessageQueue。
+- 2、Looper通过loop()不断提取触发条件的Message，并将Message交给对应的target handler来处理。
+- 3、target handler调用自身的handleMessage()方法来处理Message。
+
 事实上，在整个消息循环的流程中，并不只有Java层参与，很多重要的工作都是在C++层来完成的。我们来看下这些类的调用关系。
 
 ![image](https://github.com/guoxiaoxing/android-open-source-project-analysis/raw/master/art/native/process/android_handler_class.png)
@@ -461,21 +459,13 @@ target handler调用自身的handleMessage()方法来处理Message。
 
 在这些类中MessageQueue是Java层与C++层维系的桥梁，MessageQueue与Looper相关功能都通过MessageQueue的Native方法来完成，而其他虚线连接的类只有关联关系，并没有直接调用的关系，它们发生关联的桥梁是MessageQueue。
 
-这里在总结下Handler各个部分的作用：
+##### 总结
 
-1.MessageQueue：读取会自动删除消息，单链表维护，插入和删除上有优势。在其next()中会无限循环，不断判断是否有消息，有就返回这条消息并移除。
+- Handler 发送的消息由 MessageQueue 存储管理，并由 Looper 负责回调消息到 handleMessage()。
+- 线程的转换由 Looper 完成，handleMessage() 所在线程由 Looper.loop() 调用者所在线程决定。
 
-2.Looper：Looper创建的时候会创建一个MessageQueue，调用loop()方法的时候消息循环开始，loop()也是一个循环，会不断调用messageQueue的next()，当有消息就处理，否则阻塞在messageQueue的next()中。当Looper的quit()被调用的时候会调用messageQueue的quit()，此时next()会返回null，然后loop()方法也跟着退出。
+[Handler 都没搞懂，拿什么去跳槽啊？](https://juejin.im/post/5c74b64a6fb9a049be5e22fc#heading-7)
 
-3.Handler：在主线程构造一个Handler，然后在其他线调用sendMessage(),此时主线程的MessageQueue中会插入一条message，然后被Looper使用。
-
-4.系统的主线程在ActivityThread的main()方法入口中开启线程，其中定义了内部类Activity.H，里面定义了一系列消息类型，包含四大组件的启动和停止。
-Android 的消息机制也就是 handler 机制,创建 handler 的时候会创建一个 looper ( 通过 looper.prepare()来创建 )，looper 一般为主线程 looper。
-handler 通过 send 发送消息 (sendMessage) ,当然post 一系列方法最终也是通过 send 来实现的,在 send方法中handler 会通过 enqueueMessage() 方法中的 enqueueMessage(msg, millis) 向消息队列 MessageQueue 插入一条消息,同时会把本身的 handler 通过 msg.target = this 传入。
-
-Looper 是一个死循环,不断的读取MessageQueue中的消息，loop 方法会调用 MessageQueue 的 next 方法来获取新的消息，next操作是一个阻塞操作,当没有消息的时候 next 方法会一直阻塞，进而导致 loop一直阻塞，当有消息的时候，Looper 就会处理消息。Looper收到消息之后就开始处理消息:msg.target.dispatchMessage(msg)，当然这里的 msg.target 就是上面传过来的发送这条消息的 handler 对象,这样 handler 发送的消息最终又交给他的dispatchMessage 方法来处理了，这里不同的是handler 的 dispatchMessage 方法是在创建 Handler时所使用的 Looper 中执行的，这样就成功的将代码逻辑切换到了主线程了。
-
-Handler 处理消息的过程是:首先,检查 Message 的 callback 是否为 null，不为 null 就通过 handleCallBack 来处理消息，Message 的 callback 是一个 Runnable 对象，实际上是 handler 的 post方法所传递的 Runnable 参数.其次是检查 mCallback 是否为 null,不为 null 就调用 mCallback 的handleMessage 方法来处理消息。
 
 #### 24、程序A能否接收到程序B的广播？
 
