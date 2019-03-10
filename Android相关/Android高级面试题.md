@@ -621,7 +621,7 @@ APK的安装流程如下所示：
 安装完成后，发送广播。
 
 
-### 15、Android的打包流程？apk里有哪些东西？签名算法的原理？
+### 15、Android的打包流程？（即描述清点击 Android Studio 的 build 按钮后发生了什么？）apk里有哪些东西？签名算法的原理？
 
 #### apk打包流程
 
@@ -747,12 +747,7 @@ keystore是一个密钥库，也就是说它可以存储多对密钥和证书，
 - 4、MANIFEST.MF 中的内容和 APK 所有文件指纹逐一对比，保证 APK 没有被篡改。
 
 
-### 16、描述清点击 Android Studio 的 build 按钮后发生了什么？
-
-
-
-
-### 17、[说下安卓虚拟机和java虚拟机的原理和不同点](https://blog.csdn.net/jason0539/article/details/50440669)?（JVM、Davilk、ART三者的原理和区别） 
+### 16、[说下安卓虚拟机和java虚拟机的原理和不同点](https://blog.csdn.net/jason0539/article/details/50440669)?（JVM、Davilk、ART三者的原理和区别） 
 
 #### JVM 和Dalvik虚拟机的区别
 
@@ -788,13 +783,13 @@ ART缺点：
 - 更长的应用安装时间。
 
 
-### 18、安卓采用自动垃圾回收机制，请说下安卓内存管理的原理？
+### 17、安卓采用自动垃圾回收机制，请说下安卓内存管理的原理？
 
-### 19、Android中App是如何沙箱化的,为何要这么做？
+### 18、Android中App是如何沙箱化的,为何要这么做？
 
-### 20、[一个图片在app中调用R.id后是如何找到的](https://my.oschina.net/u/255456/blog/608229)？
+### 19、[一个图片在app中调用R.id后是如何找到的](https://my.oschina.net/u/255456/blog/608229)？
 
-### 21、JNI
+### 20、JNI
 
 #### Java调用C++
 
@@ -812,9 +807,9 @@ ART缺点：
 - 创建该类的实例。
 - 调用对象的实例方法。
 
-    JNIEXPORT void JNICALL Java_com_study_jnilearn_AccessMethod_callJavaInstaceMethod  
-    (JNIEnv *env, jclass cls)  
-    {  
+      JNIEXPORT void JNICALL Java_com_study_jnilearn_AccessMethod_callJavaInstaceMethod  
+      (JNIEnv *env, jclass cls)  
+      {  
         jclass clazz = NULL;  
         jobject jobj = NULL;  
         jmethodID mid_construct = NULL;  
@@ -826,7 +821,7 @@ ART缺点：
             printf("找不到'com.study.jnilearn.ClassMethod'这个类");  
             return;  
         }  
-    
+        
         // 2、获取类的默认构造方法ID  
         mid_construct = (*env)->GetMethodID(env,clazz, "<init>","()V");  
         if (mid_construct == NULL) {  
@@ -856,13 +851,13 @@ ART缺点：
         (*env)->DeleteLocalRef(env,clazz);  
         (*env)->DeleteLocalRef(env,jobj);  
         (*env)->DeleteLocalRef(env,str_arg);  
-    }  
-    
+      }  
+   
     
 #### 如何在jni中注册native函数，有几种注册方式？
 
     
-### 22、请介绍一下NDK？
+### 21、请介绍一下NDK？
 
 
 ## 三、Android优秀三方库源码
