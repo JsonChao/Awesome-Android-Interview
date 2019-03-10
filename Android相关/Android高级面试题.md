@@ -168,224 +168,300 @@ Android 平台的基础是 Linux 内核。例如，Android Runtime (ART) 依靠 
 
 ### 2、View的事件分发机制？滑动冲突怎么解决？
 
-[更全面的了解请移步到此处](https://jsonchao.github.io/2018/10/17/Android%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92%E6%9C%BA%E5%88%B6/)
+1、View事件分发本质就是对MotionEvent事件分发的过程。即当一个MotionEvent发生后，系统将这个点击事件传递到一个具体的View上。
 
-1).Android事件分发机制的本质是要解决：点击事件由个对象发出，经过哪些对象，最终达到哪个对象并最终到处理。这里的对象是指Activity、ViewGroup、View.
+2、点击事件的传递顺序：Activity（Window）→ViewGroup→ View。
 
-2).Android中事件分发顺序：Activity（Window） ->ViewGroup -> View.
+3、事件分发过程由三个方法共同完成：
 
-3).事件分发过程由dispatchTouchEvent()、onInterceptTouchEvent()和onTouchEvent()三个方协助完成
+- dispatchTouchEvent：用来进行事件的分发。如果事件能够传递给当前View，那么此方法一定会被调用，返回结果受当前View的onTouchEvent和下级View的dispatchTouchEvent方法的影响，表示是否消耗当前事件。
+- onInterceptTouchEvent：在上述方法内部调用，对事件进行拦截。该方法只在ViewGroup中有，View（不包含 ViewGroup）是没有的。一旦拦截，则执行ViewGroup的onTouchEvent，在ViewGroup中处理事件，而不接着分发给View。且只调用一次，返回结果表示是否拦截当前事件。
+- onTouchEvent：在dispatchTouchEvent方法中调用，用来处理点击事件，返回结果表示是否消耗当前事件。
 
-设置Button按钮来响应点击事件事件传递情况：（如下图）
-
-布局如下:
-
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfaed36b0e?imageslim)
-    
-最外层：Activiy A，包含两个子View：ViewGroupB、View C
-
-中间层：ViewGroup B，包含一个子View：View C
-
-最内层：View C
-
-假设用户首先触摸到屏幕上ViewC上的某个点（如图中黄色区域），那么Action_DOWN事就在该点产生，然后用户移动手指并最后离开屏幕。
-
-按钮点击事件:
-
-DOWN事件被传递给C的onTouchEvent方法，该方法返回tre，表示处理这个事件;
-
-因为C正在处理这个事件，那么DOWN事件将不再往上传给B和A的onTouchEvent()；
-
-该事件列的其他事件（Move、Up）也将传递给C的onToucEvent();
+记住这两个图的传递顺序,面试的时候能够画出来,就很详细了：
 
 ![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd00ab478?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
 ![image](https://upload-images.jianshu.io/upload_images/2911038-5349d6ebb32372da)
 
-(记住这个图的传递顺序,面试的时候能够画出来,就很详细了)
 
-#### ACTION_CANCEL什么时候触发，触摸button然后滑动到外部抬起会触发点击事件吗，在+ + 滑动回去抬起会么？
+#### ACTION_CANCEL什么时候触发，触摸button然后滑动到外部抬起会触发点击事件吗，再滑动回去抬起会么？
+
+- 一般ACTION_CANCEL和ACTION_UP都作为View一段事件处理的结束。如果在父View中拦截ACTION_UP或ACTION_MOVE，在第一次父视图拦截消息的瞬间，父视图指定子视图不接受后续消息了，同时子视图会收到ACTION_CANCEL事件。
+- 如果触摸某个控件，但是又不是在这个控件的区域上抬起（移动到别的地方了），就会出现action_cancel。
 
 
 ##### 点击事件被拦截，但是想传到下面的View，如何操作？
 
+如果requestDisallowInterceptTouchEvent（）传递参数为true就不会执行onInterceptTouchEvent（），即可将点击事件传到下面的View。
 
-#### 如何解决ScrollView嵌套ListView和GridView产生的冲突？
 
-https://blog.csdn.net/btt2013/article/details/53447649
+#### 如何解决View的事件冲突？举个开发中遇到的例子？
+
+常见开发中事件冲突的有ScrollView与RecyclerView的滑动冲突、RecyclerView内嵌同时滑动同一方向。
+
+滑动冲突的处理规则：
+
+- 对于由于外部滑动和内部滑动方向不一致导致的滑动冲突，可以根据滑动的方向判断谁来拦截事件。
+- 对于由于外部滑动方向和内部滑动方向一致导致的滑动冲突，可以根据业务需求，规定何时让外部View拦截事件，何时由内部View拦截事件。
+- 对于上面两种情况的嵌套，相对复杂，可同样根据需求在业务上找到突破点。
+
+滑动冲突的实现方法：
+
+- 外部拦截法：指点击事件都先经过父容器的拦截处理，如果父容器需要此事件就拦截，否则就不拦截。具体方法：需要重写父容器的onInterceptTouchEvent方法，在内部做出相应的拦截。
+- 内部拦截法：指父容器不拦截任何事件，而将所有的事件都传递给子容器，如果子容器需要此事件就直接消耗，否则就交由父容器进行处理。具体方法：需要配合requestDisallowInterceptTouchEvent方法。
+
+[加深理解，GOGOGO](https://jsonchao.github.io/2018/10/17/Android%E8%A7%A6%E6%91%B8%E4%BA%8B%E4%BB%B6%E4%BC%A0%E9%80%92%E6%9C%BA%E5%88%B6/)
 
 
 ### 3、View的绘制流程？
 
-1.ViewRootImpl会调用performTraversals(),其内部会用performMeasure()、performLayout、performDraw()。
+[这篇文章已经是很核心的知识点了，GOGOGO](https://jsonchao.github.io/2018/10/28/Android%20View%E7%9A%84%E7%BB%98%E5%88%B6%E6%B5%81%E7%A8%8B/)
 
-2.performMeasure()会调用最外层的ViewGroup的measur()-->onMeasure(),ViewGroup的onMeasure()是抽象方，但其提供了measureChildren()，这之中会遍历子Vie然后循环调用measureChild()这之中会用getChildMeasueSpec()+父View的MeasureSpec+子View的LayoutParam起获取本View的MeasureSpec，然后调用子View的measur()到View的onMeasure()-->setMeasureDimension(getDeaultSize(),getDefaultSize()),getDefaultSize()默认返回measureSpec的测量数值，所以继承View进行自定义的wrap_content需要重写。
 
-3.performLayout()会调用最外层的ViewGroup的layout(,t,r,b),本View在其中使用setFrame()设置本View的四顶点位置。在onLayout(抽象方法)中确定子View的位置如LinearLayout会遍历子View，循环调用setChildFrame-->子View.layout()。
+##### Requestlayout，onlayout，onDraw，DrawChild区别与联系？
 
-4.performDraw()会调用最外层ViewGroup的draw():其会先后调用background.draw()(绘制背景)、onDraw()(制自己)、dispatchDraw()(绘制子View)、onDrawScrollars()(绘制装饰)。
+requestLayout()方法 ：会导致调用 measure()过程 和 layout()过程，将会根据标志位判断是否需要ondraw。
 
-5.MeasureSpec由2位SpecMode(UNSPECIFIED、EXACTLY(应精确值和match_parent)、AT_MOST(对应warp_content)和30位SpecSize组成一个int,DecorView的MeasureSpe由窗口大小和其LayoutParams决定，其他View由父ViewMeasureSpec和本View的LayoutParams决定。ViewGroup有getChildMeasureSpec()来获取子View的MeasureSpec。
+onLayout()方法：如果该View是ViewGroup对象，需要实现该方法，对每个子视图进行布局。
 
-6.三种方式获取measure()后的宽高：
+onDraw()方法：绘制视图本身 (每个View都需要重载该方法，ViewGroup不需要实现该方法)。
 
-- Activity#onWindowFocusChange()中调用获取
-- view.post(Runnable)将获取的代码投递到消息队列尾部。
-- ViewTreeObservable.
+drawChild()：去重新回调每个子视图的draw()方法。
 
-[全面的了解请点击此处](https://jsonchao.github.io/2018/10/28/Android%20View%E7%9A%84%E7%BB%98%E5%88%B6%E6%B5%81%E7%A8%8B/)
 
-#### View刷新机制
+##### invalidate()和postInvalidate()的区别 ？
 
-##### Requestlayout，onlayout，onDraw，DrawChild区别与联系
-
-requestLayout()方法 ：会导致调用measure()过程 和 layout()过程 。 将会根据标志位判断是否需要ondraw
-
-onLayout()方法(如果该View是ViewGroup对象，需要实现该方法，对每个子视图进行布局)
-
-调用onDraw()方法绘制视图本身 (每个View都需要重载该方法，ViewGroup不需要实现该方法)
-
-drawChild()去重新回调每个子视图的draw()方法
-
-##### invalidate和postInvalidate的区别及使用？
+invalidate()与postInvalidate()都用于刷新View，主要区别是invalidate()在主线程中调用，若在子线程中使用需要配合handler；而postInvalidate()可在子线程中直接调用。
 
 
 ### 4、跨进程通信。
 
-#### [AIDL使用](http://blog.csdn.net/singwhatiwanna/article/details/17041691)
+#### Android中进程和线程的关系？区别？
 
-AIDL (Android Interface Definition Language) 是一种AIDL 语言，用于生成可以在Android设备上两个进程之间进行进程间通信(interprocess communication, IPC)的代码。如果在一个进程中（例如Activity）要调用另一个进程中（例如Service）对象的操作，就可以使用AIDL生成可序列化的参数。 AIDL IPC机制是面向接口的，轻量级的。它是使用代理类在客户端和实现端传递数据。如果要使用AIDL, 需要完成2件事情: 1. 引入AIDL的相关类.; 2. 调用aidl产生的class。
-
-理论上, 参数可以传递基本数据类型和String, 还有就是Bundle的派生类, 具体实现步骤如下:
-
-- 1、创建AIDL文件, 在这个文件里面定义接口, 该接口定义了可供客户端访问的方法和属性。
-- 2、编译AIDL文件, 可以根据aidl文件自动生产java文件。
-- 3、在Java文件中, 实现了AIDL中定义的接口. 编译器会根据AIDL接口, 产生一个JAVA接口。这个接口有一个名为Stub的内部抽象类，它继承扩展了接口并实现了远程调用需要的几个方法。接下来就需要自己去实现自定义的几个接口了.
-- 4、向客户端提供接口ITaskBinder, 如果写的是service，扩展该Service并重载onBind ()方法来返回一个实现上述接口的类的实例。
-- 5、在服务器端回调客户端的函数. 前提是当客户端获取IBinder接口的时候,要去注册回调函数, 只有这样, 服务器端才知道该调用那些函数
-    
-AIDL语法很简单,可以用来声明一个带一个或多个方法的接口，也可以传递参数和返回值。 由于远程调用的需要, 这些参数和返回值并不是任何类型.下面是AIDL支持的数据类型:
-    
-- 不需要import声明的简单Java编程语言类型(int,boolean等)
-- String, CharSequence不需要特殊声明
-- List, Map和Parcelables类型, 这些类型内所包含的数据成员也只能是简单数据类型, String等其他比支持的类型.
-    
-实现接口时有几个原则:
-
-- 1.抛出的异常不要返回给调用者. 跨进程抛异常处理是不可取的.
-- 2.IPC调用是同步的。如果你知道一个IPC服务需要超过几毫秒的时间才能完成地话，你应该避免在Activity的主线程中调用。也就是IPC调用会挂起应用程序导致界面失去响应. 这种情况应该考虑单起一个线程来处理.
-- 3.不能在AIDL接口中声明静态属性。
-
-IPC的调用步骤:
-
-    声明一个接口类型的变量，该接口类型在.aidl文件中定义。
-    实现ServiceConnection。
-    调用ApplicationContext.bindService(),并在ServiceConnection实现中进行传递.
-    在ServiceConnection.onServiceConnected()实现中，你会接收一个IBinder实例(被调用的Service). 调用
-    YourInterfaceName.Stub.asInterface((IBinder)service)将参数转换为YourInterface类型。
-    调用接口中定义的方法。你总要检测到DeadObjectException异常，该异常在连接断开时被抛出。它只会被远程方法抛出。
-    断开连接，调用接口实例中的ApplicationContext.unbindService()
-    aidl主要就是帮助我们完成了包装数据和解包的过程，并调用了transact过程，而用来传递的数据包我们就称为parcel
-    AIDL: xxx.aidl->xxx.java,注册service
-    用aidl定义需要被调用方法接口
-    实现这些方法
-    调用这些方法
+- 线程是CPU调度的最小单元，同时线程是一种有限的系统资源；而进程一般指一个执行单元，在PC和移动设备上z指一个程序或者一个应用。
+- 一般来说，一个App程序至少有一个进程，一个进程至少有一个线程（包含与被包含的关系），通俗来讲就是，在App这个工厂里面有一个进程，线程就是里面的生产线，但主线程（即主生产线）只有一条，而子线程（即副生产线）可以有多个。
+- 进程有自己独立的地址空间，而进程中的线程共享此地址空间，都可以并发执行。
 
 
-#### Binder机制
+#### 如何开启多进程？应用是否可以开启N个进程？
 
-IPC:
+在AndroidManifest中给四大组件指定属性android:process开启多进程模式，在内存允许的条件下可以开启N个进程。
 
-![image](https://user-gold-cdn.xitu.io/2017/10/10/a1cd0604f7807e215047053498e6daad?imageslim)
 
-通信，利用进程间可共享的内核内存空间来完成底层通信工作的，Client 端与 Server 端进程往往采用 ioctl 等方法跟内核空间的驱动进行交互。
+#### 为何需要IPC？多进程通信可能会出现的问题？
 
-Binder 原理:
+所有运行在不同进程的四大组件（Activity、Service、Receiver、ContentProvider）共享数据都会失败，这是由于Android为每个应用分配了独立的虚拟机，不同的虚拟机在内存分配上有不同的地址空间，这会导致在不同的虚拟机中访问同一个类的对象会产生多份副本。比如常用例子（通过开启多进程获取更大内存空间、两个或则多个应用之间共享数据、微信全家桶）。
 
-Binder 通信采用 C/S 架构，包含 Client、Server、ServiceManager 以及 binder 驱动，其中 ServiceManager 用于管理系统中的各种服务。
-    
-架构图如下所示：
+一般来说，使用多进程通信会造成如下几方面的问题:
 
-![image](https://raw.githubusercontent.com/wangkuiwu/android_applets/master/os/pic/binder/binder_frame.jpg)
+- 静态成员和单例模式完全失效：独立的虚拟机造成。
+- 线程同步机制完全实效：独立的虚拟机造成。
+- SharedPreferences的可靠性下降：这是因为Sp不支持两个进程并发进行读写，有一定几率导致数据丢失。
+- Application会多次创建：Android系统在创建新的进程会分配独立的虚拟机，所以这个过程其实就是启动一个应用的过程，自然也会创建新的Application。
 
-Binder 四个角色：
 
-- Client 进程：使用服务的进程
-- Server 进程：提供服务的进程
-- ServiceManager 进程：将字符型的 Binder 名字转为 Client 中对该 Binder 的引用，使得 Client 能够通过 Binder 名字获取到 Server 中 Binder 实体的引用。
-- Binder 驱动：负责进程间 Binder 通信的建立，Binder 在进程间的传递，Binder 引用计数管理，数据包在进程间传递和交互等一系列底层支持。
+#### Android中IPC方式、各种方式优缺点？
 
-Binder 运行机制：
+![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c1ab2aabf780?imageslim)
 
-- 注册服务：Server 在 ServiceManager 注册服务
-- 获取服务：Client 从 ServiceManager 获取相应的 Service
-- 使用服务：Client 根据得到的 Service 信息建立与 Service 所在的 Server 进程通信的通路，可与 Server 进行交互。
-    
-Android Binder是用来做进程通信的，Android的各个应用以及系统服务都运行在独立的进程中，它们的通信都依赖于Binder。
+
+#### 讲讲AIDL？如何优化多模块都使用AIDL的情况？
+
+AIDL(Android Interface Definition Language，Android接口定义语言)：如果在一个进程中要调用另一个进程中对象的方法，可使用AIDL生成可序列化的参数，AIDL会生成一个服务端对象的代理类，通过它客户端可以实现间接调用服务端对象的方法。
+
+AIDL的本质是系统提供了一套可快速实现Binder的工具。关键类和方法：
+
+- AIDL接口：继承IInterface。
+- Stub类：Binder的实现类，服务端通过这个类来提供服务。
+- Proxy类：服务端的本地代理，客户端通过这个类调用服务端的方法。
+- asInterface()：客户端调用，将服务端返回的Binder对象，转换成客户端所需要的AIDL接口类型的对象。如果客户端和服务端位于同一进程，则直接返回Stub对象本身，否则返回系统封装后的Stub.proxy对象。
+- asBinder()：根据当前调用情况返回代理Proxy的Binder对象。
+- onTransact()：运行在服务端的Binder线程池中，当客户端发起跨进程请求时，远程请求会通过系统底层封装后交由此方法来处理。
+- transact()：运行在客户端，当客户端发起远程请求的同时将当前线程挂起。之后调用服务端的onTransact()直到远程请求返回，当前线程才继续执行。
+
+当有多个业务模块都需要AIDL来进行IPC，此时需要为每个模块创建特定的aidl文件，那么相应的Service就会很多。必然会出现系统资源耗费严重、应用过度重量级的问题。解决办法是建立Binder连接池，即将每个业务模块的Binder请求统一转发到一个远程Service中去执行，从而避免重复创建Service。
+
+工作原理：每个业务模块创建自己的AIDL接口并实现此接口，然后向服务端提供自己的唯一标识和其对应的Binder对象。服务端只需要一个Service并提供一个queryBinder接口，它会根据业务模块的特征来返回相应的Binder对象，不同的业务模块拿到所需的Binder对象后就可以进行远程方法的调用了。
+
+
+#### 为什么选择Binder？
 
 为什么选用Binder，在讨论这个问题之前，我们知道Android也是基于Linux内核，Linux现有的进程通信手段有以下几种：
 
-管道：在创建时分配一个page大小的内存，缓存区大小比较有限；
-
-消息队列：信息复制两次，额外的CPU消耗；不合适频繁或信息量大的通信；
-
-共享内存：无须复制，共享缓冲区直接附加到进程虚拟地址空间，速度快；但进程间的同步问题操作系统无法实现，必须各进程利用同步工具解决；
-
-套接字：作为更通用的接口，传输效率低，主要用于不同机器或跨网络的通信；
-
-信号量：常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。 不适用于信息交换，更适用于进程中断控制，比如非法内存访问，杀死某个进程等；
+- 管道：在创建时分配一个page大小的内存，缓存区大小比较有限；
+- 消息队列：信息复制两次，额外的CPU消耗；不合适频繁或信息量大的通信；
+- 共享内存：无须复制，共享缓冲区直接附加到进程虚拟地址空间，速度快；但进程间的同步问题操作系统无法实现，必须各进程利用同步工具解决；
+- 套接字：作为更通用的接口，传输效率低，主要用于不同机器或跨网络的通信；
+- 信号量：常作为一种锁机制，防止某进程正在访问共享资源时，其他进程也访问该资源。因此，主要作为进程间以及同一进程内不同线程之间的同步手段。 不适用于信息交换，更适用于进程中断控制，比如非法内存访问，杀死某个进程等；
 
 既然有现有的IPC方式，为什么重新设计一套Binder机制呢。主要是出于以上三个方面的考量：
 
-高性能：从数据拷贝次数来看Binder只需要进行一次内存拷贝，而管道、消息队列、Socket都需要两次，共享内存不需要拷贝，Binder的性能仅次于共享内存。
+- 1、传输效率高、可操作性强：传输效率主要影响因素是内存拷贝的次数，拷贝次数越少，传输速率越高。从Android进程架构角度分析：对于消息队列、Socket和管道来说，数据先从发送方的缓存区拷贝到内核开辟的缓存区中，再从内核缓存区拷贝到接收方的缓存区，一共两次拷贝，如图：
 
-稳定性：上面说到共享内存的性能优于Binder，那为什么不采用共享内存呢，因为共享内存需要处理并发同步问题，容易出现死锁和资源竞争，稳定性较差。而Binder基于C/S架构，客户端与服务端彼此独立，稳定性较好。
+![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c427354bbec4?imageslim)
 
-安全性：我们知道Android为每个应用分配了UID，用来作为鉴别进程的重要标志，Android内部也依赖这个UID进行权限管理，包括6.0以前的固定权限和6.0以后的动态权限，传统IPC只能由用户在数据包里填入UID/PID，这个标记完全是在用户空间控制的，没有放在内核空间，因此有被恶意篡改的可能，因此Binder的安全性更高。
+而对于Binder来说，数据从发送方的缓存区拷贝到内核的缓存区，而接收方的缓存区与内核的缓存区是映射到同一块物理地址的，节省了一次数据拷贝的过程，如图：
 
-1).首先，Binder分为Client和Server两个进程。
+![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c428e3c4a95a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
 
-注意，Client和Server是相对的。谁发消息，谁就是Client，谁接收消息，谁就是Server。
+共享内存不需要拷贝，Binder的性能仅次于共享内存。
+
+- 2、稳定性：上面说到共享内存的性能优于Binder，那为什么不采用共享内存呢，因为共享内存需要处理并发同步问题，容易出现死锁和资源竞争，稳定性较差。Socket虽然是基于C/S架构的，但是它主要是用于网络间的通信且传输效率较低。Binder基于C/S架构 ，Server端与Client端相对独立，稳定性较好。
+- 3、安全性高：传统Linux IPC的接收方无法获得对方进程可靠的UID/PID，从而无法鉴别对方身份；而Binder机制为每个进程分配了UID/PID且在Binder通信时会根据UID/PID进行有效性检测。
+
+
+#### Binder机制的作用和原理？
+
+Linux系统将一个进程分为用户空间和内核空间。对于进程之间来说，用户空间的数据不可共享，内核空间的数据可共享，为了保证安全性和独立性，一个进程不能直接操作或者访问另一个进程，即Android的进程是相互独立、隔离的，这就需要跨进程之间的数据通信方式。普通的跨进程通信方式一般需要2次内存拷贝，如下图所示：
+
+![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c1ab41198d5c?imageslim)
+
+一次完整的 Binder IPC 通信过程通常是这样：
+
+- 首先 Binder 驱动在内核空间创建一个数据接收缓存区。
+- 接着在内核空间开辟一块内核缓存区，建立内核缓存区和内核中数据接收缓存区之间的映射关系，以及内核中数据接收缓存区和接收进程用户空间地址的映射关系。
+- 发送方进程通过系统调用 copyfromuser() 将数据 copy 到内核中的内核缓存区，由于内核缓存区和接收进程的用户空间存在内存映射，因此也就相当于把数据发送到了接收进程的用户空间，这样便完成了一次进程间的通信。
+
+![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c1ab2efe8dc5?imageslim)
+
+
+#### Binder框架中ServiceManager的作用？
+
+Binder框架 是基于 C/S 架构的。由一系列的组件组成，包括 Client、Server、ServiceManager、Binder驱动，其中 Client、Server、Service Manager 运行在用户空间，Binder 驱动运行在内核空间。如下图所示：
+
+![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c1ab50cf525f?imageslim)
+
+- Server&Client：服务器&客户端。在Binder驱动和Service Manager提供的基础设施上，进行Client-Server之间的通信。
+- ServiceManager（如同DNS域名服务器）服务的管理者，将Binder名字转换为Client中对该Binder的引用，使得Client可以通过Binder名字获得Server中Binder实体的引用。
+- Binder驱动（如同路由器）：负责进程之间binder通信的建立，传递，计数管理以及数据的传递交互等底层支持。
+
+最后，结合[Android跨进程通信：图文详解 Binder机制 ](https://blog.csdn.net/carson_ho/article/details/73560642)的总结图来综合理解一下：
+
+![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c1ab5abdf775?imageslim)
+
+
+#### 手写实现简化版AMS（AIDL实现）
+
+与Binder相关的几个类的职责:
+
+- IBinder：跨进程通信的Base接口，它声明了跨进程通信需要实现的一系列抽象方法，实现了这个接口就说明可以进行跨进程通信，Client和Server都要实现此接口。
+- IInterface：这也是一个Base接口，用来表示Server提供了哪些能力，是Client和Server通信的协议。
+- Binder：提供Binder服务的本地对象的基类，它实现了IBinder接口，所有本地对象都要继承这个类。
+- BinderProxy：在Binder.java这个文件中还定义了一个BinderProxy类，这个类表示Binder代理对象它同样实现了IBinder接口，不过它的很多实现都交由native层处理。Client中拿到的实际上是这个代理对象。
+- Stub：这个类在编译aidl文件后自动生成，它继承自Binder，表示它是一个Binder本地对象；它是一个抽象类，实现了IInterface接口，表明它的子类需要实现Server将要提供的具体能力（即aidl文件中声明的方法）。
+- Proxy：它实现了IInterface接口，说明它是Binder通信过程的一部分；它实现了aidl中声明的方法，但最终还是交由其中的mRemote成员来处理，说明它是一个代理对象，mRemote成员实际上就是BinderProxy。
+
+aidl文件只是用来定义C/S交互的接口，Android在编译时会自动生成相应的Java类，生成的类中包含了Stub和Proxy静态内部类，用来封装数据转换的过程，实际使用时只关心具体的Java接口类即可。为什么Stub和Proxy是静态内部类呢？这其实只是为了将三个类放在一个文件中，提高代码的聚合性。通过上面的分析，我们其实完全可以不通过aidl，手动编码来实现Binder的通信，下面我们通过编码来实现ActivityManagerService：
+
+1、首先定义IActivityManager接口：
+
+
+    public interface IActivityManager extends IInterface {
+        //binder描述符
+        String DESCRIPTOR = "android.app.IActivityManager";
+        //方法编号
+        int TRANSACTION_startActivity = IBinder.FIRST_CALL_TRANSACTION + 0;
+        //声明一个启动activity的方法，为了简化，这里只传入intent参数
+        int startActivity(Intent intent) throws RemoteException;
+    }
     
-举个例子，两个进程A和B之间使用Binder通信，进程A发消息给进程B，那么这时候A是Binder Client，B是Binder Server；进程B发消息给进程A，那么这时候B是Binder Client，A是Binder Server，其实这么说虽然简单了，但还是不太严谨，我们先这么理解着。
+ 
+2、其次，实现ActivityManagerService侧的本地Binder对象基类：
 
-2).其次，我们看下面这个图（摘自田维术的博客），基本说明白了Binder的组成架构：
 
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd565735a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1)
-
-图中的ServiceManager，负责把Binder Server注册到一个容器中。
-
-有人把ServiceManager比喻成电话局，存储着每个住宅的座机电话，还是很恰当的。张三给李四打电话，拨打电话号码，会先转接到电话局，电话局的接线员查到这个电话号码的地址，因为李四的电话号码之前在电话局注册过，所以就能拨通；没注册，就会提示该号码不存在。
+    // 名称随意，不一致叫Stub
+    public abstract class ActivityManagerNative extends Binder implements IActivityManager {
     
-对照着Android Binder机制，张三就是Binder Client，李四就是Binder Server，电话局就是ServiceManager，电话局的接线员在这个过程中做了很多事情，对应着图中的Binder驱动.
+        public static IActivityManager asInterface(IBinder obj) {
+            if (obj == null) {
+                return null;
+            }
+            IActivityManager in = (IActivityManager) obj.queryLocalInterface(IActivityManager.DESCRIPTOR);
+            if (in != null) {
+                return in;
+            }
+            //代理对象，见下面的代码
+            return new ActivityManagerProxy(obj);
+        }
+    
+        @Override
+        public IBinder asBinder() {
+            return this;
+        }
+    
+        @Override
+        protected boolean onTransact(int code, Parcel     data, Parcel reply, int flags) throws     RemoteException {
+            switch (code) {
+                // 获取binder描述符
+                case INTERFACE_TRANSACTION:
+                    reply.writeString(IActivityManager.DESCRIPTOR);
+                    return true;
+                //     启动activity，从data中反序列化出intent参数    后，直接调用子类startActivity方法启动activity。
+                case IActivityManager.TRANSACTION_startActivity:
+                    data.enforceInterface(IActivityManager.DESCRIPTOR);
+                    Intent intent = Intent.CREATOR.createFromParcel(data);
+                    int result = this.startActivity(intent);
+                    reply.writeNoException();
+                    reply.writeInt(result);
+                    return true;
+            }
+            return super.onTransact(code, data, reply, flags);
+        }
+    }
 
-3).接下来我们看Binder通信的过程，还是摘自田维术博客的一张图：
 
-![image](https://user-gold-cdn.xitu.io/2017/11/21/15fdc4cfd6cf0739?imageslim)
+3、再次，实现Client侧的代理对象：
 
-注：图中的SM也就是ServiceManager。
 
-我们看到，Client想要直接调用Server的add方法，是不可以的，因为它们在不同的进程中，这时候就需要Binder来帮忙了。
+    public class ActivityManagerProxy implements IActivityManager {
+        private IBinder mRemote;
     
-首先是Server在SM这个容器中注册。
+        public ActivityManagerProxy(IBinder remote) {
+            mRemote = remote;
+        }
     
-其次，Client想要调用Server的add方法，就需要先获取Server对象，但是SM不会把真正的Server对象返回给Client，而是把Server的一个代理对象返回给Client，也就是Proxy。
+        @Override
+        public IBinder asBinder() {
+            return mRemote;
+        }
     
-然后，Client调用Proxy的add方法，SM会帮他去调用Server的add方法，并把结果返回给Client。
+        @Override
+        public int startActivity(Intent intent) throws RemoteException {
+            Parcel data = Parcel.obtain();
+            Parcel reply = Parcel.obtain();
+            int result;
+            try {
+                // 将intent参数序列化，写入data中
+                intent.writeToParcel(data, 0);
+                // 调用BinderProxy对象的transact方法，交由Binder驱动处理。
+                mRemote.transact(IActivityManager.TRANSACTION_startActivity, data, reply, 0);
+                reply.readException();
+                // 等待server执行结束后，读取执行结果
+                result = reply.readInt();
+            } finally {
+                data.recycle();
+                reply.recycle();
+            }
+            return result;
+        }
+    }
     
-以上这3步，Binder驱动出了很多力，但我们不需要知道Binder驱动的底层实现，涉及到C++的代码了——把有限的时间去做更有意义的事情。
+ 
+4、最后，实现Binder本地对象（IActivityManager接口）：
 
-2.为什么android选用Binder来实现进程间通信？
 
-1).可靠性。在移动设备上，通常采用基于Client-Server的通信方式来实现互联网与设备间的内部通信。目前linux支持IPC包括传统的管道，System V IPC，即消息队列/共享内存/信号量，以及socket中只有socket支持Client-Server的通信方式。Android系统为开发者提供了丰富进程间通信的功能接口，媒体播放，传感器，无线传输。
+    public class ActivityManagerService extends ActivityManagerNative {
+        @Override
+        public int startActivity(Intent intent) throws RemoteException {
+            // 启动activity
+            return 0;
+        }
+    }
     
-这些功能都由不同的server来管理。开发都只关心将自己应用程序的client与server的通信建立起来便可以使用这个服务。毫无疑问，如若在底层架设一套协议来实现Client-Server通信，增加了系统的复杂性。在资源有限的手机 上来实现这种复杂的环境，可靠性难以保证。
-    
-2).传输性能。socket主要用于跨网络的进程间通信和本机上进程间的通信，但传输效率低，开销大。消息队列和管道采用存储-转发方式，即数据先从发送方缓存区拷贝到内核开辟的一块缓存区中，然后从内核缓存区拷贝到接收方缓存区，其过程至少有两次拷贝。虽然共享内存无需拷贝，但控制复杂。比较各种IPC方式的数据拷贝次数。共享内存：0次。Binder：1次。Socket/管道/消息队列：2次。
-    
-3).安全性。Android是一个开放式的平台，所以确保应用程序安全是很重要的。Android对每一个安装应用都分配了UID/PID,其中进程的UID是可用来鉴别进程身份。传统的只能由用户在数据包里填写UID/PID，这样不可靠，容易被恶意程序利用。而我们要求由内核来添加可靠的UID。
-    
-所以，出于可靠性、传输性、安全性。android建立了一套新的进程间通信方式。
+
+简化版的ActivityManagerService到这里就已经实现了，剩下就是Client需要获取到AMS的代理对象IActivityManager就可以通信了。
+
 
 请按顺序仔细阅读下列文章提升对Binder机制的理解程度：
 
@@ -452,19 +528,7 @@ Android系统启动的核心流程如下：
 
 ### 8、App启动流程（Activity的冷启动流程）。
 
-整个应用程序的启动过程要执行很多步骤，但是整体来看，主要分为以下五个阶段：
-
-一.Launcher通过Binder进程间通信机制通知ActityManagerService，它要启动一个Activity；
-
-二.ActivityManagerService通过Binder进程间机制通知Launcher进入Paused状态；
-
-三.Launcher通过Binder进程间通信机制通知ActityManagerService，它已经准备就绪进入Paused状态，于是ActivityManagerService就创建一个新的进程，用来启动一个ActivityThread实例，即将要启动的Activity就是在这个ActivityThread实例中运行；
-    
-四.ActivityThread通过Binder进程间通信机制将一个ApplicationThread类型的Binder对象传递给ActivityManagerService，以便以后ActivityManagerService能够通过这个Binder对象和它进行通信；
-    
-五 ：ActivityManagerService通过Binder进程间通信机制通知ActivityThread，现在一切准备就绪，它可以真正执行Activity的启动操作了。
-
-点击应用图标后会去启动应用的LauncherActivity，如果LancerActivity所在的进程没有创建，还会创建新进程，整体的流程就是一个Activity的启动流程。
+点击应用图标后会去启动应用的Launcher Activity，如果Launcer Activity所在的进程没有创建，还会创建新进程，整体的流程就是一个Activity的启动流程。
 
 Activity的启动流程图（放大可查看）如下所示：
 
@@ -472,17 +536,12 @@ Activity的启动流程图（放大可查看）如下所示：
 
 整个流程涉及的主要角色有：
 
-Instrumentation: 监控应用与系统相关的交互行为。
-
-AMS：组件管理调度中心，什么都不干，但是什么都管。
-
-ActivityStarter：Activity启动的控制器，处理Intent与Flag对Activity启动的影响，具体说来有：1 寻找符合启动条件的Activity，如果有多个，让用户选择；2 校验启动参数的合法性；3 返回int参数，代表Activity是否启动成功。
-
-ActivityStackSupervisior：这个类的作用你从它的名字就可以看出来，它用来管理任务栈。
-
-ActivityStack：用来管理任务栈里的Activity。
-
-ActivityThread：最终干活的人，Activity、Service、BroadcastReceiver的启动、切换、调度等各种操作都在这个类里完成。
+- Instrumentation: 监控应用与系统相关的交互行为。
+- AMS：组件管理调度中心，什么都不干，但是什么都管。
+- ActivityStarter：Activity启动的控制器，处理Intent与Flag对Activity启动的影响，具体说来有：1 寻找符合启动条件的Activity，如果有多个，让用户选择；2 校验启动参数的合法性；3 返回int参数，代表Activity是否启动成功。
+- ActivityStackSupervisior：这个类的作用你从它的名字就可以看出来，它用来管理任务栈。
+- ActivityStack：用来管理任务栈里的Activity。
+- ActivityThread：最终干活的人，Activity、Service、BroadcastReceiver的启动、切换、调度等各种操作都在这个类里完成。
 
 注：这里单独提一下ActivityStackSupervisior，这是高版本才有的类，它用来管理多个ActivityStack，早期的版本只有一个ActivityStack对应着手机屏幕，后来高版本支持多屏以后，就有了多个ActivityStack，于是就引入了ActivityStackSupervisior用来管理多个ActivityStack。
 
@@ -1202,13 +1261,6 @@ B*树是B+树的变种，相对于B+树他们的不同之处如下：
 
 #### 热修补技术是怎样实现的，和插件化有什么区别？
 
-http://www.liuguangli.win/archives/366
-
-http://www.liuguangli.win/archives/387
-
-http://www.liuguangli.win/archives/452
-
-
 插件化：动态加载主要解决3个技术问题：
 
 - 1、使用ClassLoader加载类。
@@ -1571,7 +1623,15 @@ Animation 框架定义了透明度，旋转，缩放和位移几种常见的动�
 
 #### TabLayout如何设置指示器的宽度包裹内容？
 
-#### 自定义View如何考虑机型适配
+#### 自定义View如何考虑机型适配？
+
+- 合理使用warp_content，match_parent。
+- 尽可能地使用RelativeLayout。
+- 针对不同的机型，使用不同的布局文件放在对应的目录下，android会自动匹配。
+- 尽量使用点9图片。
+- 使用与密度无关的像素单位dp，sp。
+- 引入android的百分比布局。
+- 切图的时候切大分辨率的图，应用到布局当中，在小分辨率的手机上也会有很好的显示效果。
 
 
 ### 11、对谷歌新推出的Room架构。
