@@ -754,6 +754,14 @@ JVM 加载类的class文件 此时所有的static变量和static代码块将被�
       2.判断两个对象用equals运算是否相等。
 
 
+#### 50、Java的四种引用及使用场景？
+
+- 强引用（FinalReference）：在内存不足时不会被回收。平常用的最多的对象，如新创建的对象。
+- 软引用（SoftReference）：在内存不足时会被回收。用于实现内存敏感的高速缓存。
+- 弱引用（WeakReferenc）：只要GC回收器发现了它，就会将之回收。用于Map数据结构中，引用占用内存空间较大的对象。
+- 虚引用（PhantomReference）：在回收之前，会被放入ReferenceQueue，JVM不会自动将该referent字段值设置成null。其它引用被JVM回收之后才会被放入ReferenceQueue中。用于实现一个对象被回收之前做一些清理工作。
+
+
 #### 26、简单谈谈堆外内存以及你的理解和认识。
 
 #### 27、怎么理解栈、堆？堆中存什么？栈中存什么？
@@ -782,7 +790,7 @@ JVM 加载类的class文件 此时所有的static变量和static代码块将被�
 
 #### 39、静态内部类的设计意图。
 
-#### 40、int、char、long各占多少字节数
+#### 40、int、char、long各占多少字节数？
 
 #### 41、int与integer的区别
 
@@ -802,7 +810,7 @@ JVM 加载类的class文件 此时所有的static变量和static代码块将被�
 
 #### 49、为什么java 7中不能用lambda
 
-#### 50、Java的四种引用及使用场景
+#### 50、[clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)
 
 #### 51、Class文件结构（常量池）。
 
@@ -820,7 +828,6 @@ JVM 加载类的class文件 此时所有的static变量和static代码块将被�
 
 #### 58、[深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)
 
-#### 59、[clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)
 
 
 
