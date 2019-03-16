@@ -866,7 +866,57 @@ ART缺点：
 
 #### 一、[网络底层框架：OkHttp实现原理](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
 
+##### 这个库是做什么用的？
+
+网络底层库，它是基于http协议封装的一套请求客户端，虽然它也可以开线程，但根本上它更偏向真正的请求，跟HttpClient, HttpUrlConnection的职责是一样的。其中封装了网络请求get、post等底层操作的实现。
+
+##### 为什么要在项目中使用这个库？
+
+- OkHttp 提供了对最新的 HTTP 协议版本 HTTP/2 和 SPDY 的支持，这使得对同一个主机发出的所有请求都可以共享相同的套接字连接。
+- 如果 HTTP/2 和 SPDY 不可用，OkHttp 会使用连接池来复用连接以提高效率。
+- OkHttp 提供了对 GZIP 的默认支持来降低传输内容的大小。
+- OkHttp 也提供了对 HTTP 响应的缓存机制，可以避免不必要的网络请求。
+- 当网络出现问题时，OkHttp 会自动重试一个主机的多个 IP 地址。
+
+##### 这个库都有哪些用法？对应什么样的使用场景？
+
+get、post请求、上传文件、上传表单等等。
+
+##### 这个库的优缺点是什么，跟同类型库的比较？
+
+- 优点：在上面
+- 缺点：使用的时候仍然需要自己再做一层封装。
+
+##### 这个库的核心实现原理是什么？如果让你实现这个库的某些核心功能，你会考虑怎么去实现？
+
+OkHttp内部的请求流程：使用OkHttp会在请求的时候初始化一个Call的实例，然后执行它的execute()方法或enqueue()方法，内部最后都会执行到getResponseWithInterceptorChain()方法，这个方法里面通过拦截器组成的责任链，依次经过用户自定义普通拦截器、重试拦截器、桥接拦截器、缓存拦截器、连接拦截器和用户自定义网络拦截器以及访问服务器拦截器等拦截处理过程，来获取到一个响应并交给用户。其中，除了OKHttp的内部请求流程这点之外，缓存和连接这两部分内容也是两个很重要的点，掌握了这3点就说明你理解了OkHttp。
+
+##### 各个拦截器的作用：
+
+- interceptors：用户自定义拦截器
+- retryAndFollowUpInterceptor：负责失败重试以及重定向
+- BridgeInterceptor：请求时，对必要的Header进行一些添加，接收响应时，移除必要的Header
+- CacheInterceptor：负责读取缓存直接返回（根据请求的信息和缓存的响应的信息来判断是否存在缓存可用）、更新缓存
+- ConnectInterceptor：负责和服务器建立连接
+
+ConnectionPool：
+
+1、判断连接是否可用，不可用则从ConnectionPool获取连接，ConnectionPool无连接，创建新连接，握手，放入ConnectionPool。
+
+2、它是一个Deque，add添加Connection，使用线程池负责定时清理缓存。
+
+3、使用连接复用省去了进行 TCP 和 TLS 握手的一个过程。
+
+- networkInterceptors：用户定义网络拦截器
+- CallServerInterceptor：负责向服务器发送请求数据、从服务器读取响应数据
+
+##### 你从这个库中学到什么有价值的或者说可借鉴的设计思想？
+
+使用责任链模式实现拦截器的分层设计，每一个拦截器对应一个功能，充分实现了功能解耦，易维护。
+
 ##### 手写拦截器？
+
+
 
 ##### 网络请求缓存处理，okhttp如何处理网络缓存的？
 
@@ -914,6 +964,69 @@ RouteDatabase：记录连接失败的Route黑名单。
 
 #### 二、[网络封装框架：Retrofit实现原理](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
 
+##### 这个库是做什么用的？
+
+Retrofit 是一个 RESTful 的 HTTP 网络请求框架的封装。Retrofit 2.0 开始内置 OkHttp，前者专注于接口的封装，后者专注于网络请求的高效。
+
+##### 为什么要在项目中使用这个库？
+
+1、功能强大：
+
+- 支持同步、异步
+- 支持多种数据的解析 & 序列化格式
+- 支持RxJava
+
+2、简洁易用：
+
+- 通过注解配置网络请求参数
+- 采用大量设计模式简化使用
+
+3、可扩展性好：
+
+- 功能模块高度封装
+- 解耦彻底，如自定义Converters
+
+##### 这个库都有哪些用法？对应什么样的使用场景？
+
+任何网络场景都应该优先选择，特别是后台API遵循Restful API设计风格 & 项目中使用到RxJava。
+
+##### 这个库的优缺点是什么，跟同类型库的比较？
+
+- 优点：在上面
+- 缺点：扩展性差，高度封装所带来的必然后果，如果服务器不能给出统一的API形式，会很难处理。
+
+##### 这个库的核心实现原理是什么？如果让你实现这个库的某些核心功能，你会考虑怎么去实现？
+
+Retrofit主要是在create方法中采用动态代理模式（通过访问代理对象的方式来间接访问目标对象）实现接口方法，这个过程构建了一个ServiceMethod对象，根据方法注解获取请求方式，参数类型和参数注解拼接请求的链接，当一切都准备好之后会把数据添加到Retrofit的RequestBuilder中。然后当我们主动发起网络请求的时候会调用okhttp发起网络请求，okhttp的配置包括请求方式，URL等在Retrofit的RequestBuilder的build()方法中实现，并发起真正的网络请求。
+
+##### 你从这个库中学到什么有价值的或者说可借鉴的设计思想？
+
+内部使用了优秀的架构设计和大量的设计模式，在我分析过Retrofit最新版的源码和大量优秀的Retrofit源码分析文章后，我发现，要想真正理解Retrofit内部的核心源码流程和设计思想，首先，需要对它使用到的九大设计模式有一定的了解，下面我简单说一说：
+
+1、创建Retrofit实例：
+
+- 使用建造者模式通过内部Builder类建立了一个Retroift实例。
+- 网络请求工厂使用了工厂方法模式。
+
+2、创建网络请求接口的实例：
+
+- 首先，使用外观模式统一调用创建网络请求接口实例和网络请求参数配置的方法。
+- 然后，使用动态代理动态地去创建网络请求接口实例。
+- 接着，使用了建造者模式 & 单例模式创建了serviceMethod对象。
+- 再者，使用了策略模式对serviceMethod对象进行网络请求参数配置，即通过解析网络请求接口方法的参数、返回值和注解类型，从Retrofit对象中获取对应的网络的url地址、网络请求执行器、网络请求适配器和数据转换器。
+- 最后，使用了装饰者模式ExecuteCallBack为serviceMethod对象加入线程切换的操作，便于接受数据后通过Handler从子线程切换到主线程从而对返回数据结果进行处理。
+
+3、发送网络请求：
+
+- 在异步请求时，通过静态delegate代理对网络请求接口的方法中的每个参数使用对应的ParameterHanlder进行解析。
+
+4、解析数据
+
+5、切换线程：
+
+- 使用了适配器模式通过检测不同的Platform使用不同的回调执行器，然后使用回调执行器切换线程，这里同样是使用了装饰模式。
+
+6、处理结果
 
 ##### Android：主流网络请求开源库的对比（Android-Async-Http、Volley、OkHttp、Retrofit）
 
@@ -930,6 +1043,80 @@ https://www.jianshu.com/p/050c6db5af5a
 
 
 #### 四、[图片加载框架：Glide实现原理](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
+
+##### 这个库是做什么用的？
+
+Glide是Android中的一个图片加载库，用于实现图片加载。
+
+##### 为什么要在项目中使用这个库？
+
+1、多样化媒体加载：不仅可以进行图片缓存，还支持Gif、WebP、缩略图，甚至是Video。
+
+2、通过设置绑定生命周期：可以使加载图片的生命周期动态管理起来。
+
+3、高效的缓存策略：支持内存、Disk缓存，并且Picasso只会缓存原始尺寸的图片，内Glide缓存的是多种规格，也就是Glide会根据你ImageView的大小来缓存相应大小的图片尺寸。
+
+4、内存开销小：默认的Bitmap格式是RGB_565格式，而Picasso默认的是ARGB_8888格式，内存开销小一半。
+
+##### 这个库都有哪些用法？对应什么样的使用场景？
+
+1、图片加载：Glide.with(this).load(imageUrl).override(800, 800).placeholder().error().animate().into()。
+
+2、多样式媒体加载：asBitamp、asGif。
+
+3、生命周期集成。
+
+4、可以配置磁盘缓存策略ALL、NONE、SOURCE、RESULT。
+
+##### 这个库的优缺点是什么，跟同类型库的比较？
+
+库比较大，源码实现复杂。
+
+##### 这个库的核心实现原理是什么？如果让你实现这个库的某些核心功能，你会考虑怎么去实现？
+
+- Glide&with：
+
+1、初始化各式各样的配置信息（包括缓存，请求线程池，大小，图片格式等等）以及glide对象。
+
+2、将glide请求和application/SupportFragment/Fragment的生命周期绑定在一块。
+
+- Glide&load：
+
+设置请求url，并记录url已设置的状态。
+
+3、Glide&into：
+
+1、首先根据转码类transcodeClass类型返回不同的ImageViewTarget：BitmapImageViewTarget、DrawableImageViewTarget。
+
+2、递归建立缩略图请求，没有缩略图请求，则直接进行正常请求。
+
+3、如果没指定宽高，会根据ImageView的宽高计算出图片宽高，最终执行到onSizeReay()方法中的engine.load()方法。
+
+4、engine是一个负责加载和管理缓存资源的类
+
+- 常规三级缓存的流程：强引用->软引用->硬盘缓存
+
+当我们的APP中想要加载某张图片时，先去LruCache中寻找图片，如果LruCache中有，则直接取出来使用，如果LruCache中没有，则去SoftReference中寻找（软引用适合当cache，当内存吃紧的时候才会被回收。而weakReference在每次system.gc（）就会被回收）（当LruCache存储紧张时，会把最近最少使用的数据放到SoftReference中），如果SoftReference中有，则从SoftReference中取出图片使用，同时将图片重新放回到LruCache中，如果SoftReference中也没有图片，则去硬盘缓存中中寻找，如果有则取出来使用，同时将图片添加到LruCache中，如果没有，则连接网络从网上下载图片。图片下载完成后，将图片保存到硬盘缓存中，然后放到LruCache中。
+
+- Glide的三层缓存机制：
+
+Glide缓存机制大致分为三层：内存缓存、弱引用缓存、磁盘缓存。
+
+取的顺序是：内存、弱引用、磁盘。
+
+存的顺序是：弱引用、内存、磁盘。
+
+三层存储的机制在Engine中实现的。先说下Engine是什么？Engine这一层负责加载时做管理内存缓存的逻辑。持有MemoryCache、Map<Key, WeakReference<EngineResource<?>>>。通过load（）来加载图片，加载前后会做内存存储的逻辑。如果内存缓存中没有，那么才会使用EngineJob这一层来进行异步获取硬盘资源或网络资源。EngineJob类似一个异步线程或observable。Engine是一个全局唯一的，通过Glide.getEngine()来获取。
+
+需要一个图片资源，如果Lrucache中有相应的资源图片，那么就返回，同时从Lrucache中清除，放到activeResources中。activeResources map是盛放正在使用的资源，以弱引用的形式存在。同时资源内部有被引用的记录。如果资源没有引用记录了，那么再放回Lrucache中，同时从activeResources中清除。如果Lrucache中没有，就从activeResources中找，找到后相应资源引用加1。如果Lrucache和activeResources中没有，那么进行资源异步请求（网络/diskLrucache），请求成功后，资源放到diskLrucache和activeResources中。
+
+##### Glide源码机制的核心思想：
+
+使用一个弱引用map activeResources来盛放项目中正在使用的资源。Lrucache中不含有正在使用的资源。资源内部有个计数器来显示自己是不是还有被引用的情况，把正在使用的资源和没有被使用的资源分开有什么好处呢？？因为当Lrucache需要移除一个缓存时，会调用resource.recycle()方法。注意到该方法上面注释写着只有没有任何consumer引用该资源的时候才可以调用这个方法。那么为什么调用resource.recycle()方法需要保证该资源没有任何consumer引用呢？glide中resource定义的recycle（）要做的事情是把这个不用的资源（假设是bitmap或drawable）放到bitmapPool中。bitmapPool是一个bitmap回收再利用的库，在做transform的时候会从这个bitmapPool中拿一个bitmap进行再利用。这样就避免了重新创建bitmap，减少了内存的开支。而既然bitmapPool中的bitmap会被重复利用，那么肯定要保证回收该资源的时候（即调用资源的recycle（）时），要保证该资源真的没有外界引用了。这也是为什么glide花费那么多逻辑来保证Lrucache中的资源没有外界引用的原因。
+
+##### 你从这个库中学到什么有价值的或者说可借鉴的设计思想？
+
+Glide的高效的三层缓存机制，如上。
 
 ##### Glide如何确定图片加载完毕？
 
