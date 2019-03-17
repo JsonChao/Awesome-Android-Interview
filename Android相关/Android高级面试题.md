@@ -388,7 +388,7 @@ invalidate()与postInvalidate()都用于刷新View，主要区别是invalidate()
 
 #### Android中进程和线程的关系？区别？
 
-- 线程是CPU调度的最小单元，同时线程是一种有限的系统资源；而进程一般指一个执行单元，在PC和移动设备上z指一个程序或者一个应用。
+- 线程是CPU调度的最小单元，同时线程是一种有限的系统资源；而进程一般指一个执行单元，在PC和移动设备上指一个程序或者一个应用。
 - 一般来说，一个App程序至少有一个进程，一个进程至少有一个线程（包含与被包含的关系），通俗来讲就是，在App这个工厂里面有一个进程，线程就是里面的生产线，但主线程（即主生产线）只有一条，而子线程（即副生产线）可以有多个。
 - 进程有自己独立的地址空间，而进程中的线程共享此地址空间，都可以并发执行。
 
@@ -400,14 +400,14 @@ invalidate()与postInvalidate()都用于刷新View，主要区别是invalidate()
 
 #### 为何需要IPC？多进程通信可能会出现的问题？
 
-所有运行在不同进程的四大组件（Activity、Service、Receiver、ContentProvider）共享数据都会失败，这是由于Android为每个应用分配了独立的虚拟机，不同的虚拟机在内存分配上有不同的地址空间，这会导致在不同的虚拟机中访问同一个类的对象会产生多份副本。比如常用例子（通过开启多进程获取更大内存空间、两个或则多个应用之间共享数据、微信全家桶）。
+所有运行在不同进程的四大组件（Activity、Service、Receiver、ContentProvider）共享数据都会失败，这是由于Android为每个应用分配了独立的虚拟机，不同的虚拟机在内存分配上有不同的地址空间，这会导致在不同的虚拟机中访问同一个类的对象会产生多份副本。比如常用例子（通过开启多进程获取更大内存空间、两个或者多个应用之间共享数据、微信全家桶）。
 
 一般来说，使用多进程通信会造成如下几方面的问题:
 
 - 静态成员和单例模式完全失效：独立的虚拟机造成。
-- 线程同步机制完全实效：独立的虚拟机造成。
+- 线程同步机制完全失效：独立的虚拟机造成。
 - SharedPreferences的可靠性下降：这是因为Sp不支持两个进程并发进行读写，有一定几率导致数据丢失。
-- Application会多次创建：Android系统在创建新的进程会分配独立的虚拟机，所以这个过程其实就是启动一个应用的过程，自然也会创建新的Application。
+- Application会多次创建：Android系统在创建新的进程时会分配独立的虚拟机，所以这个过程其实就是启动一个应用的过程，自然也会创建新的Application。
 
 
 #### Android中IPC方式、各种方式优缺点？
@@ -446,7 +446,7 @@ AIDL的本质是系统提供了一套可快速实现Binder的工具。关键类�
 
 既然有现有的IPC方式，为什么重新设计一套Binder机制呢。主要是出于以上三个方面的考量：
 
-- 1、传输效率高、可操作性强：传输效率主要影响因素是内存拷贝的次数，拷贝次数越少，传输速率越高。从Android进程架构角度分析：对于消息队列、Socket和管道来说，数据先从发送方的缓存区拷贝到内核开辟的缓存区中，再从内核缓存区拷贝到接收方的缓存区，一共两次拷贝，如图：
+- 1、效率：传输效率主要影响因素是内存拷贝的次数，拷贝次数越少，传输速率越高。从Android进程架构角度分析：对于消息队列、Socket和管道来说，数据先从发送方的缓存区拷贝到内核开辟的缓存区中，再从内核缓存区拷贝到接收方的缓存区，一共两次拷贝，如图：
 
 ![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c427354bbec4?imageslim)
 
@@ -457,7 +457,7 @@ AIDL的本质是系统提供了一套可快速实现Binder的工具。关键类�
 共享内存不需要拷贝，Binder的性能仅次于共享内存。
 
 - 2、稳定性：上面说到共享内存的性能优于Binder，那为什么不采用共享内存呢，因为共享内存需要处理并发同步问题，容易出现死锁和资源竞争，稳定性较差。Socket虽然是基于C/S架构的，但是它主要是用于网络间的通信且传输效率较低。Binder基于C/S架构 ，Server端与Client端相对独立，稳定性较好。
-- 3、安全性高：传统Linux IPC的接收方无法获得对方进程可靠的UID/PID，从而无法鉴别对方身份；而Binder机制为每个进程分配了UID/PID且在Binder通信时会根据UID/PID进行有效性检测。
+- 3、安全性：传统Linux IPC的接收方无法获得对方进程可靠的UID/PID，从而无法鉴别对方身份；而Binder机制为每个进程分配了UID/PID，且在Binder通信时会根据UID/PID进行有效性检测。
 
 
 #### Binder机制的作用和原理？
@@ -483,11 +483,18 @@ Binder框架 是基于 C/S 架构的。由一系列的组件组成，包括 Clie
 
 - Server&Client：服务器&客户端。在Binder驱动和Service Manager提供的基础设施上，进行Client-Server之间的通信。
 - ServiceManager（如同DNS域名服务器）服务的管理者，将Binder名字转换为Client中对该Binder的引用，使得Client可以通过Binder名字获得Server中Binder实体的引用。
-- Binder驱动（如同路由器）：负责进程之间binder通信的建立，传递，计数管理以及数据的传递交互等底层支持。
+- Binder驱动（如同路由器）：负责进程之间binder通信的建立，计数管理以及数据的传递交互等底层支持。
 
 最后，结合[Android跨进程通信：图文详解 Binder机制 ](https://blog.csdn.net/carson_ho/article/details/73560642)的总结图来综合理解一下：
 
 ![image](https://user-gold-cdn.xitu.io/2019/3/8/1695c1ab5abdf775?imageslim)
+
+#### Binder 的完整定义
+
+- 从进程间通信的角度看，Binder 是一种进程间通信的机制；
+- 从 Server 进程的角度看，Binder 指的是 Server 中的 Binder 实体对象；
+- 从 Client 进程的角度看，Binder 指的是 Binder 代理对象，是 Binder 实体对象的一个远程代理;
+- 从传输过程的角度看，Binder 是一个可以跨进程传输的对象；Binder 驱动会对这个跨越进程边界的对象对一点点特殊处理，自动完成代理对象和本地对象之间的转换。
 
 
 #### 手写实现简化版AMS（AIDL实现）
@@ -516,10 +523,10 @@ aidl文件只是用来定义C/S交互的接口，Android在编译时会自动生
     }
     
  
-2、其次，实现ActivityManagerService侧的本地Binder对象基类：
+2、然后，实现ActivityManagerService侧的本地Binder对象基类：
 
 
-    // 名称随意，不一致叫Stub
+    // 名称随意，不一定叫Stub
     public abstract class ActivityManagerNative extends Binder implements IActivityManager {
     
         public static IActivityManager asInterface(IBinder obj) {
@@ -540,13 +547,13 @@ aidl文件只是用来定义C/S交互的接口，Android在编译时会自动生
         }
     
         @Override
-        protected boolean onTransact(int code, Parcel     data, Parcel reply, int flags) throws     RemoteException {
+        protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
             switch (code) {
                 // 获取binder描述符
                 case INTERFACE_TRANSACTION:
                     reply.writeString(IActivityManager.DESCRIPTOR);
                     return true;
-                //     启动activity，从data中反序列化出intent参数    后，直接调用子类startActivity方法启动activity。
+                // 启动activity，从data中反序列化出intent参数后，直接调用子类startActivity方法启动activity。
                 case IActivityManager.TRANSACTION_startActivity:
                     data.enforceInterface(IActivityManager.DESCRIPTOR);
                     Intent intent = Intent.CREATOR.createFromParcel(data);
@@ -560,7 +567,7 @@ aidl文件只是用来定义C/S交互的接口，Android在编译时会自动生
     }
 
 
-3、再次，实现Client侧的代理对象：
+3、接着，实现Client侧的代理对象：
 
 
     public class ActivityManagerProxy implements IActivityManager {
@@ -609,10 +616,12 @@ aidl文件只是用来定义C/S交互的接口，Android在编译时会自动生
     }
     
 
-简化版的ActivityManagerService到这里就已经实现了，剩下就是Client需要获取到AMS的代理对象IActivityManager就可以通信了。
+简化版的ActivityManagerService到这里就已经实现了，剩下就是Client只需要获取到AMS的代理对象IActivityManager就可以通信了。
 
 
 请按顺序仔细阅读下列文章提升对Binder机制的理解程度：
+
+[写给 Android 应用工程师的 Binder 原理剖析](https://juejin.im/post/5acccf845188255c3201100f)
 
 [Binder学习指南](http://weishu.me/2016/01/12/binder-index-for-newer/)
 
@@ -625,9 +634,9 @@ aidl文件只是用来定义C/S交互的接口，Android在编译时会自动生
 
 Android系统启动的核心流程如下：
 
-- 1、**启动电源以及系统启动**：当电源按下时引导芯片从预定义的订房（固化在ROM）开始执行，加载引导程序BootLoader到RAM，然后执行。
-- 2、**引导程序BootLoader**：BootLoader是在Android系统开始运行前的一个小程序，主要用于把系统OS拉起来并运行。。
-- 3、**Linux内核启动**：当内核启动时，设置缓存、被保护存储器、计划列表、加载驱动。当其完成系统设置时，会先在系统文件中寻找init.rc文件，并启动init进行。
+- 1、**启动电源以及系统启动**：当电源按下时引导芯片从预定义的地方（固化在ROM）开始执行，加载引导程序BootLoader到RAM，然后执行。
+- 2、**引导程序BootLoader**：BootLoader是在Android系统开始运行前的一个小程序，主要用于把系统OS拉起来并运行。
+- 3、**Linux内核启动**：当内核启动时，设置缓存、被保护存储器、计划列表、加载驱动。当其完成系统设置时，会先在系统文件中寻找init.rc文件，并启动init进程。
 - 4、**init进程启动**：初始化和启动属性服务，并且启动Zygote进程。
 - 5、**Zygote进程启动**：创建JVM并为其注册JNI方法，创建服务器端Socket，启动SystemServer进程。
 - 6、**SystemServer进程启动**：启动Binder线程池和SystemServiceManager，并且启动各种系统服务。
