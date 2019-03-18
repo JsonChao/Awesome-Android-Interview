@@ -746,15 +746,15 @@ Activity的启动流程图（放大可查看）如下所示：
 
 1.Window用于显示View和接收各种事件，Window有三种型：应用Window(每个Activity对应一个Window)、子Widow(不能单独存在，附属于特定Window)、系统window(toast和状态栏)
 
-2.Window分层级，应用Window在1-99、子Window在1000-999、系统Window在2000-2999.WindowManager提供了增改View的三个功能。
+2.Window分层级，应用Window在1-99、子Window在1000-1999、系统Window在2000-2999.WindowManager提供了增改View的三个功能。
 
 3.Window是个抽象概念：每一个Window对应着一个ViewRootImpl，Window通过ViewRootImpl来和View建立联系，View是Window存在的实体，只能通过WindowManager来访问Window。
 
 4.WindowManager的实现是WindowManagerImpl，其再委托WindowManagerGlobal来对Window进行操作，其中有四种List分别储存对应的View、ViewRootImpl、WindowManger.LayoutParams和正在被删除的View。
 
-5.Window的实体是存在于远端的WindowMangerService，所以增删改Window在本端是修改上面的几个List然后过ViewRootImpl重绘View，通过WindowSession(每个对应一个)在远端修改Window。
+5.Window的实体是存在于远端的WindowMangerService，所以增删改Window在本端是修改上面的几个List然后通过ViewRootImpl重绘View，通过WindowSession(每Window个对应一个)在远端修改Window。
 
-6.Activity创建Window：Activity会在attach()中创建Wndow并设置其回调(onAttachedToWindow()、dispatchTouchEvent())，Activity的Window是由Policy类创建PhoneWindow实现的。然后通过Activity#setContentView()调用PhoneWindow的setContentView。
+6.Activity创建Window：Activity会在attach()中创建Window并设置其回调(onAttachedToWindow()、dispatchTouchEvent())，Activity的Window是由Policy类创建PhoneWindow实现的。然后通过Activity#setContentView()调用PhoneWindow的setContentView。
 
 
 ### 13、WMS是如何管理Window的？
@@ -854,9 +854,10 @@ CERT.RSA（签名结果文件）：其中包含了公钥、加密算法等信息
 - 3、写入签名：将签名信息写入原始数据的签名区块内。
 
 ##### 校验过程：
-。，首先用同样的Hash算法从接收到的数据中提取出摘要。
+
+- 1、首先用同样的Hash算法从接收到的数据中提取出摘要。
 - 2、解密签名：使用发送方的公钥对数字签名进行解密，解密出原始摘要。
-- 3、比较摘要：如果解密后的数据和提取的摘要一致，则校验通过；如果数据被第三方篡改过，解密后的数据和摘要将会不一致，校验则不会通过。
+- 3、比较摘要：如果解密后的数据和提取的摘要一致，则校验通过；如果数据被第三方篡改过，解密后的数据和摘要将会不一致，则校验不通过。
 
 ##### 数字证书
 
@@ -871,7 +872,7 @@ CERT.RSA（签名结果文件）：其中包含了公钥、加密算法等信息
 
 接收方收到消息后，先向CA验证证书的合法性，再进行签名校验。
 
-注意：Apk的证书通常的自签名的，也就是由开发者自己制作，没有向CA机构申请。Android在安装Apk时并没有校验证书本身的合法性，只是从证书中提取公钥和加密算法，这也正是对第三方Apk重新签名后，还能够继续在没有安装这个Apk的系统中继续安装的原因。
+注意：Apk的证书通常是自签名的，也就是由开发者自己制作，没有向CA机构申请。Android在安装Apk时并没有校验证书本身的合法性，只是从证书中提取公钥和加密算法，这也正是对第三方Apk重新签名后，还能够继续在没有安装这个Apk的系统中继续安装的原因。
 
 ##### keystore和证书格式
 
@@ -918,11 +919,6 @@ DVM:.java -> javac -> .class -> dx.bat -> .dex
 架构: 寄存器(cpu上的一块高速缓存)
 
 #### Android2个虚拟机的区别（一个5.0之前，一个5.0之后）
-
-art上应用启动快，运行快，但是耗费更多存储空间，安装时间长，总的来说ART的功效就是”空间换时间”。
-
-- ART: Ahead of Time
-- Dalvik: Just in Time
 
 什么是Dalvik：Dalvik是Google公司自己设计用于Android平台的Java虚拟机。Dalvik虚拟机是Google等厂商合作开发的Android移动设备平台的核心组成部分之一，它可以支持已转换为.dex(即Dalvik Executable)格式的Java应用程序的运行，.dex格式是专为Dalvik应用设计的一种压缩格式，适合内存和处理器速度有限的系统。Dalvik经过优化，允许在有限的内存中同时运行多个虚拟机的实例，并且每一个Dalvik应用作为独立的Linux进程执行。独立的进程可以防止在虚拟机崩溃的时候所有程序都被关闭。
 
