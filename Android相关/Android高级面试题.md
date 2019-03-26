@@ -1960,7 +1960,7 @@ Animation 框架定义了透明度，旋转，缩放和位移几种常见的动�
 通过布局填充器进行填充【其中的parent指的就是DecorView】，
 调用ViewGroup的removeAllView()，先将所有的view移除掉，添加新的view：addView()。
     
-[深入解析](https://mp.weixin.qq.com/s/oFVBrIAUwD0wnlSfm-95bQ)
+[参考文章](https://mp.weixin.qq.com/s/oFVBrIAUwD0wnlSfm-95bQ)
 
 
 ### 4、低版本SDK如何实现高版本api？
