@@ -44,6 +44,13 @@
 
 - 4、根据用户的当前的网络质量来判断下载什么质量的图片（电商用的比较多）。
 
+- 5、使用HttpDNS优化DNS：DNS存在解析慢和DNS劫持等问题，DNS 不仅支持 UDP，它还支持 TCP，但是大部分标准的 DNS 都是基于 UDP 与 DNS 服务器的 53 端口进行交互。HTTPDNS 则不同，顾名思义它是利用 HTTP 协议与 DNS 服务器的 80 端口进行交互。不走传统的 DNS 解析，从而绕过运营商的 LocalDNS 服务器，有效的防止了域名劫持，提高域名解析的效率。
+
+![image](https://upload-images.jianshu.io/upload_images/1420036-73293718e00d6df8.jpg?imageMogr2/auto-orient/)
+
+[参考文章](https://www.jianshu.com/p/940be2e758ee)
+
+
 ##### [客户端网络安全实现](http://mrpeak.cn/blog/encrypt/)
 
 
