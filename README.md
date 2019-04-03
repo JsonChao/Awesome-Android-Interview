@@ -9,7 +9,7 @@ A awesome  android expert interview questions and answers
 
 ## 前言
 
-面试，一直都是很大家很关心的热门话题，Awesome-Android-Interview搜集了国内一线及二线互联网公司最常出现的面试题，非常全面，笔者花费了很大的精力和时间，希望得到大家的支持。Android面试中常涉及的问题有如下几方面：
+随着Android技术发展的成熟，Kotlin、大前端技术RN、Flutter、小程序等一下子就进入了我们的视野内，同时，Android自身的技术栈也正在不断扩展，比如前段时间Google推出的Jetpack。因此，Android开发者们越来越焦虑，越来越迷茫，每个人的时间和精力是有限的，我们到底该学什么才能有效地提高自身的竞争力呢?其实，首先我们应该优先深入学习工作中用到的技术，其次，关注这2年来Android最新的面试题所涉及的知识点，根据自身的实际情况有选择地进行针对性的学习和提升。只有这样，自身才不会被所谓的 互联网寒冬 吓倒。Awesome-Android-Interview搜集了国内一线及二线互联网公司最常出现的面试题，非常全面，笔者花费了很大的精力和时间，希望得到大家的支持。Android面试中常涉及的问题有如下几方面：
 
 1、计算机基础：TCP/IP, HTTP/HTTPS, Socket、操作系统、数据库相关。
 
