@@ -1772,6 +1772,45 @@ Hook IActivityManager：
 - 然后，通过反射获取对应的Singleton实例，从上面得到的2个字段中拿到对应的IActivityManager。
 - 最后，使用Proxy.newProxyInstance()方法动态创建代理类IActivityManagerProxy，用IActivityManagerProxy来替换IActivityManager。
 
+2、还原插件Activity：
+
+- 前面用占坑Activity通过了AMS的校验，但是我们要启动的是插件TargetActivity，还需要用插件TargetActivity来替换占坑的SubActivity，替换时机为图中步骤2之后。
+- 在ActivityThread的H类中重写的handleMessage方法会对LAUNCH_ACTIVITY类型的消息进行处理，最终会调用Activity的onCreate方法。在Handler的dispatchMessage处理消息的这个方法中，看到如果Handelr的Callback类型的mCallBack不为null，就会执行mCallback的handleMessage方法，因此mCallback可以作为Hook点。我们可以用自定义的Callback来替换mCallback。
+
+自定义的Callback实现了Handler.Callback，并重写了handleMessage方法，当收到消息的类型为LAUNCH_ACTIVITY时，将启动SubActivity的Intent替换为启动TargetActivity的Intent。然后使用反射将Handler的mCallback替换为自定义的CallBack即可。使用时则在application的attachBaseContext方法中进行hook即可。
+
+3、插件Activity的生命周期：
+
+- AMS和ActivityThread之间的通信采用了token来对Activity进行标识，并且此后的Activity的生命周期处理也是根据token来对Activity进行标识的，因为我们在Activity启动时用插件TargetActivity替换占坑SubActivity，这一过程在performLaunchActivity之前，因此performLaunchActivity的r.token就是TargetActivity。所以TargetActivity具有生命周期。
+
+Hook Instrumentation：
+
+Hook Instrumentation实现同样也需要用到占坑Activity，与Hook IActivity实现不同的是，用占坑Activity替换插件Activity以及还原插件Activity的地方不同。
+
+分析：在Activity通过AMS校验前，会调用Activity的startActivityForResult方法，其中调用了Instrumentation的execStartActivity方法来激活Activity的生命周期。并且在ActivityThread的performLaunchActivity中使用了mInstrumentation的newActivity方法，其内部会用类加载器来创建Activity的实例。
+
+方案：在Instrumentation的execStartActivity方法中用占坑SubActivity来通过AMS的验证，在Instrumentation的newActivity方法中还原TargetActivity，这两部操作都和Instrumentation有关，因此我们可以用自定义的Instumentation来替换掉mInstrumentation。具体为：
+
+- 首先检查TargetActivity是否已经注册，如果没有则将TargetActivity的ClassName保存起来用于后面还原。接着把要启动的TargetActivity替换为StubActivity，最后通过反射调用execStartActivity方法，这样就可以用StubActivity通过AMS的验证。
+- 在newActivity方法中创建了此前保存的TargetActivity，完成了还原TargetActivity。最后使用反射用InstrumentationProxy替换mInstumentation。
+
+##### 资源插件化：
+
+资源的插件化和热修复的资源修复都借助了AssetManager。
+
+资源的插件化方案主要有两种：
+
+- 1、合并资源方案，将插件的资源全部添加到宿主的Resources中，这种方案插件可以访问宿主的资源。
+- 2、构建插件资源方案，每个插件都构造出独立的Resources，这种方案插件不可以访问宿主资源。
+
+##### so的插件化：
+
+so的插件化方案和so热修复的第一种方案类似，就是将so插件插入到NativelibraryElement数组中，并且将存储so插件的文件添加到nativeLibraryDirectories集合中就可以了。
+
+##### 插件的加载机制方案：
+
+- 1、Hook ClassLoader。
+- 2、委托给系统的ClassLoader帮忙加载。
 
 
 ### 2、模块化和组件化
