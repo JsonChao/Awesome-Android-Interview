@@ -1690,16 +1690,11 @@ B*树是B+树的变种，相对于B+树他们的不同之处如下：
 
 原因：因为一个dvm中存储方法id用的是short类型，导致dex中方法不能超过65536个。
 
-原理：
+##### 代码热修复原理：
 
 - 将编译好的class文件拆分打包成两个dex，绕过dex方法数量的限制以及安装时的检查，在运行时再动态加载第二个dex文件中。
 - 热修复是体现在bug修复方面的，它实现的是不需要重新发版和重新安装，就可以去修复已知的bug。
 - 利用PathClassLoader和DexClassLoader去加载与bug类同名的类，替换掉bug类，进而达到修复bug的目的，原理是在app打包的时候阻止类打上CLASS_ISPREVERIFIED标志，然后在热修复的时候动态改变BaseDexClassLoader对象间接引用的dexElements，替换掉旧的类。
-
-目前热修复框架主要分为两大类：
-
-- Sophix：修改方法指针。
-- Tinker：修改dex数组元素。
 
 相同点:
     
@@ -1710,6 +1705,88 @@ B*树是B+树的变种，相对于B+树他们的不同之处如下：
 热修复因为是为了修复Bug的，所以要将新的类替代同名的Bug类，要抢先加载新的类而不是Bug类，所以多做两件事：在原先的app打包的时候，阻止相关类去打上CLASS_ISPREVERIFIED标志，还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements，这样才能抢先代替Bug类，完成系统不加载旧的Bug类.。  而插件化只是增加新的功能类或者是资源文件，所以不涉及抢先加载新的类这样的使命，就避过了阻止相关类去打上CLASS_ISPREVERIFIED标志和还有在热修复时动态改变BaseDexClassLoader对象间接引用的dexElements.
 
 所以插件化比热修复简单，热修复是在插件化的基础上在进行替换旧的Bug类。
+
+
+#### 热修复原理：
+
+##### 资源修复：
+
+很多热修复框架的资源修复参考了Instant Run的资源修复的原理。
+
+传统编译部署流程如下：
+
+Instant Run编译部署流程如下：
+
+- Hot Swap：修改一个现有方法中的代码时会采用Hot Swap。
+- Warm Swap：修改或删除一个现有的资源文件时会采用Warm Swap。
+- Cold Swap：有很多情况，如添加、删除或修改一个字段和方法、添加一个类等。
+
+Instant Run中的资源热修复流程：
+
+- 1、创建新的AssetManager，通过反射调用addAssetPath方法加载外部的资源，这样新创建的AssetManager就含有了外部资源。
+- 2、将AssetManager类型的mAssets字段的引用全部替换为新创建的AssetManager。
+
+##### 代码修复：
+
+1、类加载方案：
+
+65536限制：
+
+65536的主要原因是DVM Bytecode的限制，DVM指令集的方法调用指令invoke-kind索引为16bits，最多能引用65535个方法。
+
+LinearAlloc限制：
+
+- DVM中的LinearAlloc是一个固定的缓存区，当方法数超过了缓存区的大小时会报错。
+
+Dex分包方案主要做的是在打包时将应用代码分成多个Dex，将应用启动时必须用到的类和这些类的直接引用类放到Dex中，其他代码放到次Dex中。当应用启动时先加载主Dex，等到应用启动后再动态地加载次Dex，从而缓解了主Dex的65536限制和LinearAlloc限制。
+
+加载流程：
+
+- 根据dex文件的查找流程，我们将有Bug的类Key.class进行修改，再将Key.class打包成包含dex的补丁包Patch.jar，放在Element数组dexElements的第一个元素，这样会首先找到Patch.dex中的Key.class去替换之前存在Bug的Key.class，排在数组后面的dex文件中存在Bug的Key.class根据ClassLoader的双亲委托模式就不会被加载。
+
+类加载方案需要重启App后让ClassLoader重新加载新的类，为什么需要重启呢？
+
+- 这是因为类是无法被卸载的，要想重新加载新的类就需要重启App，因此采用类加载方案的热修复框架是不能即时生效的。
+
+各个热修复框架的实现细节差异：
+
+- QQ空间的超级补丁和Nuwa是按照上面说的将补丁包放在Element数组的第一个元素得到优先加载。
+- 微信的Tinker将新旧APK做了diff，得到path.dex，再将patch.dex与手机中APK的classes.dex做合并，生成新的classes.dex，然后在运行时通过反射将classes.dex放在Elements数组的第一个元素。
+- 饿了么的Amigo则是将补丁包中每个dex对应的Elements取出来，之后组成新的Element数组，在运行时通过反射用新的Elements数组替换掉现有的Elements数组。
+
+2、底层替换方案：
+
+当我们要反射Key的show方法，会调用Key.class.getDeclaredMethod("show").invoke(Key.class.newInstance());，最终会在native层将传入的javaMethod在ART虚拟机中对应一个ArtMethod指针，ArtMethod结构体中包含了Java方法的所有信息，包括执行入口、访问权限、所属类和代码执行地址等。
+
+替换ArtMethod结构体中的字段或者替换整个ArtMethod结构体，这就是底层替换方案。
+
+AndFix采用的是替换ArtMethod结构体中的字段，这样会有兼容性问题，因为厂商可能会修改ArtMethod结构体，导致方法替换失败。
+
+Sophix采用的是替换整个ArtMethod结构体，这样不会存在兼容问题。
+
+底层替换方案直接替换了方法，可以立即生效不需要重启。采用底层替换方案主要是阿里系为主，包括AndFix、Dexposed、阿里百川、Sophix。
+
+3、Instant Run方案：
+
+什么是ASM？
+
+ASM是一个java字节码操控框架，它能够动态生成类或者增强现有类的功能。ASM可以直接产生class文件，也可以在类被加载到虚拟机之前动态改变类的行为。
+
+Instant Run在第一次构建APK时，使用ASM在每一个方法中注入了类似的代码逻辑：当$change不为null时，则调用它的access$dispatch方法，参数为具体的方法名和方法参数。当MainActivity的onCreate方法做了修改，就会生成替换类MainActivity$override，这个类实现了IncrementalChange接口，同时也会生成一个AppPatchesLoaderImpl类，这个类的getPatchedClasses方法会返回被修改的类的列表（里面包含了MainActivity），根据列表会将MainActivity的$change设置为MainActivity$override。最后这个$change就不会为null，则会执行MainActivity$override的access$dispatch方法，最终会执行onCreate方法，从而实现了onCreate方法的修改。
+
+借鉴Instant Run原理的热修复框架有Robust和Aceso。
+
+##### 动态链接库修复：
+
+重新加载so。
+
+加载so主要用到了System类的load和loadLibrary方法，最终都会调用到nativeLoad方法。其会调用JavaVMExt的LoadNativeLibrary函数来加载so。
+
+so修复主要有两个方案：
+
+- 1、将so补丁插入到NativeLibraryElement数组的前部，让so补丁的路径先被返回和加载。
+- 2、调用System的load方法来接管so的加载入口。
+
     
 #### 为什么选用插件化？
 
