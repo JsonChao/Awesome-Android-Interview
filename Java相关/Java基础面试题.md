@@ -291,7 +291,7 @@ get 方法：
 - 为链表则需要遍历直到 key 及 hashcode 相等时候就返回值。
 - 啥都没取到就直接返回 null 。
 
-HashMap 1.8的原理：
+##### HashMap 1.8的原理：
 
 当 Hash 冲突严重时，在桶上形成的链表会变的越来越长，这样在查询时的效率就会越来越低；时间复杂度为 O(N)，因此 1.8 中重点优化了这个查询效率。
 
@@ -323,6 +323,62 @@ get 方法：
 修改为红黑树之后查询效率直接提高到了 O(logn)。但是 HashMap 原有的问题也都存在，比如在并发场景下使用时容易出现死循环：
 
 - 在 HashMap 扩容的时候会调用 resize() 方法，就是这里的并发操作容易在一个桶上形成环形链表；这样当获取一个不存在的 key 时，计算出的 index 正好是环形链表的下标就会出现死循环：在 1.7 中 hash 冲突采用的头插法形成的链表，在并发条件下会形成循环链表，一旦有查询落到了这个链表上，当获取不到值时就会死循环。
+
+##### ConcurrentHashMap 1.7原理：
+
+ConcurrentHashMap 采用了分段锁技术，其中 Segment 继承于 ReentrantLock。不会像 HashTable 那样不管是 put 还是 get 操作都需要做同步处理，理论上 ConcurrentHashMap 支持 CurrencyLevel (Segment 数组数量)的线程并发。每当一个线程占用锁访问一个 Segment 时，不会影响到其他的 Segment。
+
+put 方法:
+
+首先是通过 key 定位到 Segment，之后在对应的 Segment 中进行具体的 put。
+
+- 虽然 HashEntry 中的 value 是用 volatile 关键词修饰的，但是并不能保证并发的原子性，所以 put 操作时仍然需要加锁处理。
+- 首先第一步的时候会尝试获取锁，如果获取失败肯定就有其他线程存在竞争，则利用 scanAndLockForPut() 自旋获取锁:
+
+
+    尝试自旋获取锁。
+    如果重试的次数达到了 MAX_SCAN_RETRIES 则改为阻塞锁获取，保证能获取成功。
+    
+- 将当前 Segment 中的 table 通过 key 的 hashcode 定位到 HashEntry。
+- 遍历该 HashEntry，如果不为空则判断传入的 key 和当前遍历的 key 是否相等，相等则覆盖旧的 value。
+- 为空则需要新建一个 HashEntry 并加入到 Segment 中，同时会先判断是否需要扩容。
+- 最后会使用unlock()解除当前 Segment 的锁。
+
+get 方法：
+
+- 只需要将 Key 通过 Hash 之后定位到具体的 Segment ，再通过一次 Hash 定位到具体的元素上。
+- 由于 HashEntry 中的 value 属性是用 volatile 关键词修饰的，保证了内存可见性，所以每次获取时都是最新值。
+- ConcurrentHashMap 的 get 方法是非常高效的，因为整个过程都不需要加锁。
+
+##### ConcurrentHashMap 1.8原理：
+
+1.7 已经解决了并发问题，并且能支持 N 个 Segment 这么多次数的并发，但依然存在 HashMap 在 1.7 版本中的问题：那就是查询遍历链表效率太低。和 1.8 HashMap 结构类似：其中抛弃了原有的 Segment 分段锁，而采用了 CAS + synchronized 来保证并发安全性。
+
+CAS：
+
+如果obj内的value和expect相等，就证明没有其他线程改变过这个变量，那么就更新它为update，如果这一步的CAS没有成功，那就采用自旋的方式继续进行CAS操作。
+
+问题：
+
+- 目前在JDK的atomic包里提供了一个类AtomicStampedReference来解决ABA问题。这个类的compareAndSet方法作用是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值。
+- 如果CAS不成功，则会原地自旋，如果长时间自旋会给CPU带来非常大的执行开销。
+
+put 方法：
+
+- 根据 key 计算出 hashcode 。
+- 判断是否需要进行初始化。
+- 如果当前 key 定位出的 Node为空表示当前位置可以写入数据，利用 CAS 尝试写入，失败则自旋保证成功。
+- 如果当前位置的 hashcode == MOVED == -1,则需要进行扩容。
+- 如果都不满足，则利用 synchronized 锁写入数据。
+- 最后，如果数量大于 TREEIFY_THRESHOLD 则要转换为红黑树。
+
+get 方法：
+
+- 根据计算出来的 hashcode 寻址，如果就在桶上那么直接返回值。
+- 如果是红黑树那就按照树的方式获取值。
+- 就不满足那就按照链表的方式遍历获取值。
+
+1.8 在 1.7 的数据结构上做了大的改动，采用红黑树之后可以保证查询效率（O(logn)），甚至取消了 ReentrantLock 改为了 synchronized，这样可以看出在新版的 JDK 中对 synchronized 优化是很到位的。
 
 [HashMap、ConcurrentHashMap 1.7/1.8实现原理](https://crossoverjie.top/2018/07/23/java-senior/ConcurrentHashMap/)
 
