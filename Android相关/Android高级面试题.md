@@ -2224,6 +2224,45 @@ Animation 框架定义了透明度，旋转，缩放和位移几种常见的动�
 
 #### RecyclerView和ListView有什么区别？局部刷新？前者使用时多重type场景下怎么避免滑动卡顿。懒加载怎么实现，怎么优化滑动体验。
 
+##### ListView、RecyclerView区别？
+
+一、使用方面：
+
+ListView的基础使用：
+
+- 继承重写 BaseAdapter 类
+- 自定义 ViewHolder 和 convertView 一起完成复用优化工作
+
+RecyclerView 基础使用关键点同样有两点：
+
+- 继承重写 RecyclerView.Adapter 和 RecyclerView.ViewHolder
+- 设置布局管理器，控制布局效果
+
+RecyclerView 相比 ListView 在基础使用上的区别主要有如下几点：
+
+- ViewHolder 的编写规范化了
+- RecyclerView 复用 Item 的工作 Google 全帮你搞定，不再需要像 ListView 那样自己调用 setTag
+- RecyclerView 需要多出一步 LayoutManager 的设置工作
+
+二、布局方面：
+
+RecyclerView 支持 线性布局、网格布局、瀑布流布局 三种，而且同时还能够控制横向还是纵向滚动。
+
+三、API提供方面：
+
+ListView 提供了 setEmptyView ，addFooterView 、 addHeaderView.
+
+RecyclerView 供了 notifyItemChanged 用于更新单个 Item View 的刷新，我们可以省去自己写局部更新的工作。
+
+四、动画效果：
+
+RecyclerView 在做局部刷新的时候有一个渐变的动画效果。继承 RecyclerView.ItemAnimator 类，并实现相应的方法，再调用 RecyclerView的 setItemAnimator(RecyclerView.ItemAnimator animator) 方法设置完即可实现自定义的动画效果。
+
+五、监听 Item 的事件：
+
+ListView 提供了单击、长按、选中某个 Item 的监听设置。
+
+
 #### [RecyclerView与ListView缓存机制的不同](https://segmentfault.com/a/1190000007331249)
 
 #### 想改变listview的高度，怎么做？
