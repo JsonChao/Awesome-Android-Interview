@@ -21,6 +21,18 @@
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96.png?raw=true)
 
+##### 内存抖动（代码注意事项）：
+
+内存抖动是由于短时间内有大量对象进出新生区导致的，它伴随着频繁的GC，gc会大量占用ui线程和cpu资源，会导致app整体卡顿。
+
+避免发生内存抖动的几点建议：
+
+- 尽量避免在循环体内创建对象，应该把对象创建移到循环体外。
+- 注意自定义View的onDraw()方法会被频繁调用，所以在这里面不应该频繁的创建对象。
+- 当需要大量使用Bitmap的时候，试着把它们缓存在数组或容器中实现复用。
+- 对于能够复用的对象，同理可以使用对象池将它们缓存起来。
+
+
 #### 四、App瘦身
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%98%A6%E8%BA%AB.png?raw=true)
