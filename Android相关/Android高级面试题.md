@@ -2517,6 +2517,39 @@ Junit4它的优点是速度快，支持代码覆盖率如jacoco等代码质量�
 
 ### 36、工作中有没有用过或者写过什么工具？脚本，插件等等；比如：多人协同开发可能对一些相同资源都各自放了一份，有没有方法自动检测这种重复之类的。
 
+### 37、如何绕过9.0限制？
+
+#### 如何限制？
+
+- 1、阻止java反射和JNI。
+- 2、当获取方法或Field时进行检测。
+- 3、怎么检测？
+
+区分出是系统调用还是开发者调用：
+
+根据堆栈，回溯Class，查看ClassLoader是否是BootStrapClassLoader。
+
+区分后，再区分是否是hidden api：
+
+Method，Field都有access_flag，有一些备用字段，hidden信息存储其中。
+
+#### 如何绕过？
+
+1、不用反射：
+
+利用一个fakelib，例如写一个android.app.ActivityThread#currentActivityThread空实现，直接调用；
+
+2、伪装系统调用：
+
+jni修改一个class的classloder为BootStrapClassLoader，麻烦。
+
+利用系统方法去反射：
+
+利用原反射，即：getDeclaredMethod这个方法是系统的方法，通过getDeclaredmethod反射去执行hidden api。
+
+3、修改Method，Field中存储hidden信息的字段：
+
+利用jni去修改。
 
 
 
