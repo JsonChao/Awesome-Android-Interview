@@ -1208,6 +1208,13 @@ https://www.jianshu.com/p/050c6db5af5a
 
 #### 三、[响应式编程框架：RxJava实现原理](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
 
+##### RxJava 变换操作符 map flatMap concatMap buffer？
+
+- map：【数据类型转换】将被观察者发送的事件转换为另一种类型的事件。
+- flatMap：【化解循环嵌套和接口嵌套】将被观察者发送的事件序列进行拆分 & 转换 后合并成一个新的事件序列，最后再进行发送。
+- concatMap：【有序】与 flatMap 的 区别在于，拆分 & 重新合并生成的事件序列 的顺序与被观察者旧序列生产的顺序一致。
+- buffer：定期从被观察者发送的事件中获取一定数量的事件并放到缓存区中，然后把这些数据集合打包发射。
+
 ##### [RxJava中map和flatmap操作符的区别及底层实现](https://www.jianshu.com/p/af13a8278a05)
 
 ##### 手写rxjava遍历数组。
@@ -1697,6 +1704,17 @@ B*树是B+树的变种，相对于B+树他们的不同之处如下：
 ## 四、热修复、插件化、模块化、组件化、Gradle
 
 ### 1、热修复和插件化
+
+#### Android中ClassLoader的种类&特点
+
+- BootClassLoader（Java的BootStrap ClassLoader）：
+用于加载Android Framework层class文件。
+- PathClassLoader（Java的App ClassLoader）：
+用于加载已经安装到系统中的apk中的class文件。
+- DexClassLoader（Java的Custom ClassLoader）：
+用于加载指定目录中的class文件。
+- BaseDexClassLoader：
+是PathClassLoader和DexClassLoader的父类。
 
 #### 热修补技术是怎样实现的，和插件化有什么区别？
 
