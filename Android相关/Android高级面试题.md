@@ -11,15 +11,17 @@
 
 ##### [开放问题：如果提高启动速度，设计一个延迟加载框架或者sdk的方法和注意的问题](https://blog.csdn.net/dd864140130/article/details/53558011)
 
-
 #### 二、App绘制优化
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png?raw=true)
 
+需要更全面更深入的理解请查看[Android性能优化之绘制优化](https://jsonchao.github.io/2019/07/28/Android性能优化之绘制优化/)
 
 #### 三、App内存优化
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96.png?raw=true)
+
+需要更全面更深入的理解请查看[Android性能优化之内存优化](https://jsonchao.github.io/2019/08/18/Android%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E4%B9%8B%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96/)
 
 ##### 内存抖动（代码注意事项）：
 
