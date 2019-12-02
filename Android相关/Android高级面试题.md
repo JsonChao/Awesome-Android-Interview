@@ -12,7 +12,7 @@
 需要更全面更深入的理解请查看[深入探索Android稳定性优化](https://jsonchao.github.io/2019/11/24/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2Android%E7%A8%B3%E5%AE%9A%E6%80%A7%E4%BC%98%E5%8C%96/)
 
 
-#### 一、App启动速度优化
+#### 二、App启动速度优化
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E4%BC%98%E5%8C%96.png?raw=true)
 
@@ -23,19 +23,11 @@
 需要更全面更深入的理解请查看[深入探索Android启动速度优化](https://jsonchao.github.io/2019/11/10/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2Android%E5%90%AF%E5%8A%A8%E9%80%9F%E5%BA%A6%E4%BC%98%E5%8C%96/)
 
 
-#### 二、App绘制优化
-
-![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png?raw=true)
-
-需要更全面更深入的理解请查看[Android性能优化之绘制优化](https://jsonchao.github.io/2019/07/28/Android性能优化之绘制优化/)
-
-
 #### 三、App内存优化
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96.png?raw=true)
 
 需要更全面更深入的理解请查看[Android性能优化之内存优化](https://jsonchao.github.io/2019/08/18/Android%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E4%B9%8B%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96/)
-
 
 ##### 内存抖动（代码注意事项）：
 
@@ -49,14 +41,16 @@
 - 对于能够复用的对象，同理可以使用对象池将它们缓存起来。
 
 
-#### 四、App瘦身
+#### 四、App绘制优化
+
+![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png?raw=true)
+
+需要更全面更深入的理解请查看[Android性能优化之绘制优化](https://jsonchao.github.io/2019/07/28/Android性能优化之绘制优化/)
+
+
+#### 五、App瘦身
 
 ![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%98%A6%E8%BA%AB.png?raw=true)
-
-
-#### 五、App电量优化
-
-![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%94%B5%E9%87%8F%E4%BC%98%E5%8C%96.png?raw=true)
 
 
 #### 六、网络优化
@@ -81,8 +75,12 @@
 
 ##### [客户端网络安全实现](http://mrpeak.cn/blog/encrypt/)
 
+#### 七、App电量优化
 
-#### 七、安卓的安全优化
+![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%94%B5%E9%87%8F%E4%BC%98%E5%8C%96.png?raw=true)
+
+
+#### 八、安卓的安全优化
 
 ##### 提高app安全性的方法？
 
