@@ -90,7 +90,7 @@ A awesome  android expert interview questions and answers
 > **微信群如果不能扫码加入，麻烦大家想进微信群的朋友们，加我微信拉你进群。**
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/JsonChao/Awesome-Android-Interview/master/screenshot/wexin_qrcode.jpg" width=35%>
+<img src="https://github.com/JsonChao/Awesome-Android-Performance/blob/master/screenshots/Awesome-Android.png" width=35%>
 </div>
         
 
