@@ -43,9 +43,9 @@
 
 #### 四、App绘制优化
 
-![image](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/screenshot/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png?raw=true)
+![image](https://raw.githubusercontent.com/JsonChao/Awesome-Android-Performance/master/screenshots/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png)
 
-需要更全面更深入的理解请查看[Android性能优化之绘制优化](https://jsonchao.github.io/2019/07/28/Android性能优化之绘制优化/)
+需要更全面更深入的理解请查看[Android性能优化之绘制优化](https://jsonchao.github.io/2019/07/28/Android性能优化之绘制优化/)、[深入探索Android布局优化（上）](https://juejin.im/post/5e1d15a851882536ca666a49)、[深入探索Android布局优化（下）](https://juejin.im/post/5e1e6cf66fb9a0301828ca0a)
 
 
 #### 五、App瘦身
