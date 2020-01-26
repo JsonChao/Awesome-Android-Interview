@@ -719,13 +719,79 @@ python >= 3.3：1字节
 
 **注意：Java 9对latin字符的存储空间做了优化，但字符串长度还是!= 字符数。**
 
-总结
+##### 总结
 
 - Java char不存UTF-8的字节，而是UTF-16。
 - Unicode通用字符集占两个字节，例如“中”。
 - Unicode扩展字符集需要用一对char来表示，例如“表情”。
 - Unicode是字符集，不是编码，作用类似于ASCII码。
 - Java String的length不是字符数。
+
+
+#### 2、Java String可以有多长？
+
+##### 是否对字符串编解码有深入了解（中级）
+
+分配到栈：
+
+    String longString = "aaa...aaa";
+    
+    
+分配到堆：
+
+    byte[] bytes = loadFromFile(new File("superLongText.txt");
+    String superLongString = new String(bytes);
+    
+    
+##### 是否对字符串在内存当中的存储形式有深入了解（高级）
+##### 是否对Java虚拟机字节码有足够的了解（高级）
+
+源文件：*.java
+
+    String longString = "aaa...aaa";
+    字节数 <= 65535
+    
+字节码：*.class
+
+    CONSTANT_Utf8_info { 
+        u1 tag; 
+        u2 length;
+        (0~65535) u1 bytes[length]; 
+        最多65535个字节 
+    }
+    
+    
+javac的编译器有问题，< 65535应该改为< = 65535。
+
+**Java String 栈分配**
+
+- 受字节码限制，字符串最终的MUTF-8字节数不超过65535。
+- Latin字符，受Javac代码限制，最多65534个。
+- 非Latin字符最终对应字节个数差异较大，最多字节个数是65535。
+- 如果运行时方法区设置较小，也会受到方法区大小的限制。
+
+##### 是否对java虚拟机指令有一定的认识（高级）
+
+new String(bytes)内部是采用了一个字符数组，其对应的虚拟机指令是newarray [int] ，数组理论最大个数为Integer.MAX_VALUE，有些虚拟机需要一些头部信息，所以MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8。
+
+**Java String 堆分配**
+
+- 受虚拟机指令限制，字符数理论上限为Integer.MAX_VALUE。
+- 受虚拟机实现限制，实际上限可能会小于Integer.MAX_VALUE。
+- 如果堆内存较小，也会受到堆内存的限制。
+
+##### 总结
+
+**Java String字面量形式**
+
+- 字节码中CONSTANT_Utf8_info的限制
+- Javac源码逻辑的限制
+- 方法区大小的限制
+
+**Java String运行时创建在堆上的形式**
+
+- Java虚拟机指令newarray的限制
+- Java虚拟机堆内存大小的限制
 
 
 #### 2、JAVA常量池
