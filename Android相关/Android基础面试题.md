@@ -531,6 +531,9 @@ Handler.Callback 有优先处理消息的权利 ，当一条消息被 Callback 
 
 handler.postDelay并不是先等待一定的时间再放入到MessageQueue中，而是直接进入MessageQueue，以MessageQueue的时间顺序排列和唤醒的方式结合实现的。
 
+##### 如何保证在msg.postDelay情况下保证消息次序？
+
+
 [Handler 都没搞懂，拿什么去跳槽啊？](https://juejin.im/post/5c74b64a6fb9a049be5e22fc#heading-7)
 
 
