@@ -372,6 +372,11 @@ Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 ### 7、是否使用过SysTrace，原理的了解？
 
 
+### 8、mmap + native 日志优化？
+
+传统日志打印有两个性能问题，一个是反复操作文件描述符表，一个是反复进入内核态。所以需要使用mmap的方式去直接读写内存。
+
+
 ## 二、Android Framework相关
 
 ### 1、Android系统架构
@@ -885,6 +890,15 @@ aidl文件只是用来定义C/S交互的接口，Android在编译时会自动生
 
 简化版的ActivityManagerService到这里就已经实现了，剩下就是Client只需要获取到AMS的代理对象IActivityManager就可以通信了。
 
+#### 简单讲讲 binder 驱动吧？
+
+从 Java 层来看就像访问本地接口一样，客户端基于 BinderProxy 服务端基于 IBinder 对象，从 native 层来看来看客户端基于 BpBinder 到 ICPThreadState 到 binder 驱动，服务端由 binder 驱动唤醒 IPCThreadSate 到 BbBinder 。跨进程通信的原理最终是要基于内核的，所以最会会涉及到 binder_open 、binder_mmap 和 binder_ioctl这三种系统调用。
+
+
+#### 跨进程传递大内存数据如何做？
+
+binder 肯定是不行的，因为映射的最大内存只有 1M-8K，可以采用 binder + 匿名共享内存的形式，像跨进程传递大的 bitmap 需要打开系统底层的 ashmem 机制。
+
 
 请按顺序仔细阅读下列文章提升对Binder机制的理解程度：
 
@@ -918,6 +932,10 @@ Android系统启动的核心流程如下：
 [Android系统启动流程之SystemServer进程启动](https://jsonchao.github.io/2019/03/03/Android%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E4%B9%8BSystemServer%E8%BF%9B%E7%A8%8B%E5%90%AF%E5%8A%A8/)
 
 [Android系统启动流程之Launcher进程启动](https://jsonchao.github.io/2019/03/09/Android%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E4%B9%8BLauncher%E8%BF%9B%E7%A8%8B%E5%90%AF%E5%8A%A8/)
+
+#### 系统是怎么帮我们启动找到桌面应用的？
+
+通过意图，PMS 会解析所有 apk 的 AndroidManifest.xml ，如果解析过会存到 package.xml 中不会反复解析，PMS 有了它就能找到了。
 
 
 ### 6、启动一个程序，可以主界面点击图标进入，也可以从一个程序中跳转过去，二者有什么区别？
@@ -1279,6 +1297,10 @@ ART缺点：
    
     
 #### 如何在jni中注册native函数，有几种注册方式？
+
+#### so 的加载流程是怎样的，生命周期是怎样的？
+
+这个要从 java 层去看源码分析，是从 ClassLoader 的 PathList 中去找到目标路径加载的，同时 so 是通过 mmap 加载映射到虚拟空间的。生命周期加载库和卸载库时分别调用 JNI_OnLoad 和 JNI_OnUnload() 方法。
 
     
 ### 21、请介绍一下NDK？
