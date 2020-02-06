@@ -260,6 +260,10 @@
 
 对于**线上卡顿**，我们除了计算App的卡顿率、ANR率等常规指标之外呢，我们还计算了页面的秒开率、生命周期的执行时间等等。而且，在卡顿发生的时刻，我们也尽可能多地保存下来了当前的一个场景信息，这为我们之后解决或者复现这个卡顿留下了依据。
    
+##### 7、TextView setText耗时的原因，对TextView绘制层源码的理解？
+
+##### 8、开放问题：优化一个列表页面的打开速度和流畅性。
+
    
 ![image](https://raw.githubusercontent.com/JsonChao/Awesome-Android-Performance/master/screenshots/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png)
 
@@ -294,6 +298,8 @@
 
 
 ##### [客户端网络安全实现](http://mrpeak.cn/blog/encrypt/)
+
+##### 设计一个网络优化方案，针对移动端弱网环境。
 
 #### 七、App电量优化
 
@@ -358,6 +364,12 @@ Error、OOM，StackOverFlowError、Runtime,比如说空指针异常
 
 
 ### 5、[Java多线程引发的性能问题，怎么解决](https://blog.csdn.net/luofenghan/article/details/78596950)？
+
+
+### 6、TraceView的实现原理，分析数据误差来源。
+
+
+### 7、是否使用过SysTrace，原理的了解？
 
 
 ## 二、Android Framework相关
@@ -2223,6 +2235,8 @@ ARouter维护了一个路由表Warehouse，其中保存着全部的模块跳转�
 
 #### 多模块开发的时候不同的负责人可能会引入重复资源，相同的字符串，相同的icon等但是文件名并不一样，怎样去重？
 
+
+#### 你最优秀的工程设计项目，是怎么设计和实现的；扩展，如何做成一个平台级产品？
 
 
 ### 3、gradle
