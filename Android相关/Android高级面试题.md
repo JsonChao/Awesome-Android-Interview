@@ -556,6 +556,8 @@ MeasureSpec通过将SpecMode和SpecSize打包成一个int值来避免过多的�
 
 对于DecorView而言，它的MeasureSpec由窗口尺寸和其自身的LayoutParams共同决定；对于普通的View，它的MeasureSpec由父视图的MeasureSpec和其自身的LayoutParams共同决定。
 
+#### 如何根据MeasureSpec去实现一个瀑布流的自定义ViewGroup？
+
 #### View绘制流程之Measure
 
 - 首先，在ViewGroup中的measureChildren()方法中会遍历测量ViewGroup中所有的View，当View的可见性处于GONE状态时，不对其进行测量。
@@ -1189,6 +1191,7 @@ ART缺点：
 - 更大的存储空间占用，可能会增加10%-20%。
 - 更长的应用安装时间。
 
+#### ART和Davlik中垃圾回收的区别？
 
 ### 17、安卓采用自动垃圾回收机制，请说下安卓内存管理的原理？
 
@@ -1323,7 +1326,7 @@ ConnectionPool：
 
 ##### 手写拦截器？
 
-
+##### OKhttp针对网络层有哪些优化？
 
 ##### 网络请求缓存处理，okhttp如何处理网络缓存的？
 
@@ -1759,7 +1762,9 @@ https://blog.csdn.net/lmj623565791/article/details/493009890
 使用BitmapRegionDecoder动态加载图片的显示区域。
 
 
-##### Bitmap对象的理解
+##### Bitmap对象的理解。
+
+##### 对inBitmap的理解。
 
 ##### 自己去实现图片库，怎么做？（对扩展开发，对修改封闭，同时又保持独立性，参考Android源码设计模式解析实战的图片加载库案例即可）
 
@@ -1840,6 +1845,8 @@ install方法内部最终还是调用了application的registerActivityLifecycleC
 在HeapAnalyzerService（类型为IntentService的ForegroundService）的runAnalysis()方法中，为了避免减慢app进程或占用内存，这里将HeapAnalyzerService设置在了一个独立的进程中。
 
 ##### 你从这个库中学到什么有价值的或者说可借鉴的设计思想？
+
+##### leakCannary中如何判断一个对象是否被回收？如何触发手动gc？c层实现？
 
 ##### BlockCanary原理：
 
@@ -1935,7 +1942,7 @@ B*树是B+树的变种，相对于B+树他们的不同之处如下：
 [还不理解请查看：平衡二叉树、B树、B+树、B*树 理解其中一种你就都明白了](https://zhuanlan.zhihu.com/p/27700617)。
 
 
-## 四、热修复、插件化、模块化、组件化、Gradle
+## 四、热修复、插件化、模块化、组件化、Gradle、编译插桩技术
 
 ### 1、热修复和插件化
 
@@ -2227,6 +2234,13 @@ ARouter维护了一个路由表Warehouse，其中保存着全部的模块跳转�
 #### Gradle的Flavor能否配置sourceset？
 
 #### Gradle生命周期
+
+
+### 4、编译插桩
+
+#### 谈谈你对AOP技术的理解？
+
+#### 说说你了解的编译插桩技术？
 
 
 ## 五、设计模式与架构设计
