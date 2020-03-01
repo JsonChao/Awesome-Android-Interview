@@ -22,6 +22,13 @@ A awesome  android expert interview questions and answers
 - 9、最后，如果你会其他的开发方式或语言也会加分不少。比如Flutter、ReactNative、Python、前后端开发。
 
 
+面试就犹如考试，就像高考冲刺前我们所做的事，无非就是**将每一个知识点理解并记忆**。要通过面试固然需要一定的技巧，但绝不是靠伪造与吹流弊，通过一段时间沉下心来闭关修炼，等到春暖花开时，便可以出山收割，步入大厂，薪资翻番，岂不美哉？
+
+> 注意：每类知识点对应面试题的出现频率按  ⭐ 的级数共分为三级，分别为 ⭐、 ⭐⭐、⭐⭐⭐，如果时间充分，建议至少将 ⭐⭐及以  上的知识点搞懂，如果时间比较紧急，则建议优先将 ⭐⭐⭐ 题目都弄懂。
+
+> 为了更好地分类学习，建议跳转到本项目对应的[Github地址](https://github.com/JsonChao/Awesome-Android-Interview)，欢迎Star、Fork、Watch~
+
+
 ## Contents
 
 ### 计算机基础面试题
@@ -59,6 +66,11 @@ A awesome  android expert interview questions and answers
 * [其他扩展面试题](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E5%85%B6%E5%AE%83/%E5%85%B6%E5%AE%83%E6%89%A9%E5%B1%95%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
 * [非技术面试题](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E5%85%B6%E5%AE%83/%E9%9D%9E%E6%8A%80%E6%9C%AF%E9%9D%A2%E8%AF%95%E9%A2%98.md)
+
+
+## 结语
+
+其实，在面试中，很多题目并没有真正的答案，你能回答到什么样的深度，还是得靠自己真正的去使用和研究。知识的深度和广度都很重要，所以都需要花相应的时间去学习。这样，就算被问到自己不熟悉的领域也可以同面试官唠嗑两句，然后可以在适当的时机引向自己有深入研究的领域，让面试官觉得你是这个领域的专家。
 
 
 ## 赞赏
