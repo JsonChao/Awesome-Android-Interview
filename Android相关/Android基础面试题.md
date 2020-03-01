@@ -1601,59 +1601,19 @@ dimens使用：
 本地加载图片前判断手机分辨率或像素密度，向服务器请求对应级别图片。
 
 
-#### 95、动态布局的理解
-
-#### 96、怎么去除重复代码？
-
-#### 97、Recycleview和ListView的区别
-
-#### 98、动态权限适配方案，权限组的概念
-
-#### 99、Android系统为什么会设计ContentProvider？
-
-#### 100、下拉状态栏是不是影响activity的生命周期
-
-#### 101、如果在onStop的时候做了网络请求，onResume的时候怎么恢复？
-
-#### 102、Debug和Release状态的不同
-
-#### 103、dp是什么，sp呢，有什么区别
-
-#### 103、自定义View，ViewGroup注意那些回调？
-
-#### 104、android中的存储类型
-
-#### 105、Activity的生命周期，finish调用后其他生命周期还会走么？
-
-#### 106、[有遇到过哪些屏幕和资源适配问题](https://www.jianshu.com/p/46ce37b8553c)？
-
-#### 107、[项目中遇到哪些难题，最终你是如何解决的](https://www.jianshu.com/p/69d9444e2a9a)？
-
-#### 108、[listview图片加载错乱的原理和解决方案](https://blog.csdn.net/guolin_blog/article/details/45586553)。
-
-#### 109、invalidate和requestLayout的区别及使用。
-
-#### 110、如何反编译，对代码逆向分析。
-
-#### 111、RemoteViews实现和使用场景
-
-#### 112、对服务器众多错误码的处理（错误码有好几万个）
-
-#### 113、adb常用命令行 
-
-#### 114、Android中如何查看一个对象的回收情况？
-
-#### 115、[Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)
-
-#### 116、[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)
-
-#### 117、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
-
-#### 118、说下你对服务的理解，如何杀死一个服务。
-
-#### 119、断点续传实现？
+#### 95、断点续传实现？
 
 在本地下载过程中要使用数据库实时存储到底存储到文件的哪个位置了，这样点击开始继续传递时，才能通过HTTP的GET请求中的setRequestProperty("Range","bytes=startIndex-endIndex");方法可以告诉服务器，数据从哪里开始，到哪里结束。同时在本地的文件写入时，RandomAccessFile的seek()方法也支持在文件中的任意位置进行写入操作。最后通过广播或事件总线机制将子线程的进度告诉Activity的进度条。关于断线续传的HTTP状态码是206，即HttpStatus.SC_PARTIAL_CONTENT。
+
+
+#### 96、[项目中遇到哪些难题，最终你是如何解决的](https://www.jianshu.com/p/69d9444e2a9a)？
+
+#### 97、[Activity正常和异常情况下的生命周期](http://blog.csdn.net/geekerhw/article/details/48749935)
+
+#### 98、[关于< include >< merge >< stub >三者的使用场景](http://www.trinea.cn/android/layout-performance/)
+
+#### 99、[Android对HashMap做了优化后推出的新的容器类是什么？](http://blog.csdn.net/u010687392/article/details/47809295)
+
 
 
 
