@@ -1159,7 +1159,7 @@ JVM 加载类的class文件 此时所有的static变量和static代码块将被�
       2.判断两个对象用equals运算是否相等。
 
 
-#### 50、Java的四种引用及使用场景？
+#### 26、Java的四种引用及使用场景？
 
 - 强引用（FinalReference）：在内存不足时不会被回收。平常用的最多的对象，如新创建的对象。
 - 软引用（SoftReference）：在内存不足时会被回收。用于实现内存敏感的高速缓存。
@@ -1167,73 +1167,7 @@ JVM 加载类的class文件 此时所有的static变量和static代码块将被�
 - 虚引用（PhantomReference）：在回收之前，会被放入ReferenceQueue，JVM不会自动将该referent字段值设置成null。其它引用被JVM回收之后才会被放入ReferenceQueue中。用于实现一个对象被回收之前做一些清理工作。
 
 
-#### 26、简单谈谈堆外内存以及你的理解和认识。
-
-#### 27、怎么理解栈、堆？堆中存什么？栈中存什么？
-
-#### 28、为什么要把堆和栈区分出来呢？栈中不是也可以存储数据吗？
-
-#### 29、在Java中，什么是是栈的起始点，同是也是程序的起始点？
-
-#### 30、为什么不把基本类型放堆中呢？
-
-#### 31、Java中的参数传递是传值呢？还是传引用？
-
-#### 32、Java中有没有指针的概念？
-
-#### 33、Java中，栈的大小通过什么参数来设置？
-
-#### 34、一个空Object对象的占多大空间？
-
-#### 35、对象引用类型分为哪几类？
-
-#### 36、java里带$的函数见过么，是什么意思
-
-#### 37、为什么jdk8用metaspace数据结构用来替代perm？
-
-#### 38、修改对象A的equals方法的签名，那么使用HashMap存放这个对象实例的时候，会调用哪个equals方法；
-
-#### 39、静态内部类的设计意图。
-
-#### 40、int、char、long各占多少字节数？
-
-#### 41、int与integer的区别
-
-#### 42、抽象类与接口的应用场景
-
-#### 43、抽象类是否可以没有方法和属性？
-
-#### 44、string 转换成 integer的方式及原理
-
-#### 45、讲一下常见编码方式？
-
-#### 46、utf-8编码中的中文占几个字节，int型几个字节？
-
-#### 47、如何将一个Java对象序列化到文件里？
-
-#### 48、Java 中内部类为什么可以访问外部类？
-
-#### 49、为什么java 7中不能用lambda
-
-#### 50、[clone()的默认实现是深拷贝还是浅拷贝?如何让clone()实现深拷贝？](http://blog.csdn.net/zhangjg_blog/article/details/18369201)
-
-#### 51、Class文件结构（常量池）。
-
-#### 52、运行时栈帧结构（主要是局部变量表，理解栈堆）。
-
-#### 53、Java重排序和顺序一致性。（as-if-serial和happens-before）
-
-#### 54、java 7 8 9 10的区别
-
-#### 55、int,long的取值范围以及BigDecimal，数值越界了如何处理？
-
-#### 56、注解如何获取，反射为何耗性能？
-
-#### 57、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
-
-#### 58、[深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)
-
-#### 59、类的加载过程，Person person = new Person();为例进行说明。
+#### 27、类的加载过程，Person person = new Person();为例进行说明。
 
 1).因为new用到了Person.class，所以会先找到Person.class文件，并加载到内存中;
 
@@ -1252,7 +1186,7 @@ JVM 加载类的class文件 此时所有的static变量和static代码块将被�
 8).将内存地址付给栈内存中的p变量。
 
 
-#### 60、JAVA常量池
+#### 28、JAVA常量池
 
 Interger中的128(-128~127)
 
@@ -1269,7 +1203,7 @@ d.Integer对象的hash值为数值本身；
 在Integer类中有一个静态内部类IntegerCache，在IntegrCache类中有一个Integer数组，用以缓存当前数值范围为-128~127时的Integer对象。
 
 
-#### 61、在重写equals方法时，需要遵循哪些约定，具体介绍一下？
+#### 29、在重写equals方法时，需要遵循哪些约定，具体介绍一下？
 
 重写equals方法时需要遵循通用约定：自反性、对称性、传递性、一致性、非空性
 
@@ -1292,6 +1226,12 @@ d.Integer对象的hash值为数值本身；
 5）非空性
 
 所有比较的对象都不能为空。
+
+
+#### 30、[深拷贝和浅拷贝的区别](http://www.cnblogs.com/chenssy/p/3308489.html)
+
+
+#### 31、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
 
 
 
