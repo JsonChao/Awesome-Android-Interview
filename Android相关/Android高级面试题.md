@@ -265,7 +265,7 @@
    
 ![image](https://raw.githubusercontent.com/JsonChao/Awesome-Android-Performance/master/screenshots/App%E7%BB%98%E5%88%B6%E4%BC%98%E5%8C%96.png)
 
-需要更全面更深入的理解请查看[Android性能优化之绘制优化](https://jsonchao.github.io/2019/07/28/Android性能优化之绘制优化/)、[深入探索Android布局优化（上）](https://juejin.im/post/5e1d15a851882536ca666a49)、[深入探索Android布局优化（下）](https://juejin.im/post/5e1e6cf66fb9a0301828ca0a)
+需要更全面更深入的理解请查看[Android性能优化之绘制优化](https://juejin.im/post/5e5f090de51d4526e4190980)、[深入探索Android布局优化（上）](https://juejin.im/post/5e1d15a851882536ca666a49)、[深入探索Android布局优化（下）](https://juejin.im/post/5e1e6cf66fb9a0301828ca0a)、[深入探索Android卡顿优化（上）](https://juejin.im/post/5e41fb7de51d4526c80e9108)、[深入探索Android卡顿优化（下）](https://juejin.im/post/5e49fc29e51d4526d326b056)、
 
 
 ### 5、App瘦身
@@ -1307,7 +1307,7 @@ ART缺点：
 
 ### 1、你项目中用到哪些开源库？说说其实现原理？
 
-#### 一、[网络底层框架：OkHttp实现原理](https://jsonchao.github.io/2018/12/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%80%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3OKHttp%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 一、[网络底层框架：OkHttp实现原理](https://juejin.im/post/5e1be39b6fb9a02fcd130d1f)
 
 ##### 这个库是做什么用的？
 
@@ -1405,7 +1405,7 @@ RouteDatabase：记录连接失败的Route黑名单。
 ##### WebSocket与socket的区别？
 
 
-#### 二、[网络封装框架：Retrofit实现原理](https://jsonchao.github.io/2018/12/09/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%8C%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Retrofit%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 二、[网络封装框架：Retrofit实现原理](https://juejin.im/post/5e1fb9386fb9a0300a4501a6)
 
 ##### 这个库是做什么用的？
 
@@ -1476,7 +1476,7 @@ Retrofit主要是在create方法中采用动态代理模式（通过访问代理
 https://www.jianshu.com/p/050c6db5af5a
 
 
-#### 三、[响应式编程框架：RxJava实现原理](https://jsonchao.github.io/2019/01/01/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%BA%94%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3RxJava%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 三、[响应式编程框架：RxJava实现原理](https://juejin.im/post/5e4c9d45518825496e7847b1)
 
 ##### RxJava 变换操作符 map flatMap concatMap buffer？
 
@@ -1492,7 +1492,7 @@ https://www.jianshu.com/p/050c6db5af5a
 ##### 你认为Rxjava的线程池与你们自己实现任务管理框架有什么区别？
 
 
-#### 四、[图片加载框架：Glide实现原理](https://jsonchao.github.io/2018/12/16/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%89%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Glide%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 四、[图片加载框架：Glide实现原理](https://juejin.im/post/5e2109e25188254c257c40c6)
 
 ##### 这个库是做什么用的？
 
@@ -1804,10 +1804,10 @@ https://blog.csdn.net/lmj623565791/article/details/493009890
 ##### 写个图片浏览器，说出你的思路？
 
 
-#### 五、[事件总线框架：EventBus实现原理](https://jsonchao.github.io/2019/01/28/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B9%9D%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3EventBus%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 五、[事件总线框架：EventBus实现原理](https://juejin.im/post/5e61b253e51d45270e212eb4)
 
 
-#### 六、[内存泄漏检测框架：LeakCanary实现原理](https://jsonchao.github.io/2019/01/06/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AD%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Leakcanary%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 六、[内存泄漏检测框架：LeakCanary实现原理](https://juejin.im/post/5e5330f8e51d4526d43f30ef)
 
 ##### 这个库是做什么用？
 
@@ -1886,7 +1886,7 @@ install方法内部最终还是调用了application的registerActivityLifecycleC
 该组件利用了主线程的消息队列处理机制，应用发生卡顿，一定是在dispatchMessage中执行了耗时操作。我们通过给主线程的Looper设置一个Printer，打点统计dispatchMessage方法执行的时间，如果超出阀值，表示发生卡顿，则dump出各种信息，提供开发者分析性能瓶颈。
 
 
-#### 七、[依赖注入框架：ButterKnife实现原理](https://jsonchao.github.io/2019/01/13/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E4%B8%83%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3ButterKnife%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 七、[依赖注入框架：ButterKnife实现原理](https://juejin.im/post/5e55d38d518825491753ae39)
 
 ButterKnife对性能的影响很小，因为没有使用使用反射，而是使用的Annotation Processing Tool(APT)，注解处理器，javac中用于编译时扫描和解析Java注解的工具。在编译阶段执行的，它的原理就是读入Java源代码，解析注解，然后生成新的Java代码。新生成的Java代码最后被编译成Java字节码，注解解析器不能改变读入的Java类，比如不能加入或删除Java方法。
 
@@ -1894,10 +1894,10 @@ ButterKnife对性能的影响很小，因为没有使用使用反射，而是使
 
 
 
-#### 八、[依赖全局管理框架：Dagger2实现原理](https://jsonchao.github.io/2019/01/20/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%85%AB%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Dagger2%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 八、[依赖全局管理框架：Dagger2实现原理](https://juejin.im/post/5e58779f518825493f6ce7eb)
 
 
-#### 九、[数据库框架：GreenDao实现原理](https://jsonchao.github.io/2018/12/22/Android%E4%B8%BB%E6%B5%81%E4%B8%89%E6%96%B9%E5%BA%93%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88%E5%9B%9B%E3%80%81%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3GreenDao%E6%BA%90%E7%A0%81%EF%BC%89/)
+#### 九、[数据库框架：GreenDao实现原理](https://juejin.im/post/5e44b3c2e51d4526ec0d2b71)
 
 ##### 数据库框架对比？
 
