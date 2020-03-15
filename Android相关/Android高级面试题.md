@@ -65,7 +65,7 @@
 
 ![image](https://raw.githubusercontent.com/JsonChao/Awesome-Android-Interview/master/screenshot/App%E7%A8%B3%E5%AE%9A%E6%80%A7%E4%BC%98%E5%8C%96.png)
 
-需要更全面更深入的理解请查看[深入探索Android稳定性优化](https://jsonchao.github.io/2019/11/24/%E6%B7%B1%E5%85%A5%E6%8E%A2%E7%B4%A2Android%E7%A8%B3%E5%AE%9A%E6%80%A7%E4%BC%98%E5%8C%96/)
+需要更全面更深入的理解请查看[深入探索Android稳定性优化](https://juejin.im/post/5e69a4fd51882549003d2f0e)
 
 
 ### 2、App启动速度优化
