@@ -150,6 +150,20 @@ Serializable 是序列化的意思，表示将一个对象转换成存储或可�
 
 #### 8、动画
 
+- View 动画：
+    - 作用对象是 View，可用 xml 定义，建议 xml 实现比较易读
+    - 支持四种效果：平移、缩放、旋转、透明度
+- 帧动画：
+    - 通过 AnimationDrawable 实现，容易 OOM
+- 属性动画：
+    - 可作用于任何对象，可用 xml 定义，Android 3 引入，建议代码实现比较灵活
+    - 包括 ObjectAnimator、ValuetAnimator、AnimatorSet
+    - 时间插值器：根据时间流逝的百分比计算当前属性改变的百分比，系统预置匀速、加速、减速等插值器
+    - 类型估值器：根据当前属性改变的百分比计算改变后的属性值，系统预置整型、浮点、色值等类型估值器
+    - 使用注意事项：避免使用帧动画，容易OOM；界面销毁时停止动画，避免内存泄漏；开启硬件加速，提高动画流畅性
+    - 硬件加速原理：将 cpu 一部分工作分担给 gpu ，使用 gpu 完成绘制工作；从工作分摊和绘制机制两个方面优化了绘制速度
+
+
 - tween 补间动画。通过指定View的初末状态和变化方式，对View的内容完成一系列的图形变换来实现动画效果。 Alpha, Scale ,Translate, Rotate。
 - frame 帧动画。AnimationDrawable控制animation-list.xml布局
 - PropertyAnimation 属性动画3.0引入，属性动画核心思想是对值的变化。
