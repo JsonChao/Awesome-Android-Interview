@@ -149,6 +149,14 @@ Java提供的线程安全的Queue可以分为阻塞队列和非阻塞队列，�
 
 #### 1、synchronized的原理？
 
+##### lock 和 synchronized
+
+- synchronized 是 Java 关键字，内置特性；Lock 是一个接口
+- synchronized 会自动释放锁；lock 需要手动释放，所以需要写到 try catch 块中并在 finally 中释放锁
+- synchronized 无法中断等待锁；lock 可以中断
+- Lock 可以提高多个线程进行读/写操作的效率
+- 竞争资源激烈时，lock 的性能会明显的优于 synchronized
+
 synchronized 代码块是由一对儿 monitorenter/monitorexit 指令实现的，Monitor 对象是同步的基本实现，而 synchronized 同步方法使用了ACC_SYNCHRONIZED访问标志来辨别一个方法是否声明为同步方法，从而执行相应的同步调用。
 
 在 Java 6 之前，Monitor 的实现完全是依靠操作系统内部的互斥锁，因为需要进行用户态到内核态的切换，所以同步操作是一个无差别的重量级操作。
@@ -219,6 +227,10 @@ synchronized修饰普通方法或代码块获取的是对象锁。这种机制�
 
 ##### wait、sleep的区别
 
+- sleep 是 Thread 的静态方法，可以在任何地方调用
+- wait 是 Object 的成员方法，只能在 synchronized 代码块中调用，否则会报 IllegalMonitorStateException 非法监控状态异常
+- sleep 不会释放共享资源锁，wait 会释放共享资源锁
+
 最大的不同是在等待时 wait 会释放锁，而 sleep 一直持有锁。wait 通常被用于线程间交互，sleep 通常被用于暂停执行。    
 
 - 首先，要记住这个差别，“sleep是Thread类的方法,wait是Object类中定义的方法”。尽管这两个方法都会影响线程的执行行为，但是本质上是有区别的。
@@ -250,6 +262,15 @@ Lock（ReentrantLock）的底层实现主要是Volatile + CAS（乐观锁），�
 
 
 #### 6、volatile原理。
+
+- 只能用来修饰变量，适用修饰可能被多线程同时访问的变量
+- 相当于轻量级的 synchronized，volatitle 能保证有序性（禁用指令重排序）、可见性
+- 变量位于主内存中，每个线程还有自己的工作内存，变量在自己线程的工作内存中有份拷贝，线程直接操作的是这个拷贝
+- 被 volatile 修饰的变量改变后会立即同步到主内存，保持变量的可见性
+
+##### 双重检查单例，为什么要加 violate？
+
+volatile想要解决的问题是，在另一个线程中想要使用instance，发现instance!=null，但是实际上instance还未初始化完毕这个问题。将instance = newInstance();拆分为3句话是。1.分配内存2.初始化3.将instance指向分配的内存空间，volatile可以禁止指令重排序，确保先执行2，后执行3
 
 在《Java并发编程：核心理论》一文中，我们已经提到可见性、有序性及原子性问题，通常情况下我们可以通过Synchronized关键字来解决这些个问题，不过如果对Synchonized原理有了解的话，应该知道Synchronized是一个较重量级的操作，对系统的性能有比较大的影响，所以如果有其他解决方案，我们通常都避免使用Synchronized来解决问题。
     
@@ -688,6 +709,13 @@ wait() 和 notify() 方法：两个方法配套使用，wait() 使得线程进�
 
 wait() 和 notify() 方法的上述特性决定了它们经常和synchronized 方法或块一起使用，将它们和操作系统的进程间通信机制作一个比较就会发现它们的相似性：synchronized方法或块提供了类似于操作系统原语的功能，它们的执行不会受到多线程机制的干扰，而这一对方法则相当于 block 和wakeup 原语（这一对方法均声明为 synchronized）。它们的结合使得我们可以实现操作系统上一系列精妙的进程间通信的算法（如信号量算法），并用于解决各种复杂的线程间通信问题。（此外，线程间通信的方式还有多个线程通过synchronized关键字这种方式来实现线程间的通信、while轮询、使用java.io.PipedInputStream 和 java.io.PipedOutputStream进行通信的管道通信）。
 
+##### wait、notify、notifyAll
+
+- 锁池：某个对象的锁已被线程A拥有，其他线程要执行该对象的 synchronized 方法获取锁时就会进入该对象的锁池，锁池中的线程回去竞争该对象的锁
+- 等待池：某个线程调用了某个对象的 wait 方法，该线程就会释放该对象的锁，进入该对象的等待池，等待池中的线程不会去竞争该对象的锁
+- 调用 notify 会随机唤醒等待池中的一个线程，唤醒后会进入到锁池
+- 调用 notifyAll 会唤醒等待池中的所有线程，唤醒后会都进入到锁池
+
 关于 wait() 和 notify() 方法最后再说明两点：
 
 第一：调用 notify() 方法导致解除阻塞的线程是从调用该对象的 wait() 方法而阻塞的线程中随机选取的，我们无法预料哪一个线程将会被选择，所以编程时要特别小心，避免因这种不确定性而产生问题。
@@ -746,6 +774,11 @@ NEW、WAITING、TIMED_WAITING都比较好理解，我们重点说一说RUNNABLE�
 
 
 #### 9、[乐观锁与悲观锁](https://juejin.im/post/5b4977ae5188251b146b2fc8)。
+
+- 悲观锁：线程一旦得到锁，其他线程就挂起等待，适用于写入操作频繁的场景；synchronized 就是悲观锁
+- 乐观锁：假设没有冲突，不加锁，更新数据时判断该数据是否过期，过期的话则不进行数据更新，适用于读取操作频繁的场景
+- 乐观锁 CAS：Compare And Swap，更新数据时先比较原值是否相等，不相等则表示数据过去，不进行数据更新
+- 乐观锁实现：AtomicInteger、AtomicLong、AtomicBoolean
 
 ##### 悲观锁
 
