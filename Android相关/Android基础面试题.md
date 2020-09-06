@@ -1617,6 +1617,18 @@ dimens使用：
 
 #### 95、断点续传实现？
 
+##### 基础知识：
+
+- Http基础：在Http请求中，可以加入请求头Range，下载指定区间的文件数。
+- RandomAccessFile：支持随机访问，可以从指定位置进行数据的读写。
+
+有了这个基础以后，思路就清晰了：
+
+- 通过HttpUrlConnection获取文件长度。
+- 自己分配好线程进行制定区间的文件数据的下载。
+- 获取到数据流以后，使用RandomAccessFile进行指定位置的读写。
+
+
 在本地下载过程中要使用数据库实时存储到底存储到文件的哪个位置了，这样点击开始继续传递时，才能通过HTTP的GET请求中的setRequestProperty("Range","bytes=startIndex-endIndex");方法可以告诉服务器，数据从哪里开始，到哪里结束。同时在本地的文件写入时，RandomAccessFile的seek()方法也支持在文件中的任意位置进行写入操作。最后通过广播或事件总线机制将子线程的进度告诉Activity的进度条。关于断线续传的HTTP状态码是206，即HttpStatus.SC_PARTIAL_CONTENT。
 
 

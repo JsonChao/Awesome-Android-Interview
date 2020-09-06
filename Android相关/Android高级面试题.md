@@ -325,6 +325,13 @@
 #### 4、谈谈你对安卓签名的理解。
 
 
+#### 5、谈谈Android的安全机制
+
+- 1. Android 是基于Linux内核的，因此 Linux 对文件权限的控制同样适用于 Android。在 Android 中每个应用都有自己的/data/data/包名 文件夹，该文件夹只能该应用访问，而其他应用则无权访问。
+- 2. Android 的权限机制保护了用户的合法权益。如果我们的代码想拨打电话、发送短信、访问通信录、定位、访问、sdcard 等所有可能侵犯用于权益的行为都是必须要在 AndroidManifest.xml 中进行声明的，这样就给了用户一个知情权。
+- 3. Android 的代码混淆保护了开发者的劳动成果。
+
+
 ### 9、为什么WebView加载会慢呢？
 
 这是因为在客户端中，加载H5页面之前，需要先初始化WebView，在WebView完全初始化完成之前，后续的界面加载过程都是被阻塞的。
@@ -346,6 +353,54 @@
 - DNS链接慢，可以让客户端复用使用的域名与链接。
 - React框架代码执行慢，可以将这部分代码拆分出来，提前进行解析。
 
+
+#### WebView的漏洞有哪几种 
+
+主四类漏洞：
+
+- WebView 中 addJavascriptInterface（） 接口
+- WebView 内置导出的 searchBoxJavaBridge_对象
+- WebView 内置导出的 accessibility 和 accessibilityTraversalObject 对象
+- 任意代码执行漏洞
+
+
+WebView 中 addJavascriptInterface()接口
+
+原因 JS调用Android的其中一个方式是通过addJavascriptInterface接口进行对象映射，当JS拿到Android这个对象后，就可以调用这个Android对象中所有的方法，包括系统类（java.lang.Runtime 类），从而进行任意代码执行。 解决 Android 4.2以前，需要采用**拦截prompt（）**的方式进行漏洞修复 Android 4.2以后，则只需要对被调用的函数以 @JavascriptInterface进行注解
+
+WebView 内置导出的 searchBoxJavaBridge_对象
+
+原因 在Android 3.0以下，Android系统会默认通过searchBoxJavaBridge_的Js接口给 WebView 添加一个JS映射对象：searchBoxJavaBridge_对象 该接口可能被利用，实现远程任意代码。
+
+解决 删除searchBoxJavaBridge_接口
+
+WebView 内置导出的 accessibility 和 accessibilityTraversalObject 对象 原因和解决方法同上
+
+密码明文存储漏洞
+
+
+原因 WebView默认开启密码保存功能：mWebView.setSavePassword(true) 开启后，在用户输入密码时，会弹出提示框：询问用户是否保存密码； 如果选择”是”，密码会被明文保到 /data/data/com.package.name/databases/webview.db 中，这样就有被盗取密码的危险 解决 关闭密码保存提醒：WebSettings.setSavePassword(false)
+
+域控制不严格漏洞
+
+
+getSettings类的方法对 WebView 安全性的影响
+
+setAllowFileAccess // 设置是否允许 WebView 使用 File 协议 
+
+webView.getSettings().setAllowFileAccess(true); 如果不允许使用 file 协议，则不会存在上述的威胁；但同时也限制了 WebView 的功能，使其不能加载本地的 html 文件
+
+解决 对于不需要使用 file 协议的应用，禁用 file 协议； 对于需要使用 file 协议的应用，禁止 file 协议加载 JavaScript。
+
+3.2 setAllowFileAccessFromFileURLs // 设置是否允许通过 file url 加载的 Js代码读取其他的本地文件 webView.getSettings().setAllowFileAccessFromFileURLs(true); // 在Android 4.1前默认允许 // 在Android 4.1后默认禁止
+
+解决方案 设置setAllowFileAccessFromFileURLs(false);
+
+setAllowUniversalAccessFromFileURLs // 设置是否允许通过 file url 加载的 Javascript 可以访问其他的源(包括http、https等源) 
+
+webView.getSettings().setAllowUniversalAccessFromFileURLs(true); // 在Android 4.1前默认允许（setAllowFileAccessFromFileURLs（）不起作用） // 在Android 4.1后默认禁止
+
+解决方案 设置setAllowUniversalAccessFromFileURLs(false);
 
 ### 10、如何优化自定义View
 
@@ -1252,6 +1307,19 @@ ART缺点：
 - 更大的存储空间占用，可能会增加10%-20%。
 - 更长的应用安装时间。
 
+
+#### AOT和JIT以及混合编译的区别、优势
+
+AOT和JIT是什么？AOT,即Ahead-of-time,指预先编译. JIT,即Just-In-Time,指即时编译.
+
+区别: 主要区别在于是否在“运行时”进行编译.
+
+优劣: AOT优点：1.在程序运行前编译,可以避免在运行时的编译性能消耗和内存消耗. 2.可以在程序运行初期就达到最高性能. 3.可以显著的加快程序的启动. AOT缺点：1.在程序运行前编译会使程序安装的时间增加. 2.牺牲Java的一致性. 3.将提前编译的内容保存会占用更多的外存.
+
+JIT优点：1.可以根据当前硬件情况实时编译生成最优机器指令(ps:AOT也可以做到,在用户使用是使用字节码根据机器情况在做一次编译). 2.可以根据当前程序的运行情况生成最优的机器指令序列. 3.当程序需要支持动态链接时,只能使用JIT. 4.可以根据进程中内存的实际情况调整代码,使内存能够更充分的利用. JIT缺点：1.编译需要占用运行时资源,会导致进程卡顿. 2.由于编译时间需要占用运行时间,对于某些代码的编译优化不能完全支持,需要在程序流畅和编译时间之间做权衡. 3.在编译准备和识别频繁使用的方法需要占用时间,使得初始编译不能达到最高性能.
+
+混合编译: Android N引入了使用编译+解释+JIT的混合运行时,以获得安装时间,内存占用,电池消耗和性能之间的最佳折衷. 优点: 即使是大型应用程序的安装时间也减少到几秒钟. 系统更新安装得更快,因为它们不需要优化步骤. 应用程序的RAM占用空间较小,在某些情况下降至50％. 改善了表现. 降低电池消耗.
+
 #### ART和Davlik中垃圾回收的区别？
 
 ### 17、安卓采用自动垃圾回收机制，请说下安卓内存管理的原理？
@@ -1581,11 +1649,13 @@ Glide是Android中的一个图片加载库，用于实现图片加载。
 
 - Glide的三层缓存机制：
 
+Glide的缓存机制，主要分为2种缓存，一种是内存缓存，一种是磁盘缓存。之所以使用内存缓存的原因是：防止应用重复将图片读入到内存，造成内存资源浪费。之所以使用磁盘缓存的原因是：防止应用重复的从网络或者其他地方下载和读取数据。正式因为有着这两种缓存的结合，才构成了Glide极佳的缓存效果。
+
 Glide缓存机制大致分为三层：内存缓存、弱引用缓存、磁盘缓存。
 
-取的顺序是：内存、弱引用、磁盘。
+取的顺序是：Lru 算法缓存（内存）、弱引用、磁盘。
 
-存的顺序是：弱引用、内存、磁盘。
+存的顺序是：弱引用、Lru 算法缓存（内存）、磁盘。
 
 三层存储的机制在Engine中实现的。先说下Engine是什么？Engine这一层负责加载时做管理内存缓存的逻辑。持有MemoryCache、Map<Key, WeakReference<EngineResource<?>>>。通过load（）来加载图片，加载前后会做内存存储的逻辑。如果内存缓存中没有，那么才会使用EngineJob这一层来进行异步获取硬盘资源或网络资源。EngineJob类似一个异步线程或observable。Engine是一个全局唯一的，通过Glide.getEngine()来获取。
 
@@ -1599,14 +1669,27 @@ Glide缓存机制大致分为三层：内存缓存、弱引用缓存、磁盘缓
 
 Glide的高效的三层缓存机制，如上。
 
-##### Glide如何确定图片加载完毕？
+
+##### Glide加载一个一兆的图片（100 * 100），是否会压缩后再加载，放到一个300 * 300的view上会怎样，800*800呢，图片会很模糊，怎么处理？
+
+当我们调整imageview的大小时，Picasso会不管imageview大小是什么，总是直接缓存整张图片，而Glide就不一样了，它会为每个不同尺寸的Imageview缓存一张图片，也就是说不管你的这张图片有没有加载过，只要imageview的尺寸不一样，那么Glide就会重新加载一次，这时候，它会在加载的imageview之前从网络上重新下载，然后再缓存。
+
+举个例子，如果一个页面的imageview是300 * 300像素，而另一个页面中的imageview是100 * 100像素，这时候想要让两个imageview像是同一张图片，那么Glide需要下载两次图片，并且缓存两张图片。
+
+```java
+public <R> LoadStatus load() {
+    // 根据请求参数得到缓存的键
+    EngineKey key = keyFactory.buildKey(model, signature, width, height, transformations,
+        resourceClass, transcodeClass, options);
+}
+```
+
+可以看到，缓存Key的生成条件之一就是控件的长宽。
 
 
-##### Glide使用什么缓存？
+##### 如果在一个页面中使用Glide加载了一张图片，图片正在获取中，如果突然关闭页面，这个页面会造成内存泄漏吗？
 
-
-##### Glide内存缓存如何控制大小？
-
+因为Glide 在加载资源的时候，如果是在 Activity、Fragment 这一类有生命周期的组件上进行的话，会创建一个透明的 RequestManagerFragment 加入到FragmentManager 之中，感知生命周期，当 Activity、Fragment 等组件进入不可见，或者已经销毁的时候，Glide 会停止加载资源。但是如果，是在非生命周期的组件上进行时，会采用Application 的生命周期贯穿整个应用，所以 applicationManager 只有在应用程序关闭的时候终止加载。
 
 ##### 计算一张图片的大小
     
@@ -2437,6 +2520,17 @@ AOP(Aspect-Oriented Programming, 面向切面编程)，诞生于上个世纪90�
 
 #### 设计一个音乐播放界面，你会如何实现，用到那些类，如何设计，如何定义接口，如何与后台交互，如何缓存与下载，如何优化(15分钟时间)
 
+##### 如何设计一个大图加载框架
+
+- 封装参数：从指定来源，到输出结果，中间可能经历很多流程，所以第一件事就是封装参数，这些参数会贯穿整个过程；
+- 解析路径：图片的来源有多种，格式也不尽相同，需要规范化；
+- 读取缓存：为了减少计算，通常都会做缓存；同样的请求，从缓存中取图片（Bitmap）即可；
+- 查找文件/下载文件：如果是本地的文件，直接解码即可；如果是网络图片，需要先下载；
+- 解码：这一步是整个过程中最复杂的步骤之一，有不少细节，下个博客会说；
+- 变换：解码出Bitmap之后，可能还需要做一些变换处理（圆角，滤镜等）；
+- 缓存：得到最终bitmap之后，可以缓存起来，以便下次请求时直接取结果；
+- 显示：显示结果，可能需要做些动画（淡入动画，crossFade等）。
+
 
 #### 从0设计一款App整体架构，如何去做？
 
@@ -2621,10 +2715,72 @@ ListView 提供了单击、长按、选中某个 Item 的监听设置。
 
 #### 如何自己实现RecyclerView的侧滑删除？
 
-#### RecyclerView的ItemTouchHelper的实现原理
+#### RecyclerView的ItemTouchHelper的实现原理'
 
+#### 谈谈 RecyclerView 的性能优化
 
+1. 数据处理和视图加载分离
 
+   从远端拉取数据肯定是要放在异步的，在我们拉取下来数据之后可能就匆匆把数据丢给了 VH 处理，其实，数据的处理逻辑我们也应该放在异步处理，这样 Adapter 在 notify change 后，ViewHolder 就可以简单无压力地做数据与视图的绑定逻辑，比如：
+
+   ```java
+   mTextView.setText(Html.fromHtml(data).toString());
+   ```
+
+   这里的 `Html.fromHtml(data)` 方法可能就是比较耗时的，存在多个 `TextView` 的话耗时会更为严重，这样便会引发掉帧、卡顿，而如果把这一步与网络异步线程放在一起，站在用户角度，最多就是网络刷新时间稍长一点。
+
+2. 数据优化
+
+   分页拉取远端数据，对拉取下来的远端数据进行缓存，提升二次加载速度；对于新增或者删除数据通过 `DiffUtil` 来进行局部刷新数据，而不是一味地全局刷新数据。
+
+3. 布局优化
+
+   1. 减少过渡绘制
+   
+      减少布局层级，可以考虑使用自定义 View 来减少层级，或者更合理地设置布局来减少层级，不推荐在 RecyclerView 中使用 `ConstraintLayout`，有很多开发者已经反映了使用它效果更差，相关链接有：Is ConstraintLayout that slow?、constraintlayout 1.1.1 not work well in listview。
+   
+   2. 减少 xml 文件 inflate 时间
+   
+      这里的 xml 文件不仅包括 layout 的 xml，还包括 drawable 的 xml，xml 文件 inflate 出 ItemView 是通过耗时的 IO 操作，尤其当 Item 的复用几率很低的情况下，随着 Type 的增多，这种 inflate 带来的损耗是相当大的，此时我们可以用代码去生成布局，即 `new View()` 的方式，只要搞清楚 xml 中每个节点的属性对应的 API 即可。
+   
+   3. 减少 View 对象的创建
+   
+      一个稍微复杂的 Item 会包含大量的 View，而大量的 View 的创建也会消耗大量时间，所以要尽可能简化 ItemView；设计 ItemType 时，对多 ViewType 能够共用的部分尽量设计成自定义 View，减少 View 的构造和嵌套。
+   
+4. 其他
+
+   - 升级 `RecycleView` 版本到 25.1.0 及以上使用 Prefetch 功能，可参考 RecyclerView 数据预取。
+
+   - 如果 Item 高度是固定的话，可以使用 `RecyclerView.setHasFixedSize(true);` 来避免 `requestLayout` 浪费资源；
+
+   - 设置 `RecyclerView.addOnScrollListener(listener);` 来对滑动过程中停止加载的操作。
+
+   - 如果不要求动画，可以通过 `((SimpleItemAnimator) rv.getItemAnimator()).setSupportsChangeAnimations(false);` 把默认动画关闭来提神效率。
+
+   - 对 `TextView` 使用 `String.toUpperCase` 来替代 `android:textAllCaps="true"`。
+
+   - 对 `TextView` 使用 `StaticLayout` 或者 `DynamicLayout` 的自定义 `View` 来代替它。
+
+   - 通过重写 `RecyclerView.onViewRecycled(holder)` 来回收资源。
+
+   - 通过 `RecycleView.setItemViewCacheSize(size);` 来加大 `RecyclerView` 的缓存，用空间换时间来提高滚动的流畅性。
+
+   - 如果多个 `RecycledView` 的 `Adapter` 是一样的，比如嵌套的 `RecyclerView` 中存在一样的 `Adapter`，可以通过设置 `RecyclerView.setRecycledViewPool(pool);` 来共用一个 `RecycledViewPool`。
+
+   - 对 `ItemView` 设置监听器，不要对每个 Item 都调用 `addXxListener`，应该大家公用一个 `XxListener`，根据 `ID` 来进行不同的操作，优化了对象的频繁创建带来的资源消耗。
+
+   - 通过 getExtraLayoutSpace 来增加 RecyclerView 预留的额外空间（显示范围之外，应该额外缓存的空间），如下所示：
+
+     ```
+     new LinearLayoutManager(this) {
+         @Override
+         protected int getExtraLayoutSpace(RecyclerView.State state) {
+             return size;
+         }
+     };
+     ```
+
+     
 ### 8、如何实现一个推送，消息推送原理？推送到达率的问题？
 
 一：客户端不断的查询服务器，检索新内容，也就是所谓的pull 或者轮询方式。
@@ -2662,6 +2818,15 @@ https://www.jianshu.com/p/45202dcd5688
 - 使用与密度无关的像素单位dp，sp。
 - 引入android的百分比布局。
 - 切图的时候切大分辨率的图，应用到布局当中，在小分辨率的手机上也会有很好的显示效果。
+
+
+#### 自定义控件优化方案
+
+- 1. 为了加速你的view，对于频繁调用的方法，需要尽量减少不必要的代码。先从onDraw开始，需要特别注意不应该在这里做内存分配的事情，因为它会导致GC，从而导致卡顿。在初始化或者动画间隙期间做分配内存的动作。不要在动画正在执行的时候做内存分配的事情。
+- 2. 你还需要尽可能的减少onDraw被调用的次数，大多数时候导致onDraw都是因为调用了invalidate().因此请尽量减少调用invaildate()的次数。如果可能的话，尽量调用含有4个参数的invalidate()方法而不是没有参数的invalidate()。没有参数的invalidate会强制重绘整个view。
+- 3. 另外一个非常耗时的操作是请求layout。任何时候执行requestLayout()，会使得Android UI系统去遍历整个View的层级来计算出每一个view的大小。如果找到有冲突的值，它会需要重新计算好几次。另外需要尽量保持View的层级是扁平化的，这样对提高效率很有帮助。
+   如果你有一个复杂的UI，你应该考虑写一个自定义的ViewGroup来执行他的layout操作。与内置的view不同，自定义的view可以使得程序仅仅测量这一部分，这避免了遍历整个view的层级结构来计算大小。这个PieChart 例子展示了如何继承ViewGroup作为自定义view的一部分。PieChart 有子views，但是它从来不测量它们。而是根据他自身的layout法则，直接设置它们的大小。
+
 
 
 ### 11、如何解决git冲突？
