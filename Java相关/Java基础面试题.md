@@ -409,6 +409,27 @@ Treemap：适用于按自然顺序或自定义顺序遍历键(key)。
 (ps:其实我们工作的过程中对集合的使用是很频繁的,稍注意并总结积累一下,在面试的时候应该会回答的很轻松)
 
 
+##### HashMap 、HashTable、HashSet
+
+- HashMap（允许 key/value 为 null）
+
+- 基于数组和单向链表实现，数组是 HashMap 的主体；链表是为解决哈希冲突而存在的，存放的是key和value结合的实体
+- 数组索引通过 key.hashCode（还会二次 hash） 得到，在链表上通过 key.equals 索引
+- 哈希冲突落在同一个桶中时，直接放在链表头部（java1.8后放到尾部）
+- JAVA 8 中链表数量大于 8 时会转为红黑树存储，查找时间由 O(n) 变为 O(logn)
+- 数组长度总是2的n次方：这样就能通过位运算实现取余，从而让 index 能落在数组长度范围内
+- 加载因子（默认0.75）表示添加到多少填充比时进行扩容，填充比大：链表较长，查找慢；填充比小：链表短，查找快
+- 扩容时直接创建原数组两倍的长度，然后将原有对象再进行hash找到新的index，重新放
+
+- HashTable（不允许 key/value 为 null)
+
+- 数据结构和 HashMap 一样
+- 线程安全
+
+- HashSet
+
+- 基于 HashMap 实现，元素就是 HashMap 的 key，Value 传入了一个固定值
+
 #### 2、set集合从原理上如何保证不重复？
 
 1）在往set中添加元素时，如果指定元素不存在，则添加成功。
@@ -580,18 +601,13 @@ Java中HashMap是利用“拉链法”处理HashCode的碰撞问题。在调用H
 
 HashMap要存储完这些数据将要不断的扩容，而且在此过程中也需要不断的做hash运算，这将对我们的内存空间造成很大消耗和浪费。
 
-##### SparseArray:
-
-SparseArray比HashMap更省内存，在某些条件下性能更好，主要是因为它避免了对key的自动装箱（int转为Integer类型），它内部则是通过两个数组来进行数据存储的，一个存储key，另外一个存储value，为了优化性能，它内部对数据还采取了压缩的方式来表示稀疏数组的数据，从而节约内存空间，我们从源码中可以看到key和value分别是用数组表示：
-
-    private int[] mKeys;
-    private Object[] mValues;
-    
-    
-同时，SparseArray在存储和读取数据时候，使用的是二分查找法。也就是在put添加数据的时候，会使用二分查找法和之前的key比较当前我们添加的元素的key的大小，然后按照从小到大的顺序排列好，所以，SparseArray存储的元素都是按元素的key值从小到大排列好的。 
-而在获取数据的时候，也是使用二分查找法判断元素的位置，所以，在获取数据的时候非常快，比HashMap快的多。
-
 ##### ArrayMap:
+
+- 基于两个数组实现，一个存放 hash；一个存放键值对
+- 存放 hash 的数组是有序的，查找时使用二分法查找
+- 发生哈希冲突时键值对数组里连续存放，查找时也是通过 key.equals索引，找不到时先向后再向前遍历相同hash值的键值对数组
+- 扩容时不像 HashMap 直接 double，内存利用率高；也不需要重建哈希表，只需要调用 system.arraycopy 数组拷贝，性能较高
+- 不适合存大量数据（1000以下），因为数据量大的时候二分查找相比红黑树会慢很多
 
 ArrayMap利用两个数组，mHashes用来保存每一个key的hash值，mArrray大小为mHashes的2倍，依次保存key和value。
 
@@ -601,6 +617,18 @@ ArrayMap利用两个数组，mHashes用来保存每一个key的hash值，mArrray
     
 当插入时，根据key的hashcode()方法得到hash值，计算出在mArrays的index位置，然后利用二分查找找到对应的位置进行插入，当出现哈希冲突时，会在index的相邻位置插入。
 
+##### SparseArray:
+
+基于 ArrayMap，key 只能是特定类型。
+
+SparseArray比HashMap更省内存，在某些条件下性能更好，主要是因为它避免了对key的自动装箱（int转为Integer类型），它内部则是通过两个数组来进行数据存储的，一个存储key，另外一个存储value，为了优化性能，它内部对数据还采取了压缩的方式来表示稀疏数组的数据，从而节约内存空间，我们从源码中可以看到key和value分别是用数组表示：
+
+    private int[] mKeys;
+    private Object[] mValues;
+    
+    
+同时，SparseArray在存储和读取数据时候，使用的是二分查找法。也就是在put添加数据的时候，会使用二分查找法和之前的key比较当前我们添加的元素的key的大小，然后按照从小到大的顺序排列好，所以，SparseArray存储的元素都是按元素的key值从小到大排列好的。 
+而在获取数据的时候，也是使用二分查找法判断元素的位置，所以，在获取数据的时候非常快，比HashMap快的多。
 
 ##### 假设数据量都在千级以内的情况下：
 
@@ -1232,6 +1260,17 @@ d.Integer对象的hash值为数值本身；
 
 
 #### 31、[Integer类对int的优化](http://denverj.iteye.com/blog/745422)
+
+
+#### 32、IO 、 NIO、 OKIO
+
+- IO 是面向流的，一次一个字节的处理，NIO 是面向缓冲区的，一次产生或消费一个数据块
+- IO 是阻塞的，NIO 是非阻塞的
+- NIO 支持内存映射方式
+- okio 相比 io 和 nio，api 更简单易用
+- okio 支持超时机制
+- okio 引入 ByteString 空间换时间提高性能
+- okio 采用 segment 机制进行内存共享，节省 copy 时间消耗
 
 
 
