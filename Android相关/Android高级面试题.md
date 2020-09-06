@@ -63,6 +63,14 @@
 然后，我们需要给App设立路由跳转，所有的界面跳转都需要通过路由来分发，如果我们匹配到需要跳转到有bug的这样一个新功能时，那我们就不跳转了，或者是跳转到统一的异常正处理中的界面。如果这两种方式都不可以，那就可以考虑通过热修复的方式来动态修复，目前热修复的方案其实已经比较成熟了，我们完全可以低成本地在我们的项目中添加热修复的能力，当然，如果有些功能是由RN或WeeX来实现就更好了，那就可以通过更新资源包的方式来实现动态更新。而这些如果都不可以的话呢，那就可以考虑自己去给应用加上一个自主修复的能力，如果App启动多次的话，那就可以考虑清空所有的缓存数据，将App重置到安装的状态，到了最严重的等级呢，可以阻塞主线程，此时一定要等App热修复成功之后才允许用户进入。
 
 
+#### 5、Native Crash
+
+- 崩溃过程：native crash 时操作系统会向进程发送信号，崩溃信息会写入到 data/tombstones 下，并在 logcat 输出崩溃日志
+- 定位：so 库剥离调试信息的话，只有相对位置没有具体行号，可以使用 NDK 提供的 addr2line 或 ndk-stack 来定位
+- addr2line：根据有调试信息的 so 和相对位置定位实际的代码处
+- ndk-stack：可以分析 tombstone 文件，得到实际的代码调用栈
+
+
 ![image](https://raw.githubusercontent.com/JsonChao/Awesome-Android-Interview/master/screenshot/App%E7%A8%B3%E5%AE%9A%E6%80%A7%E4%BC%98%E5%8C%96.png)
 
 需要更全面更深入的理解请查看[深入探索Android稳定性优化](https://juejin.im/post/5e69a4fd51882549003d2f0e)
@@ -1041,8 +1049,19 @@ Activity的启动流程图（放大可查看）如下所示：
 
 ### 13、WMS是如何管理Window的？
 
+#### Window 、WindowManager、WMS、SurfaceFlinger
+    
+- WIndow：抽象概念不是实际存在的，而是以 View 的形式存在，通过 PhoneWindow 实现
+- WindowManager：外界访问 Window 的入口，内部与 WMS 交互是个 IPC 过程
+- WMS：管理窗口 Surface 的布局和次序，作为系统级服务单独运行在一个进程
+- SurfaceFlinger：将 WMS 维护的窗口按一定次序混合后显示到屏幕上
+
 
 ### 14、大体说清一个应用程序安装到手机上时发生了什么？
+
+- 首先要解压 APK，资源、so等放到应用目录
+- Dalvik 会将 dex 处理成 ODEX ；ART 会将 dex 处理成 OAT；
+- OAT 包含 dex 和安装时编译的机器码
 
 APK的安装流程如下所示：
 
@@ -1064,6 +1083,13 @@ APK的安装流程如下所示：
 ### 15、Android的打包流程？（即描述清点击 Android Studio 的 build 按钮后发生了什么？）apk里有哪些东西？签名算法的原理？
 
 #### apk打包流程
+
+- 1.aapt 打包资源文件生成 R.java 文件；aidl 生成 java 文件
+- 2.将 java 文件编译为 class 文件
+- 3.将工程及第三方的 class 文件转换成 dex 文件
+- 4.将 dex 文件、so、编译过的资源、原始资源等打包成 apk 文件
+- 5.签名
+- 6.资源文件对齐，减少运行时内存
 
 Android的包文件APK分为两个部分：代码和资源，所以打包方面也分为资源打包和代码打包两个方面，下面就来分析资源和代码的编译打包原理。
 
@@ -1201,6 +1227,14 @@ DVM:.java -> javac -> .class -> dx.bat -> .dex
 架构: 寄存器(cpu上的一块高速缓存)
 
 #### Android2个虚拟机的区别（一个5.0之前，一个5.0之后）
+
+- Dalvik
+    - 谷歌设计专用于 Android 平台的 Java 虚拟机，可直接运行 .dex 文件，适合内存和处理速度有限的系统
+    - JVM 指令集是基于栈的；Dalvik 指令集是基于寄存器的，代码执行效率更优
+- ART
+    - Dalvik 每次运行都要将字节码转换成机器码；ART 在应用安装时就会转换成机器码，执行速度更快
+    - ART 存储机器码占用空间更大，空间换时间
+
 
 什么是Dalvik：Dalvik是Google公司自己设计用于Android平台的Java虚拟机。Dalvik虚拟机是Google等厂商合作开发的Android移动设备平台的核心组成部分之一，它可以支持已转换为.dex(即Dalvik Executable)格式的Java应用程序的运行，.dex格式是专为Dalvik应用设计的一种压缩格式，适合内存和处理器速度有限的系统。Dalvik经过优化，允许在有限的内存中同时运行多个虚拟机的实例，并且每一个Dalvik应用作为独立的Linux进程执行。独立的进程可以防止在虚拟机崩溃的时候所有程序都被关闭。
 
@@ -2269,6 +2303,11 @@ ARouter维护了一个路由表Warehouse，其中保存着全部的模块跳转�
 
 #### 谈谈你对AOP技术的理解？
 
+- 基于 Gradle Transform API 创建 TransForm ，其执行时机在 class 被打包成 dex 之前
+- 在 TransForm 中通过 javassist 或 asm 修改字节码
+- 基于 Gradle Plugin API 自定义插件，应用自定义的 TransForm
+
+
 #### 说说你了解的编译插桩技术？
 
 
@@ -2411,7 +2450,20 @@ AOP(Aspect-Oriented Programming, 面向切面编程)，诞生于上个世纪90�
 #### 你最优秀的工程设计项目，是怎么设计和实现的；扩展，如何做成一个平台级产品？
 
 
-## 六、其它高频面试题
+## 六、音视频、图像处理面试题
+
+### 1、播放器原理
+
+- 视频播放原理：（mp4、flv）-> 解封装 -> （mp3/aac、h264/h265）-> 解码 -> （pcm、yuv）-> 音视频同步 -> 渲染播放
+- 音视频同步：
+    - 选择参考时钟源：音频时间戳、视频时间戳和外部时间三者选择一个作为参考时钟源（一般选择音频，因为人对音频更敏感，ijk 默认也是音频）
+    - 通过等待或丢帧将视频流与参考时钟源对齐，实现同步
+- IjkPlayer 原理
+    - 集成了 MediaPlayer、ExoPlayer 和 IjkPlayer 三种实现，其中 IjkPlayer 基于 FFmpeg 的 ffplay
+    - 音频输出方式：AudioTrack、OpenSL ES；视频输出方式：NativeWindow、OpenGL ES
+
+
+## 七、其它高频面试题
 
 ### 1、[如何保证一个后台服务不被杀死？（相同问题：如何保证service在后台不被kill？）比较省电的方式是什么？](https://www.jianshu.com/p/b5371df6d7cb)
 
@@ -2707,6 +2759,13 @@ SurfaceView是在一个新起的单独线程中可以重新绘制画面，而vie
     
 在UI的主线程中更新画面可能会引发问题，比如你更新的时间过长，那么你的主UI线程就会被你正在画的函数阻塞。那么将无法响应按键、触屏等消息。当使用SurfaceView由于是在新的线程中更新画面所以不会阻塞你的UI主线程。但这也带来了另外一个问题，就是事件同步。比如你触屏了一下，你需要在SurfaceView中的thread处理，一般就需要有一个event queue的设计来保存touchevent，这会稍稍复杂一点，因为涉及到线程安全。
 
+#### SurfaceView、TextureView、SurfaceTexture、GLSurfaceView
+
+- SurfaceView：使用双缓冲机制，有自己的 surface，在一个独立的线程里绘制，Android7.0之前不能平移、缩放
+- TextureView：持有 SurfaceTexture，将图像处理为 OpenGL 纹理更新到 HardwareLayer，必须开启硬件加速，Android5.0之前在主线程渲染，之后有独立的渲染线程，可以平移、旋转、缩放
+- SurfaceTexture：将图像流转为 OpenGL 外部纹理，不直接显示
+- GLSurfaceView：加入 EGL 管理，自带 GL 上下文和 GL 渲染线程
+
 
 ### 24、Android程序运行时权限与文件系统权限
 
@@ -2819,6 +2878,31 @@ jni修改一个class的classloder为BootStrapClassLoader，麻烦。
 
 利用jni去修改。
 
+
+33、进程保活
+
+- 进程优先级：1.前台进程 ；2.可见进程；3.服务进程；4.后台进程；5.空进程
+- 进程被 kill 场景：1.切到后台内存不足时被杀；2.切到后台厂商省电机制杀死；3.用户主动清理
+- 保活方式：
+    - 1.Activity 提权：挂一个 1像素 Activity 将进程优先级提高到前台进程
+    - 2.Service 提权：启动一个前台服务（API>18会有正在运行通知栏）
+    - 3.广播拉活
+    - 4.Service 拉活
+    - 5.JobScheduler 定时任务拉活
+    - 6.双进程拉活
+
+
+34、JetPack
+
+- LiveData 感知声明周期原理：像 Glide 一样给界面添加了无视图的 Fragment
+- ViewModel 界面旋转短暂销毁重建时保存数据原理：
+    - ViewModel 保存在 ViewModelStore 中
+    - 当 Activity 配置变更销毁时，系统会调用 onRetainNonConfigurationInstance 保存 NonConfigurationInstances，而 ViewModel 就保存在 NonConfigurationInstances 中
+    - 重建时 onCreate 方法通过 getLastNonConfigurationInstance 方法获取到 NonConfigurationInstances，从而获取到 ViewModelStore
+- JetPack 与 MVVM：
+    - 先了解下 MVP：Model：处理数据；View：控制视图；Presenter：分离 Activity 和 Model
+    - 再看 MVVM：Model：处理获取保存数据；View：控制视图；ViewModel：数据容器
+    - 使用 Jetpack 组件架构的 LiveData、ViewModel 可以便捷的实现 MVVM
 
 
 
