@@ -2452,7 +2452,11 @@ AOP(Aspect-Oriented Programming, 面向切面编程)，诞生于上个世纪90�
 
 ## 六、音视频、图像处理面试题
 
-### 1、播放器原理
+### 1、音视频基础
+
+https://mp.weixin.qq.com/s/VCWiVxTH1BbymcXD0LDuew
+
+### 2、播放器原理
 
 - 视频播放原理：（mp4、flv）-> 解封装 -> （mp3/aac、h264/h265）-> 解码 -> （pcm、yuv）-> 音视频同步 -> 渲染播放
 - 音视频同步：
@@ -2664,6 +2668,11 @@ https://www.jianshu.com/p/45202dcd5688
 
 
 ### 12、Jenkins 持续集成。
+
+- Continuous integration（持续集成，简称CI）：频繁的将代码集成到主干，防止分支大幅偏离主干，方便快速发现错误
+- Continuous delivery（持续交付）：频繁地将软件的新版本，交付给质量团队或者用户，以供评审
+- Continuous deployment（持续部署）：持续交付的下一步，指的是代码通过评审以后，自动部署到生产环境
+- 交付后需要进行构建，将源码转换为可以运行的实际代码，常用的构建工具有 Jenkins、Strider
 
 
 ### 13、Debug跟Release的APK的区别？
