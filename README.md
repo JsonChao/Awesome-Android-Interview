@@ -78,7 +78,7 @@ A awesome  android expert interview questions and answers
 我的公众号 `JsonChao` 开通啦，专注于构建一套未来Android开发必备的知识体系。每个工作日为您推送高质量文章，让你每天都能涨知识。如果您想第一时间获取最新文章和最新动态，欢迎扫描关注~
 
 <div align="center">
-<img src="https://s4.ax1x.com/2022/01/16/7tk7JP.jpg" width=30%>
+<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7da61f2739d34818be8a51a7afbbbb53~tplv-k3u1fbpfcp-watermark.image?" width=30%>
 </div>
 
 
