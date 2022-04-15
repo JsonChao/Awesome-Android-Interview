@@ -329,7 +329,7 @@ JSON是轻量级的文本数据交换格式，独立于语言，具有可描述�
     List<Integer> ages = gson.fromJson(json2,  newTypeToken<List<Integer>>(){}.getType);
 
     Gson gson = new Gson();
-    List<Student> students = gson.fromJson(json3, newTypeToke<List<Student>>(){}.getType);
+    List<Student> students = gson.fromJson(json3, newTypeToken<List<Student>>(){}.getType);
 
 ##### 优点：
 
