@@ -106,13 +106,7 @@ $\color{#FF0000}{出身普通的人，如何真正改变命运？}$
 
 ### 星球目前有哪些服务？
 
-- 每周会提供一份让 **个人增值，避免踩坑 的硬干货**，下面是最近的分享：
-
-<div align="center">
-<img src="https://raw.githubusercontent.com/JsonChao/Awesome-Android-Interview/master/screenshot/interview_good.jpg" width=30%>
-</div>
-
-
+- 每周会提供一份让 **个人增值，避免踩坑 的硬干货**。
 - 每日以文字或语音的形式分享我个人学习和实践中的 **思考精华或复盘记录**。
 - 提供 **每月 三 次成长**、技术或面试指导的咨询服务。
 - 更多服务正在研发中...
