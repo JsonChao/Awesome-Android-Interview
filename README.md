@@ -67,21 +67,6 @@ A awesome  android expert interview questions and answers
 
 * [非技术面试题](https://github.com/JsonChao/Awesome-Android-Interview/blob/master/%E5%85%B6%E5%AE%83/%E9%9D%9E%E6%8A%80%E6%9C%AF%E9%9D%A2%E8%AF%95%E9%A2%98.md)
 
-
-## 结语
-
-其实，在面试中，很多题目并没有真正的答案，你能回答到什么样的深度，还是得靠自己真正的去使用和研究。知识的深度和广度都很重要，所以都需要花相应的时间去学习。这样，就算被问到自己不熟悉的领域也可以同面试官唠嗑两句，然后可以在适当的时机引向自己有深入研究的领域，让面试官觉得你是这个领域的专家。
-
-
-## 公众号
-
-我的公众号 `JsonChao` 开通啦，专注于构建一套未来Android开发必备的知识体系。每个工作日为您推送高质量文章，让你每天都能涨知识。如果您想第一时间获取最新文章和最新动态，欢迎扫描关注~
-
-<div align="center">
-<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7da61f2739d34818be8a51a7afbbbb53~tplv-k3u1fbpfcp-watermark.image?" width=30%>
-</div>
-
-
 ## 知识星球（推荐）
 
 现如今，Android 行业人才已逐渐饱和化，但高级人才依旧很稀缺，我们经常遇到的情况是，100份简历里只有2、3个比较合适的候选人，大部分的人都是疲于业务，没有花时间来好好学习，或是完全不知道学什么来提高自己的技术。对于 Android 开发者来说，尽早建立起一个完整的 Android 知识框架，了解目前大厂高频出现的常考知识点，掌握面试技巧，是一件非常需要重视的事情。
@@ -150,6 +135,13 @@ $\color{#FF0000}{出身普通的人，如何真正改变命运？}$
 <img src="https://mmbiz.qpic.cn/mmbiz_png/PjzmrzN77aAPxe8aibFBdkiaY9ldh9uQVxw0WFJ9TicCRlhZIFibIb2ex74hWel3DpkS46aX5vFlwuZXKTNMb2ZnHg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" width=30%>
 </div>
 
+## 公众号
+
+我的公众号 `JsonChao` 开通啦，专注于构建一套未来Android开发必备的知识体系。每个工作日为您推送高质量文章，让你每天都能涨知识。如果您想第一时间获取最新文章和最新动态，欢迎扫描关注~
+
+<div align="center">
+<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7da61f2739d34818be8a51a7afbbbb53~tplv-k3u1fbpfcp-watermark.image?" width=30%>
+</div>
 
 ### License
 
