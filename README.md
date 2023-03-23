@@ -28,6 +28,11 @@ A awesome  android expert interview questions and answers
 
 > 为了更好地分类学习，建议跳转到本项目对应的[Github地址](https://github.com/JsonChao/Awesome-Android-Interview)，欢迎Star、Fork、Watch~
 
+## 2023 年最新 Android 高频面试题集合请扫码加入星球获取
+
+<div align="center">
+<img src="https://user-images.githubusercontent.com/17464480/227223150-0b614156-7cfd-4b85-9f51-ff84c321acf8.png" width=50%>
+</div>
 
 ## Contents
 
@@ -85,25 +90,16 @@ A awesome  android expert interview questions and answers
 
 所以，这一点一定要切记。
 
-现在，我已经在我的成长社群里修订好了 《体系化高频核心 Android 面试题库》 中的 ”计算机基础高频核心面试题“ 和 ”Java 和 kotlin 高频核心面试题“ 部分，后续还会为你带来我核心题库中的：
-
-- “Android基础 高频核心面试题”
-- “基础架构 高频核心面试题”
-- “跨平台 高频核心面试题”
-- “性能优化 高频核心面试题”
-- ”Framework 高频核心面试题“
-- ”NDK 高频核心面试题“
-
 获取方法：扫描下方的二维码。
 
 <div align="center">
-<img src="https://mmbiz.qpic.cn/mmbiz_png/PjzmrzN77aBMyo7G0TS2tYYJicPHRLD5KlvoaRA6EP1QvjiaSSkxcOPibnXXtOpgRJw5J3EYHcribkDBuWUfhRF35Q/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" width=30%>
+<img src="https://user-images.githubusercontent.com/17464480/227223150-0b614156-7cfd-4b85-9f51-ff84c321acf8.png" width=50%>
 </div>
 
 
-$\color{#FF0000}{出身普通的人，如何真正改变命运？}$
+### 出身普通的人，如何真正改变命运？
 
-这是我过去五、六年一直研究的命题。首先，是为自己研究，因为我是从小城镇出来的，通过持续不断地逆袭立足深圳。**越是出身普通的人，就越需要有耐心，去进行系统性地全面提升，这方面，我有非常丰富的实践经验和方法论**。因此，我开启了 “JsonChao” 的成长社群，希望和你一起完成系统性地蜕变。
+这是我过去七年一直研究的命题。首先，是为自己研究，因为我是从小城镇出来的，通过持续不断地逆袭立足深圳。**越是出身普通的人，就越需要有耐心，去进行系统性地全面提升，这方面，我有非常丰富的实践经验和方法论**。因此，我开启了 “JsonChao” 的成长社群，希望和你一起完成系统性地蜕变。
 
 ### 星球目前有哪些服务？
 
@@ -118,26 +114,11 @@ $\color{#FF0000}{出身普通的人，如何真正改变命运？}$
 - **如果你既努力，又焦虑**，特别适合加入超哥的知识星球，因为我经历过同样的阶段，而且最后找到了走出焦虑，靠近梦想的地方。
 - **如果你希望改变自己的生活状态**，欢迎加入超哥的知识星球，和我一起每日迭代，持续精进。
 
-### 星球如何定价？
-
-365元每年
-
-每天一元，给自己的成长持续加油💪
-
-为了回馈 JsonChao Github 的忠实用户，我申请了少量优惠券，先到者先得，错过再无
 
 <div align="center">
-<img src="https://mmbiz.qpic.cn/mmbiz_png/PjzmrzN77aAPxe8aibFBdkiaY9ldh9uQVxw0WFJ9TicCRlhZIFibIb2ex74hWel3DpkS46aX5vFlwuZXKTNMb2ZnHg/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" width=30%>
+<img src="https://user-images.githubusercontent.com/17464480/227224387-dc9c669a-0d9b-4a53-9fd2-e225071cce2f.png" width=50%>
 </div>
 
-
-## 公众号
-
-我的公众号 `JsonChao` 开通啦，专注于构建一套未来Android开发必备的知识体系。每个工作日为您推送高质量文章，让你每天都能涨知识。如果您想第一时间获取最新文章和最新动态，欢迎扫描关注~
-
-<div align="center">
-<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7da61f2739d34818be8a51a7afbbbb53~tplv-k3u1fbpfcp-watermark.image?" width=30%>
-</div>
 
 ### License
 
