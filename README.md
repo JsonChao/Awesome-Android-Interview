@@ -182,6 +182,15 @@ A awesome  android expert interview questions and answers
 - 59、[turbolearn ai](https://turbolearn-ai.com/) : AI-Powered Learning Assistant for Efficient Study
 - 60、[couple ai](https://couple-ai.com/) : AI-Powered Couple Photo Generator
 - 61、[remove bg video](https://removebgvideo.com/) : Remove Video Backgrounds Automatically — No Green Screen Needed
+- 62、[Hytale Calculator](https://hytalecalculator.com/): Crafting Materials, Recipe Costs, Loot Drop Odds, Gear & Stat Comparisons, and Build Planning - a fast, fan-made toolbox to help Hytale players theorycraft and prepare.
+- 63、[ai seedance 2.0](https://seedanceai2.org/):Create cinematic ads, product demos, and social-ready clips fast with Seedance 2.0 AI. Turn prompts or images into high-conversion videos, keep characters consistent, and publish campaigns today, fast.
+- 64、[ai seedream 5.0](https://aiseedream5.org/) : Create Stunning AI Content in Minutes
+- 65、[ai seedance 3.0](https://seedance3ai.net/) : helps creators turn prompts and images into polished AI videos with faster rendering, stable character consistency, smart style controls and production-ready outputs for social campaigns.
+- 66、[banana pro ai](https://banana-pro.ai/) : helps creators turn prompts and images into polished AI videos with faster rendering, stable character consistency, smart style controls and production-ready outputs for social campaigns.
+- 67、[awesome openclaw](https://aiopenclaw.app/) : OpenClaw Learning & Practice Platform
+- 68、[Sora Watermark Remover](https://removesorawatermark.video/) : Remove Sora Watermark Instantly & Free
+- 69、[veo 3.1 lite](https://veo31lite.org/) : generate cinematic AI videos faster
+- 70、[hd image converter](https://hdimageconverter.app/) : Enhance & Upscale Your Images Instantly
 
 ### License
 
